@@ -58,7 +58,8 @@
 #include "warden_hudless.h"
 #include "warden_lsfg.h"
 
-// libvulkan's own export: the runtime's vulkan_api.h declares no prototypes.
+// The loader's export as warden_vulkan_loader.cc defines it (PLAN 9.23): the loader the
+// game uses. The runtime's vulkan_api.h declares no prototypes.
 extern "C" VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
     VkInstance instance, const char* name);
 // Below: the frames generated between each two of the game's (0 without frame generation).

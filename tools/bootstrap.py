@@ -101,6 +101,11 @@ REPOS = [
     # GPL-3.0 the app is under cannot take.)
     ("libarchive", "https://github.com/libarchive/libarchive.git",
      "03036ffa409a2aa1c5bbad35be2202641a040fda", [], ["libarchive", "contrib/android"]),
+    # PLAN 9.23 (the owner, 2026-11-16; GitHub issue 4): an imported Vulkan driver package
+    # (Options -> Visual -> Experimental) - libadrenotools, BSD 2-Clause, with its linker
+    # namespace bypass.
+    ("libadrenotools", "https://github.com/bylaws/libadrenotools.git",
+     "8fae8ce254dfc1344527e05301e43f37dea2df80", ["lib/linkernsbypass"]),
 ]
 
 GAME_XEX_SHA1 = "532c0ec164f44bc8784cc0e8f6f67f72c1ed3751"

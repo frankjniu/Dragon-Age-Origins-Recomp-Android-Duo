@@ -74,7 +74,8 @@ extern "C" bool warden_pipeline_statistics_wanted();
 extern "C" void warden_pipeline_statistics(VkDevice device, VkPipeline pipeline,
                                            uint64_t vertex_shader, uint64_t pixel_shader);
 
-// libvulkan's own export: the runtime's vulkan_api.h declares no prototypes.
+// The loader's export as warden_vulkan_loader.cc defines it (PLAN 9.23): the loader the
+// game uses. The runtime's vulkan_api.h declares no prototypes.
 extern "C" VKAPI_ATTR void VKAPI_CALL vkGetPhysicalDeviceMemoryProperties(
     VkPhysicalDevice physical_device, VkPhysicalDeviceMemoryProperties* properties);
 extern "C" VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device,

@@ -23,11 +23,12 @@ final class Options {
     static final class Option {
         final String file;
         final String title;
-        final String[] values;
+        /** Fixed but for the Vulkan driver row's, the packages imported (VulkanDrivers). */
+        String[] values;
         /** The value as the panel's row shows it. */
-        final String[] labels;
+        String[] labels;
         /** A sentence on each value, under the panel's list. */
-        final String[] details;
+        String[] details;
         /** The value without a file. */
         final String defaultValue;
         /** Taken while the game runs; otherwise from the next start. */
@@ -345,6 +346,32 @@ final class Options {
                     "16x anisotropic filtering: the receding ground stays sharp, at no"
                             + " measurable cost.",
                 }),
+        // PLAN 9.23 (the owner, 2026-11-16; GitHub issue 4): what is still being tried, kept
+        // in a section of its own at the end of Visual, closed unless opened.
+        new Option("experimental", "Experimental", "closed", true,
+                new String[] {"closed", "open"},
+                new String[] {"Show", "Hide"},
+                new String[] {
+                    "Features still being tried: show them to choose.",
+                    "Features still being tried - each may not work on every device, and"
+                            + " may change or go.",
+                }).asSection(),
+        // The Vulkan driver the game runs on: the system's, or a driver package imported
+        // below (VulkanDrivers.java, warden_vulkan_loader.cc). Its values are the packages
+        // there are (VulkanDrivers.refresh). The device is made as the app opens, so from
+        // the app's next start.
+        new Option("vulkan-driver", "Vulkan driver", "system", false,
+                new String[] {"system"},
+                new String[] {"System"},
+                new String[] {VulkanDrivers.SYSTEM_DETAIL}).inGroup("experimental"),
+        new Option("vulkan-driver-import", "Import a driver package", "open", true,
+                new String[] {"open"},
+                new String[] {"Choose…"},
+                new String[] {VulkanDrivers.IMPORT_DETAIL}).asAction().inGroup("experimental"),
+        new Option("vulkan-driver-remove", "Remove the chosen driver", "open", true,
+                new String[] {"open"},
+                new String[] {"Remove"},
+                new String[] {""}).asAction().inGroup("experimental"),
         // Phase 7: which controller's labels the prompts show (warden_glyphs.cc); what
         // the buttons do never changes, only how they are drawn. The game takes them as it
         // starts - changed under it, its next load crashed (BUG-061).
@@ -623,6 +650,10 @@ final class Options {
             case "vignette":
             case "shader-math":
             case "anisotropic":
+            case "experimental":
+            case "vulkan-driver":
+            case "vulkan-driver-import":
+            case "vulkan-driver-remove":
                 return TAB_VISUAL;
             default:
                 return TAB_GAME;

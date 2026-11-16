@@ -400,7 +400,8 @@ if(NOT EXISTS "${FFX_SDK}/src/components/fsr3upscaler/ffx_fsr3upscaler.cpp")
         "The FidelityFX SDK is missing: ${FFX_SDK}\n"
         "Fetch it as THIRD_PARTY.md says (python tools/bootstrap.py does).")
 endif()
-if(NOT EXISTS "${FFX_SHADERS}/ffx_fsr3upscaler_accumulate_pass_permutations.h")
+if(NOT EXISTS "${FFX_SHADERS}/ffx_fsr3upscaler_accumulate_pass_permutations.h" OR
+   NOT EXISTS "${FFX_SHADERS}/backends/vk/ffx_vk.cpp")
     message(FATAL_ERROR
         "FSR 3.1's shader headers are missing: ${FFX_SHADERS}\n"
         "Run: python tools/build_fsr3_shaders.py")
@@ -411,7 +412,8 @@ add_library(warden_ffx OBJECT
     "${FFX_SDK}/src/components/fsr3upscaler/ffx_fsr3upscaler.cpp"
     "${FFX_SHADERS}/frameinterpolation/ffx_frameinterpolation.cpp"
     "${FFX_SDK}/src/components/opticalflow/ffx_opticalflow.cpp"
-    "${FFX_SDK}/src/backends/vk/ffx_vk.cpp"
+    # BUG-112: the backend with its memory type lookup patched (tools/build_fsr3_shaders.py).
+    "${FFX_SHADERS}/backends/vk/ffx_vk.cpp"
     "${FFX_SDK}/src/backends/shared/ffx_shader_blobs.cpp"
     "${FFX_SDK}/src/backends/shared/blob_accessors/ffx_fsr3upscaler_shaderblobs.cpp"
     "${FFX_SDK}/src/backends/shared/blob_accessors/ffx_frameinterpolation_shaderblobs.cpp"
@@ -481,6 +483,41 @@ target_include_directories(warden_lsfg PRIVATE
     "${XE_TP}/Vulkan-Headers/include")
 target_compile_options(warden_lsfg PRIVATE -O2 -fexceptions -frtti -Wno-unused-parameter)
 
+# --------------------------------------------------------------- an imported Vulkan driver (PLAN 9.23)
+# libadrenotools (third_party/libadrenotools, BSD 2-Clause - THIRD_PARTY.md): the system's
+# Vulkan loader opened again in a linker namespace of its own, where its driver is the one
+# the player imported (warden_vulkan_loader.cc). Only what a custom driver needs: the
+# library's driver.cpp with its namespace bypass, and its two hooks, which it loads by name
+# from the app's library folder - so they are shared libraries of their own, packaged
+# beside libwarden.so. Its own CMake also builds the BCn patcher and two other hooks the
+# app does not use.
+set(ADRENOTOOLS "${DAO_REPO_ROOT}/third_party/libadrenotools")
+if(NOT EXISTS "${ADRENOTOOLS}/lib/linkernsbypass/android_linker_ns.cpp")
+    message(FATAL_ERROR
+        "libadrenotools is missing: ${ADRENOTOOLS}\n"
+        "Fetch it as THIRD_PARTY.md says (python tools/bootstrap.py does).")
+endif()
+add_library(warden_linkernsbypass STATIC
+    "${ADRENOTOOLS}/lib/linkernsbypass/android_linker_ns.cpp"
+    "${ADRENOTOOLS}/lib/linkernsbypass/elf_soname_patcher.cpp")
+target_include_directories(warden_linkernsbypass PUBLIC "${ADRENOTOOLS}/lib/linkernsbypass")
+target_compile_options(warden_linkernsbypass PRIVATE -O2 -w)
+target_link_libraries(warden_linkernsbypass PUBLIC android dl)
+add_library(warden_adrenotools STATIC "${ADRENOTOOLS}/src/driver.cpp")
+target_include_directories(warden_adrenotools PUBLIC "${ADRENOTOOLS}/include"
+    PRIVATE "${ADRENOTOOLS}" "${ADRENOTOOLS}/src")
+target_compile_options(warden_adrenotools PRIVATE -O2 -w)
+target_link_libraries(warden_adrenotools PUBLIC warden_linkernsbypass android log)
+add_library(hook_impl SHARED "${ADRENOTOOLS}/src/hook/hook_impl.cpp")
+target_include_directories(hook_impl PRIVATE "${ADRENOTOOLS}/include")
+target_compile_options(hook_impl PRIVATE -O2 -w)
+target_link_libraries(hook_impl warden_linkernsbypass log)
+set_target_properties(hook_impl PROPERTIES CXX_VISIBILITY_PRESET hidden)
+add_library(main_hook SHARED "${ADRENOTOOLS}/src/hook/main_hook.c")
+target_compile_options(main_hook PRIVATE -O2 -w)
+target_link_options(main_hook PRIVATE "-Wl,-z,global")
+target_link_libraries(main_hook hook_impl)
+
 # --------------------------------------------------------------- the app's own code
 add_library(warden SHARED
     jni_bridge.cc
@@ -542,7 +579,10 @@ add_library(warden SHARED
     warden_memory_check.cc
     warden_dao_host.cc
     warden_extract.cc
+    warden_vulkan_loader.cc
     dao_frame_pacer_android.cc)
+# PLAN 9.23: the hooks built with the app (the driver loader finds them in its library folder).
+add_dependencies(warden hook_impl main_hook)
 
 target_include_directories(warden PRIVATE ${CMAKE_CURRENT_LIST_DIR})
 target_include_directories(warden PRIVATE "${FFX_SHADERS}" "${FFX_SDK}/include")
@@ -593,8 +633,12 @@ target_link_libraries(warden PRIVATE
     warden_libarchive
     libavcodec
     libavutil
-    # libvulkan is shared-only on Android; the loader is part of the platform.
-    vulkan
+    # PLAN 9.23: no libvulkan here - the loader is opened by warden_vulkan_loader.cc (the
+    # system's, or the one an imported driver package is tied to), and every Vulkan call
+    # goes through what it hands out. Linked, a call straight to the system loader's
+    # exports would take the system's driver whatever the player chose; unlinked, one is a
+    # link error.
+    warden_adrenotools
     # log for __android_log_*, android for ANativeWindow, aaudio for the sound output
     # (warden_audio.cc), z for the UI archive's atlas descriptions (warden_glyphs_apply.cc),
     # nativewindow for tagging the swapchain's buffers HDR10 (warden_gpu.cc, PLAN 9.2).

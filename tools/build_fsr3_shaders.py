@@ -28,6 +28,14 @@ when the flow runs at the display size, as the SDK's FSR 3 runs it; this port ru
 the render size (PLAN 9.14, warden_upscale.cc), and the pass then had half its threads
 reading outside the flow. The app compiles this copy in place of the SDK's.
 
+And build/fsr3-shaders/backends/vk/ffx_vk.cpp: the SDK's Vulkan backend, its memory type
+lookup (findMemoryTypeIndex) falling back to a host-visible device-local type when a
+resource asks for device-local memory and the device has no type that is that alone. The
+SDK passes over host-visible types then, to keep off a desktop GPU's small visible heap;
+Mesa's Turnip on the Adreno (PLAN 9.23, an imported driver) makes every device-local type
+host-visible, so FSR 3.1 found none and was never made (BUG-112). The app compiles this
+copy in place of the SDK's too.
+
 Output, in the layout the SDK's blob accessors
 (src/backends/shared/blob_accessors/ffx_<component>_shaderblobs.cpp) include:
 build/fsr3-shaders/ffx_<component>_<pass>[_wave64][_16bit]_permutations.h. Each header
@@ -378,6 +386,48 @@ def write_frame_interpolation_source():
               "sized by the flow")
 
 
+def write_vk_backend_source():
+    """The SDK's Vulkan backend, ffx_vk.cpp, its memory type lookup taking a host-visible
+    device-local type when the device has no other (see above)."""
+    original = SDK / "src" / "backends" / "vk" / "ffx_vk.cpp"
+    text = original.read_text(encoding="utf-8", errors="replace")
+    old = ("                return bestCandidate;\n"
+           "        }\n"
+           "    }\n"
+           "\n"
+           "    return bestCandidate;\n"
+           "}\n")
+    if text.count(old) != 1:
+        raise SystemExit("error: ffx_vk.cpp has moved; its memory type lookup is not where it was")
+    text = text.replace(old, (
+        "                return bestCandidate;\n"
+        "        }\n"
+        "    }\n"
+        "\n"
+        "    // tools/build_fsr3_shaders.py (BUG-112): on a device whose every device-local type\n"
+        "    // is also host-visible (Mesa's Turnip on the Adreno, a unified memory), the rule\n"
+        "    // above left none - the SDK's FFX_ERROR_BACKEND_API_ERROR, FSR 3.1 never made.\n"
+        "    // There is no invisible heap to prefer there: any device-local type is the one.\n"
+        "    if (bestCandidate == UINT32_MAX && requestedProperties == VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) {\n"
+        "        for (uint32_t i = 0; i < memProperties.memoryTypeCount; i++) {\n"
+        "            if ((memRequirements.memoryTypeBits & (1 << i)) && (memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT) &&\n"
+        "                !(memProperties.memoryTypes[i].propertyFlags & VK_MEMORY_PROPERTY_LAZILY_ALLOCATED_BIT)) {\n"
+        "                outProperties = memProperties.memoryTypes[i].propertyFlags;\n"
+        "                return i;\n"
+        "            }\n"
+        "        }\n"
+        "    }\n"
+        "\n"
+        "    return bestCandidate;\n"
+        "}\n"))
+    target = OUT / "backends" / "vk" / "ffx_vk.cpp"
+    target.parent.mkdir(parents=True, exist_ok=True)
+    if not target.exists() or target.read_text(encoding="utf-8") != text:
+        target.write_text(text, encoding="utf-8", newline="\n")
+        print("backends/vk/ffx_vk.cpp written, its memory type lookup taking a host-visible "
+              "device-local type when there is no other")
+
+
 def main():
     ap = argparse.ArgumentParser(description="FSR 3.1's shaders as SDK headers")
     ap.add_argument("--force", action="store_true")
@@ -395,6 +445,7 @@ def main():
     OUT.mkdir(parents=True, exist_ok=True)
     write_types_header()
     write_frame_interpolation_source()
+    write_vk_backend_source()
     includes = list(GPU_INCLUDE.rglob("*.h"))
     newest_input = max([p.stat().st_mtime for p in includes] +
                        [Path(__file__).stat().st_mtime])

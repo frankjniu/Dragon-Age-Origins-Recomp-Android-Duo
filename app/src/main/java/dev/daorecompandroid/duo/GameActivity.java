@@ -181,6 +181,10 @@ public final class GameActivity extends Activity {
         for (String cheat : new String[] {"cheat-immortal", "cheat-skills"}) {
             new java.io.File(getFilesDir(), cheat).delete();
         }
+        // PLAN 9.23: the imported driver packages (the Vulkan driver row's values), and the
+        // last start's guard - a start with one that never reached the game chooses the
+        // system's driver again - before the panel reads them and the runtime loads one.
+        VulkanDrivers.beforeStartup(getFilesDir());
         // PLAN 10.1: over everything, shown while open.
         optionsPanel = new OptionsPanel(this, getFilesDir(), root, optionsHost);
 
@@ -228,6 +232,9 @@ public final class GameActivity extends Activity {
         if (runtimeStarted) {
             NativeBridge.displayHdr(hdrPeakNits);
         }
+        // PLAN 9.23: which driver the device is on; a package that failed is unchosen.
+        VulkanDrivers.afterStartup(getFilesDir(), runtimeStarted,
+                getIntent() != null && getIntent().hasExtra("boot"));
 
         StringBuilder text = new StringBuilder();
         text.append(runtimeStarted
@@ -772,6 +779,8 @@ public final class GameActivity extends Activity {
                 appUpdate.cancel();
             }
             bootWanted = true;
+            // PLAN 9.23: on an imported driver, the guard until the game's frames are shown.
+            VulkanDrivers.armForLaunch(getFilesDir());
             optionsPanel.beginGame();
             Log.i(TAG, "launch: Launch Dragon Age chosen in the settings");
             bootWhenReady();
@@ -824,6 +833,18 @@ public final class GameActivity extends Activity {
                 return;
             }
             exportReport();
+        }
+
+        @Override
+        public void onImportDriver() {
+            try {
+                startActivityForResult(VulkanDrivers.pickIntent(),
+                        VulkanDrivers.REQUEST_DRIVER_ZIP);
+            } catch (Exception e) {
+                Log.e(TAG, "no document picker available", e);
+                VulkanDrivers.note = "This device has no file picker.";
+                optionsPanel.driversChanged();
+            }
         }
 
         @Override
@@ -1404,6 +1425,20 @@ public final class GameActivity extends Activity {
                 modsPage.onPicked(resultCode == RESULT_OK && data != null ? data.getData() : null,
                         requestCode == ModsPage.REQUEST_MOD_FOLDER);
             }
+            return;
+        }
+        if (requestCode == VulkanDrivers.REQUEST_DRIVER_ZIP) {
+            // PLAN 9.23: a driver package, unpacked off the main thread.
+            Uri uri = resultCode == RESULT_OK && data != null ? data.getData() : null;
+            if (uri == null) {
+                return;
+            }
+            VulkanDrivers.note = "Importing…";
+            optionsPanel.driversChanged();
+            new Thread(() -> {
+                VulkanDrivers.importZip(this, uri);
+                handler.post(() -> optionsPanel.driversChanged());
+            }, "driver import").start();
             return;
         }
         if (requestCode == SavesPage.REQUEST_SAVE_ZIP) {

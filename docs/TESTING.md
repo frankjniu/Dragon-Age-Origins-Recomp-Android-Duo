@@ -1440,6 +1440,64 @@ characters; the owner's are never moved.
   priority (realtime is refused) and times a paint-sized job on each ("priority probe:"
   lines). Remove the file after.
 
+### Imported Vulkan drivers (PLAN 9.23)
+
+The packages are libadrenotools' .zip packages (a `meta.json` naming the library, and the
+libraries). For a test they need not go through the picker: `tools/driver_matrix.py` puts a
+package where the app's import does (`files/drivers/<package>/`, the folder named from the
+package's `name` as `VulkanDrivers.idFor` makes it) and `files/vulkan-driver` holding that
+name chooses it. Copy a binary with `adb exec-in run-as dev.daorecompandroid.duo sh -c 'cat >
+<file>'`, never `adb shell` (its standard input mangled an 18 MB library to 1,136 bytes), and
+check the size after: `exec-in` can return before the device's `cat` has written the last of
+it (`driver_matrix.py` waits for the size).
+
+What the log says (logcat, tag `warden`, and libadrenotools' own `hook_impl`):
+
+- `Vulkan driver: system's (no package chosen)` - the system's loader, as before 9.23.
+- `Vulkan driver: opening the package <name> - ...`, `hook_impl: hook_android_dlopen_ext:
+  loading custom driver: .../files/drivers/<name>/<library>`, then `Vulkan driver: imported:
+  ...` and `Vulkan device ready: <the driver's device name>` (Turnip names itself
+  `Turnip Adreno (TM) 740` or `PurpleVK-public Adreno (TM) 740`; Qualcomm's say `Adreno (TM)
+  740` - the device report's `driver version` tells them apart: the Thor's own is
+  `0x802A4035`, v676.53).
+- `hook_impl: ... hook failed: failed to load custom driver: dlopen failed: ...` - the package
+  cannot load on this Android, and the hook loads the system's driver in its place; the
+  app finds that (`Vulkan driver: the package ...'s library is not loaded`), writes `failed`
+  to `files/vulkan-driver-status` and chooses System again (BUG-120).
+- `Vulkan driver: the game is running on <name> - the start's guard cleared` at the game's
+  300th frame: `files/vulkan-driver-trying` removed. That file still there at the next start
+  means the last start did not get there; the launcher chooses System and says so. A start
+  that needs to test the guard: write the package's name into `files/vulkan-driver-trying`
+  and open the app from the icon.
+
+**The driver matrix** (session 47, `docs/DRIVERS.md`): `tools/driver_matrix.py` boots the
+ostagar route once per driver and combination with `tools/measure_ostagar.sh`, the options
+set first (Frame rate 120 - uncapped -, 1280x720, Dynamic shadows and Corner vignette on,
+Shader math exact, Texture filtering 16x; FSR 3.1 off with each of the four upscalers, and
+Quality, Balanced and Performance; frame generation off, Lossless 2x, and FSR 3.1 2x with
+FSR 3.1 on), and appends each run to `docs/data/vulkan-drivers/matrix.csv` with its lines in
+`docs/data/vulkan-drivers/run<N>.txt`. `--interleave` measures every driver for one
+combination before the next, so the handheld's warming over hours falls on each alike.
+Every run records the size the game rendered at and the size it was upscaled to, by what
+(`render_resolution`, `output_resolution`, `upscaled_by`; and `fg_resolution`, the size frame
+generation worked at), from its log: FSR 3.1's `the upscaler is made - 960x540 to 1920x1080`,
+or without it the presenter's `guest frame N refreshed (1280x720, ...)` and
+`VulkanPresenter: Created 1920x1080 swapchain`; Lossless 2x's `the generator is up in N ms -
+WxH`, FSR 3.1 2x's `frames put together at WxH`. `python tools/driver_matrix.py --reparse`
+makes every row of the CSV again from the runs' logs in `build/` (and the resolutions line at
+the top of each `run<N>.txt`) - session 47's runs were taken before those columns and made
+again so. `--reparse` takes every measure from the log and from `measure_ostagar.sh`'s output
+kept in `run<N>.txt`, and keeps only each row's first ten columns, so a CSV whose rows ran
+past its header comes back whole. A run refuses to append under another version's header
+(BUG-121). `--shots` also saves the main screen at the camp as `build/shot<N>.png`
+(`measure_ostagar.sh`'s `SHOT=<file>`; it looks the main display's id up). The warm checks'
+screenshots, made JPEG, are in `docs/data/vulkan-drivers/`. Check that a faster driver draws
+the same picture before trusting its numbers. `python tools/driver_report.py` prints the
+tables `docs/DRIVERS.md` holds.
+`bash tools/route.sh ostagar` first and `bash tools/route.sh off` after; the owner's
+option files are put back from what was saved before (session 47:
+`build/options-before-9.23.txt`).
+
 ### PC mods and the converter (Phase 10)
 
 - **The layers (10.12):** a mod folder holding a copy of a game file (a patch .tlk, an

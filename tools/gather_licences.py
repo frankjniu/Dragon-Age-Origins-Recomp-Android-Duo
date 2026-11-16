@@ -114,6 +114,11 @@ COMPONENTS = [
            "\"Igor Pavlov : Public domain\"."),
     ("libarchive", "libarchive", "BSD 2-Clause", "unpacking .rar mods (RAR 4 and RAR 5)",
      "v3.8.11", "https://github.com/libarchive/libarchive", TP / "libarchive" / "COPYING"),
+    # PLAN 9.23: an imported Vulkan driver package, loaded in a linker namespace of its own.
+    ("libadrenotools", "libadrenotools (with liblinkernsbypass)", "BSD 2-Clause",
+     "loading a Vulkan driver package you import (Options -> Visual -> Experimental)",
+     "commit 8fae8ce2", "https://github.com/bylaws/libadrenotools",
+     TP / "libadrenotools" / "LICENSE"),
     # PLAN 12.6: what the app makes the game's code with on the device.
     ("llvm", "LLVM (clang, lld, compiler-rt's builtins, libunwind)",
      "Apache-2.0 WITH LLVM-exception",

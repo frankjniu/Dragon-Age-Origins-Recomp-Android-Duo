@@ -1,0 +1,64 @@
+run 833 - driver Balemuni Apex v2 ULTIMATE (SD 8 Gen 2 · Adreno 6xx/7xx/8xx · Android 13+) [b9a2bf3] (balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx), bilinear+off (fsr3 off, upscaling bilinear, frame generation off)
+resolutions: rendered at 1280x720, upscaled to 1920x1080 by Bilinear (presenter); frame generation at (off)
+settings: {"frame-rate": "120", "resolution": "1280x720", "shadows": "on", "vignette": "on", "shader-math": "exact", "anisotropic": "16", "vulkan-driver": "balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx", "fsr3": "off", "upscaling": "bilinear", "frame-generation": "off"}
+
+measure_ostagar.sh:
+explore at Ostagar: 18:10:50
+18:11:06 gpu busy 72 % clock 475000000 cpu7 2092800 cpu4 2054400 temp 54800
+18:11:07 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 1651200 temp 55200
+18:11:08 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 1651200 temp 55600
+18:11:09 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 55200
+18:11:11 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 56000
+18:11:12 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 54400
+18:11:13 gpu busy 73 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 54400
+18:11:14 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 1920000 temp 55600
+18:11:16 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 1651200 temp 55200
+18:11:17 gpu busy 71 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 55600
+18:11:18 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 55600
+18:11:19 gpu busy 71 % clock 475000000 cpu7 1843200 cpu4 1651200 temp 55600
+18:11:20 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 55600
+18:11:22 gpu busy 71 % clock 475000000 cpu7 1843200 cpu4 1651200 temp 54800
+18:11:23 gpu busy 71 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 55200
+18:11:24 gpu busy 72 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 54000
+18:11:25 gpu busy 71 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 55200
+18:11:27 gpu busy 71 % clock 475000000 cpu7 1843200 cpu4 2054400 temp 55600
+18:11:28 gpu busy 71 % clock 475000000 cpu7 2092800 cpu4 2054400 temp 55600
+18:11:29 gpu busy 71 % clock 475000000 cpu7 1843200 cpu4 1651200 temp 55200
+Ostagar: 23.9 swaps/s over the last 5 status lines, 1302 draws a frame
+
+log lines:
+11-16 18:08:47.130 10171 10171 I hook_impl: hook_android_load_sphal_library: filename: vulkan.adreno.so
+11-16 18:08:47.130 10171 10171 I hook_impl: hook_android_dlopen_ext: filename: vulkan.adreno.so
+11-16 18:08:47.131 10171 10171 I hook_impl: hook_android_dlopen_ext: loading custom driver: /data/user/0/dev.daorecompandroid.duo/files/drivers/balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx/vulkan.freedreno.so
+11-16 18:08:47.166 10171 10171 I Warden  : startup() = true in 49 ms
+11-16 18:08:47.167 10171 10171 I Warden  : vulkan driver: the game's device is on the package balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx
+11-16 18:08:47.228 10171 10216 I warden  : i> 000027BB Vulkan driver: opening the package balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx - Balemuni Apex v2 ULTIMATE (SD 8 Gen 2 \u00b7 Adreno 6xx/7xx/8xx \u00b7 Android 13+) [b9a2bf3] (Mesa (Balemuni Apex Edition), 26.3.0-devel-kgsl-apex-v2-b9a2bf3), vulkan.freedreno.so from /data/user/0/dev.daorecompandroid.duo/files/drivers/balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx/, the hooks from /data/app/~~jP0jExfZj4dxLSrvo_a9Yg==/dev.daorecompandroid.duo-M4rGMyLtDlsg7Pw4BUjHag==/lib/arm64/
+11-16 18:08:47.228 10171 10216 I warden  : i> 000027BB Vulkan driver: imported: Balemuni Apex v2 ULTIMATE (SD 8 Gen 2 \u00b7 Adreno 6xx/7xx/8xx \u00b7 Android 13+) [b9a2bf3] (Mesa (Balemuni Apex Edition), 26.3.0-devel-kgsl-apex-v2-b9a2bf3) (files/drivers/balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx)
+11-16 18:08:47.229 10171 10216 I warden  : i> 000027BB Vulkan device ready: Turnip Adreno (TM) 740
+11-16 18:08:47.929 10171 10216 I warden  : i> 000027BB VulkanPresenter: Created 1920x1080 swapchain with format 37, color space 0, presentation mode 1
+11-16 18:08:47.930 10171 10216 I warden  : i> 000027BB GPU: frame rate 120 where the GPU keeps up
+11-16 18:08:47.930 10171 10216 I warden  : i> 000027BB VulkanPresenter: Created 1920x1080 swapchain with format 64, color space 0, presentation mode 1
+11-16 18:08:49.044 10171 10216 I warden  : i> 00002851 Frame generation: off
+11-16 18:08:49.045 10171 10216 I warden  : i> 00002851 FSR 3.1: off
+11-16 18:08:49.258 10171 10216 I warden  : i> 00002851 FSR 3.1: not upscaling - off (frame 1, 0 upscaled so far)
+11-16 18:08:49.259 10171 10216 I warden  : i> 000028BA Saved 19613 bytes of VkPipelineCache data, 2 pipelines (0 ms, on its own thread)
+11-16 18:08:50.234 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 10 (movie)
+11-16 18:08:52.893 10171 10216 I warden  : i> 00002853 Vulkan driver: the game is running on balemuni-apex-v2-ultimate-sd-8-gen-2-adreno-6xx - the start's guard cleared
+11-16 18:08:59.272 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 8 (pregame)
+11-16 18:09:19.265 10171 10216 I warden  : i> 00002EEF Saved 195453 bytes of VkPipelineCache data, 29 pipelines (2 ms, on its own thread)
+11-16 18:09:49.270 10171 10216 I warden  : i> 000034F4 Saved 207013 bytes of VkPipelineCache data, 35 pipelines (1 ms, on its own thread)
+11-16 18:09:54.742 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 9 (loading)
+11-16 18:09:57.503 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 0 (explore)
+11-16 18:09:57.717 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 4 (conversation)
+11-16 18:10:19.277 10171 10216 I warden  : i> 00003AFB Saved 709373 bytes of VkPipelineCache data, 56 pipelines (2 ms, on its own thread)
+11-16 18:10:28.712 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 9 (loading)
+11-16 18:10:32.630 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 4 (conversation)
+11-16 18:10:49.289 10171 10216 I warden  : i> 00004134 Saved 2040981 bytes of VkPipelineCache data, 97 pipelines (4 ms, on its own thread)
+11-16 18:10:50.772 10171 10216 I warden  : i> 00002861 [Eclipse::Update] game: mode is now 0 (explore)
+11-16 18:11:04.224 10171 10216 I warden  : i> 00002853 frames: present: 100 frames, interval ms mean 50.1 p50 46.6 p95 47.8 p99 48.1 max 411.5, 1% low 2.4 fps, in refreshes (8.33 ms): 5x12 6x87 8+x1; title: 100 frames, interval ms mean 50.1 p50 46.5 p95 48.5 p99 49.4 max 410.3, 1% low 2.4 fps, in 60 Hz vblanks (16.67 ms): 3x99 8+x1
+11-16 18:11:09.226 10171 10216 I warden  : i> 00002853 frames: present: 119 frames, interval ms mean 41.8 p50 41.8 p95 43.3 p99 46.4 max 47.3, 1% low 21.1 fps, in refreshes (8.33 ms): 5x116 6x3; title: 120 frames, interval ms mean 41.8 p50 41.5 p95 44.0 p99 46.5 max 47.5, 1% low 21.1 fps, in 60 Hz vblanks (16.67 ms): 2x62 3x58
+11-16 18:11:14.228 10171 10216 I warden  : i> 00002853 frames: present: 120 frames, interval ms mean 41.7 p50 41.7 p95 43.0 p99 43.2 max 43.3, 1% low 23.1 fps, in refreshes (8.33 ms): 5x120; title: 120 frames, interval ms mean 41.7 p50 41.5 p95 43.7 p99 44.5 max 44.5, 1% low 22.5 fps, in 60 Hz vblanks (16.67 ms): 2x63 3x57
+11-16 18:11:19.308 10171 10216 I warden  : i> 0000474B Saved 2303797 bytes of VkPipelineCache data, 109 pipelines (4 ms, on its own thread)
+11-16 18:11:19.466 10171 10216 I warden  : i> 00002853 frames: present: 125 frames, interval ms mean 41.9 p50 41.9 p95 43.0 p99 43.2 max 43.3, 1% low 23.1 fps, in refreshes (8.33 ms): 5x125; title: 125 frames, interval ms mean 41.9 p50 41.8 p95 44.0 p99 44.4 max 45.1, 1% low 22.2 fps, in 60 Hz vblanks (16.67 ms): 2x54 3x71
+11-16 18:11:24.469 10171 10216 I warden  : i> 00002853 frames: present: 120 frames, interval ms mean 41.8 p50 41.9 p95 42.8 p99 43.0 max 43.0, 1% low 23.2 fps, in refreshes (8.33 ms): 5x120; title: 119 frames, interval ms mean 41.8 p50 41.6 p95 43.6 p99 43.9 max 44.4, 1% low 22.5 fps, in 60 Hz vblanks (16.67 ms): 2x64 3x55
+11-16 18:11:29.471 10171 10216 I warden  : i> 00002853 frames: present: 119 frames, interval ms mean 42.1 p50 42.2 p95 43.2 p99 44.2 max 44.8, 1% low 22.3 fps, in refreshes (8.33 ms): 5x119; title: 119 frames, interval ms mean 42.1 p50 42.1 p95 44.4 p99 45.2 max 45.4, 1% low 22.0 fps, in 60 Hz vblanks (16.67 ms): 2x46 3x73

@@ -57,7 +57,8 @@
 // warden_frame_generation.cc: the frames generated between each two of the game's.
 extern "C" uint32_t warden_frame_generation_count();
 
-// libvulkan's own export: the runtime's vulkan_api.h declares no prototypes.
+// The loader's export as warden_vulkan_loader.cc defines it (PLAN 9.23): the loader the
+// game uses. The runtime's vulkan_api.h declares no prototypes.
 extern "C" VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetDeviceProcAddr(VkDevice device,
                                                                        const char* name);
 

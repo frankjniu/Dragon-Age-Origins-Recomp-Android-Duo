@@ -37,6 +37,7 @@ void RequestCheat(const std::string& name, const std::string& value);
 #include "warden_options.h"
 #include "warden_suspend.h"
 #include "warden_thermal.h"
+#include "warden_vulkan_loader.h"
 #include "xenia/base/logging.h"
 #include "xenia/ui/vulkan/vulkan_device.h"
 #include "xenia/ui/vulkan/vulkan_instance.h"
@@ -275,10 +276,18 @@ bool Runtime::Startup(const std::string& data_dir) {
   device_lines_ = CheckMemory(*memory_);
   device_lines_ += "\n";
 
+  // PLAN 9.23: the Vulkan loader the provider's instance takes - the system's, or an
+  // imported driver package's (Options -> Visual -> Experimental -> Vulkan driver).
+  vulkan_loader::Prepare(data_dir_);
+
   // with_presentation is true, unlike the Phase 3.2 command-line probe: there is a
   // real window now, so the instance needs VK_KHR_surface, VK_KHR_android_surface and
   // VK_EXT_swapchain_colorspace enabled.
   provider_ = xe::ui::vulkan::VulkanProvider::Create(true, true);
+  // PLAN 9.23: whether a chosen package is the driver the device came from.
+  vulkan_loader::Verify();
+  Linef(device_lines_, "VULKAN DRIVER");
+  Linef(device_lines_, "  %s", vulkan_loader::Describe().c_str());
   if (!provider_) {
     XELOGE("VulkanProvider::Create failed - this device cannot run Xenos emulation");
     device_lines_ +=

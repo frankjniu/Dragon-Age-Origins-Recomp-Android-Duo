@@ -83,6 +83,8 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-058](#bug-058) | upstream (Xenia) | low | **FIXED** | Xenia's timer queue and log writer spin-wait: about 10% of one core each. Now they nap while the game is held or not yet started (the launcher); in play they spin as before |
 | [BUG-059](#bug-059) | upstream (Xenia) / our runtime | low | **FIXED** | With no Vulkan instance the boot went on, and crashed in the command processor's constructor |
 | [BUG-079](#bug-079) | our runtime | medium | **FIXED** | The guest output captures, a debugging aid, ran in every session: a 4 MB PNG of the screen every minute of play, never removed (about 240 MB an hour in the app's files directory), each with a GPU readback and a PNG encode |
+| [BUG-121](#bug-121) | our tools (`driver_matrix.py`) | low | **FIXED** | The driver matrix's rows were written with more columns than its CSV's header (a newer version appending to an older one's file): read back, four columns ran past the header and the note and the FSR 3.1 and frame generation states were lost |
+| [BUG-120](#bug-120) | libadrenotools / our runtime (PLAN 9.23) | medium | **FIXED** (found) | A chosen driver package that cannot load on the device (Turnip T29, Qualcomm 849 on Android 13) was reported as loaded: the hook loads the system's driver in its place, silently. The app now checks the process's maps and says so |
 | [BUG-119](#bug-119) | our runtime and app / the title's render thread | high | **FIXED** | Put away (the lid, the lock), the game kept a core busy: the render thread spun on a flag a held thread sets in half the lid-closes in play (93% of a core); the XMA decoder, the deck and the touch check polled on. Held by signal, the polls stopped: 1.4-1.7% of a core |
 | [BUG-118](#bug-118) | our tools (`push_gamecode.py`) | low | **FIXED** | A pushed game code's manifest was never written: the launcher asked for Build again after every push |
 | [BUG-117](#bug-117) | our runtime / the title's waits | medium | **FIXED** | High temperatures (issue #2): the title's waits spin - the main thread's Sleep(0) hand-off and the render thread's GPU fence wait - and the guest trace costs every function's entry. Options -> Heat guard's rests sleep instead, no frame rate lost: the hottest big core 9.5-25 C cooler (the guest trace only in Debugging Mode) |
@@ -90,7 +92,7 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-115](#bug-115) | our app (the deck's Map tab, PLAN 8.4) | medium | **FIXED** | The deck's map was upside down against the game's map screen in every area whose North is 1 or 3 (the King's Camp): it was turned anticlockwise, the game turns clockwise |
 | [BUG-114](#bug-114) | our app (the update, PLAN 13.1) | high | **FIXED** (0.1.5-alpha) | The launcher's update failed after Android's Install: the launcher, back in front, abandoned the session Android was installing - "the install was cancelled". In 0.1.2 to 0.1.4; mostly fails, sometimes wins |
 | [BUG-113](#bug-113) | our runtime (FSR 3.1's composite, frame generation's UI paste) | medium | **FIXED** | With FSR 3.1 the upper corners of the world juddered: the game's corner vignette, drawn after the capture, counted as UI, so the corners showed the jittered render-size frame |
-| [BUG-112](#bug-112) | our runtime (FSR 3.1) / a replaceable driver, dropped | medium | **FIXED** (the fallback); the driver work dropped | With FSR 3.1 chosen on a device where its upscaler cannot be made, the jitter stayed on: the whole world juddered under a still HUD. Found with Mesa's Turnip, which the owner then dropped |
+| [BUG-112](#bug-112) | our runtime (FSR 3.1) / FSR 3.1's SDK on a unified-memory driver | medium | **FIXED** (session 47: the cause) | With FSR 3.1 chosen on a device where its upscaler cannot be made, the jitter stayed on: the whole world juddered under a still HUD. The upscaler was never made on Mesa's Turnip: the SDK's memory type lookup passes over host-visible types for device-local memory, and Turnip's are all host-visible - the SDK patched (PLAN 9.23) |
 | [BUG-111](#bug-111) | our app (the update, PLAN 13.1) | medium | **FIXED** | Before it shipped: cancelling Android's first install dialog left the launcher's row on Installing for good, ignoring taps |
 | [BUG-110](#bug-110) | our app (the deck, PLAN 8.1) | medium | **FIXED** | Back from sleep, the deck could be missing: the game came back before the second screen, the one try found no display on, and only a new start brought it back |
 | [BUG-109](#bug-109) | the device's firmware (AYN Thor) / our app | high | **FIXED** (BUG-116) | The game's sound did not follow Android's media volume: audible with the media volume at 0. The app now applies the volume itself, on AYN devices |
@@ -3030,6 +3032,47 @@ The game code's ABI is unchanged (no override was added): no Build again.
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
 
+## BUG-121
+**The driver matrix's rows ran past its CSV's header**
+our tools (`tools/driver_matrix.py`, PLAN 9.23) · severity low · **FIXED** session 47
+
+**What it looked like:** after the full matrix (runs 765-832), `driver_report.py` found none of its
+rows. `--reparse` had read each row's temperature as its note, and the FSR 3.1 and frame generation
+states were gone.
+
+**Cause.** `matrix.csv` was first written by the version before the resolution columns. The matrix
+ran with the newer version, which writes four more columns per row and appended them under the old
+header. Read back, the last four values of each row had no column.
+
+**Fixed.**
+- `--reparse` now makes every measure again from the run's log and from `measure_ostagar.sh`'s
+  output kept in `run<N>.txt`. It keeps only the run's own first ten columns, and takes a row's
+  note from the values that ran past the header.
+- A run now refuses to append to a file whose header is not its own.
+- The matrix rows' note ("full matrix", the command's own) was put back by hand once. Every
+  other value comes from the logs.
+
+## BUG-120
+**A driver package that cannot load was reported as loaded**
+libadrenotools / our runtime (`warden_vulkan_loader.cc`, PLAN 9.23) · severity medium · **FIXED**
+session 47
+
+**What it looked like** (runs 748, 755): Turnip T29 (Mr_Purple_666) and Qualcomm 849 chosen,
+the log said `Vulkan driver: imported: ...` and the game ran - on the system's driver: the
+device's `driver version` was the Thor's own `0x802A4035`.
+
+**Cause.** libadrenotools' hook loads the package's library when the loader asks for the
+driver; when that fails it loads the system's driver instead and says so only in its own log
+(`hook_impl: ... hook failed: failed to load custom driver: dlopen failed: cannot locate symbol
+"pthread_getaffinity_np"` - T29 needs Android 14's libc; `library
+"android.hardware.graphics.allocator-V2-ndk.so" not found` for 849). The handle it returns is
+good either way.
+
+**Fixed.** After the device is made, `vulkan_loader::Verify` looks for the package's folder
+in `/proc/self/maps`; not there, the device report says the system's driver ran in its place,
+`files/vulkan-driver-status` says `failed`, and the launcher chooses System again with a note
+(run 757).
+
 ## BUG-117
 **High temperatures during play (issue #2)**
 Our runtime (`warden_threads.cc`, `warden_trace.cc`) and the title's own waits · severity medium ·
@@ -3254,7 +3297,7 @@ border colour, and the generator's sources padded by 96 px (both reverted).
 ## BUG-112
 **With FSR 3.1 chosen but its upscaler not made, the whole world juddered**
 Our runtime (`warden_upscale.cc`) · severity medium · **FIXED** (the fallback) session 43;
-the driver loading it was found with dropped
+the cause found and fixed session 47 (PLAN 9.23)
 
 **What it looked like** (the owner, 2026-11-03): with Mesa's Turnip loaded as the game's Vulkan
 driver (a feature built this session and then dropped - DECISIONS D16), the world shook
@@ -3274,6 +3317,20 @@ that followed: Turnip ran the game about 16 ms a frame slower than the system dr
 resolution, with no host waits and the GPU 78% busy, which is its serializing of Xenia's ~57
 render passes and ~115 barriers a frame; dropping the buffer barriers gained 2.3 ms, no more.
 The owner dropped the custom-driver feature on that.
+
+**The cause** (session 47, runs 746-747, the driver feature back as PLAN 9.23): the SDK's error
+was `8000000D`, `FFX_ERROR_BACKEND_API_ERROR`, with no Vulkan call failing (`FfxLogged` logged
+none). Its memory type lookup (`findMemoryTypeIndex` in `ffx_vk.cpp`), asked for device-local
+memory alone, passes over every host-visible type to keep off a desktop GPU's small visible
+heap - and Turnip on the Adreno, a unified memory, makes every device-local type host-visible
+(types 7, F, B, and 11 lazily allocated): none was left. `tools/build_fsr3_shaders.py` now
+writes the backend with a fallback to a host-visible device-local type when there is no
+other, compiled in place of the SDK's. On Turnip T30 with FSR 3.1 Performance and its frame
+generation: the upscaler 4.23 GPU ms a frame, the frame generation 8.10 (run 747). The system's
+driver has a device-local type that is not host-visible and takes the path it always did.
+Also behind it in 2026-11-03's build: the SDK's direct calls (`vkGetPhysicalDeviceMemoryProperties`
+and four others) went to the system loader's exports with the other loader's physical device;
+they go to the game's loader now (`warden_vulkan_loader.cc`).
 
 ## BUG-111
 **The update row stuck on Installing after a cancel**

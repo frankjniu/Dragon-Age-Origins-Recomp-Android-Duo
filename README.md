@@ -319,6 +319,10 @@ setting's description in the panel matches the table.
 | Corner vignette | **On** · Off | *On:* The game's own: the corners of the picture darkened in play.<br>*Off:* The corners as bright as the rest of the picture. Takes effect at once. |
 | Shader math \* | **Exact** · Fast | *Exact:* The Xbox 360's own arithmetic: zero times anything is zero.<br>*Fast:* The handheld GPU's own multiplication: much less work in the heaviest shaders (the King's Camp with Lossless 2x, balanced: 27 -> 30 fps, its cap; uncapped without frame generation 37 -> 42). Not exact - where the game multiplies zero by infinity, a pixel can come out wrong. |
 | Texture filtering \* | The game's own · 4x · 8x · **16x** | *The game's own:* The game's own filtering: the ground blurs as it recedes.<br>*4x:* 4x anisotropic filtering.<br>*8x:* 8x anisotropic filtering.<br>*16x:* 16x anisotropic filtering: the receding ground stays sharp, at no measurable cost. |
+| Experimental | **Show** · Hide | A section: features still being tried, which may not work on every device. Show opens the three rows below. |
+| &nbsp;&nbsp;&nbsp;Vulkan driver \* | **System** · each package imported | *System:* The handheld's own Vulkan driver, the one the game is tested with.<br>*A package:* A Vulkan driver you imported (below) - Mesa's Turnip, or a Qualcomm driver taken from another device. **From the app's next start** (close the app and open it again): the GPU is set up as the app opens. If a start with it does not reach the game, the next start goes back to System by itself and says so; a package that cannot be loaded on the device is reported, and System is used. |
+| &nbsp;&nbsp;&nbsp;Import a driver package | **Choose…** | Opens the file picker for a driver package: a .zip with a `meta.json` and the driver's libraries, as Adrenotools and the emulators that use it take (for Adreno GPUs). It is copied into the app's storage and chosen. In the launcher only. |
+| &nbsp;&nbsp;&nbsp;Remove the chosen driver | **Remove** | Deletes the package chosen in the Vulkan driver row from the app's storage, and chooses System. In the launcher only. |
 | Button prompts \* | **Xbox** · Nintendo · PlayStation | *Xbox:* A at the bottom, B on the right.<br>*Nintendo:* B at the bottom, A on the right.<br>*PlayStation:* ✕ at the bottom, ○ on the right. |
 | Intro logos \* | **Shown** · Skipped | *Shown:* The EA, BioWare and Edge of Reality logos as the game starts.<br>*Skipped:* Straight to the title screen. |
 | Autosave when put away | **Off** · On | *Off:* Put away, the game holds where it is; if Android closes it in the background, progress since the last save is lost.<br>*On:* Put away while exploring, the game makes its own autosave first (about 2.5 s), then holds. |
@@ -342,7 +346,8 @@ setting's description in the panel matches the table.
 | Cheat: add experience | +1,000 XP · **+5,000 XP** · +20,000 XP · +100,000 XP | Choose the amount; the confirm button or a tap on the name gives it. |
 
 The settings are on these tabs:
-- **Visual:** Frame rate to Texture filtering - the picture, its size and its frame rate.
+- **Visual:** Frame rate to Texture filtering - the picture, its size and its frame rate -
+  and, at its end, the **Experimental** section (the Vulkan driver).
 - **Audio:** Headphones and Volume boost.
 - **Performance:** Heat guard and the Performance tab/overlay.
 - **Game:** Button prompts, Intro logos, the autosave, Second screen, Debugging Mode, the
@@ -358,6 +363,25 @@ Some rows depend on the device or the moment:
   profile picks the render size and does the upscaling.
 - **Frame generation → FSR 3.1 2x** needs FSR 3.1 on.
 - **Frame generation → Lossless** needs `Lossless.dll` in place.
+- **Vulkan driver** takes effect at the app's next start, not the game's: the GPU is
+  set up as the app opens. Packages are imported and removed in the launcher only.
+
+### Imported Vulkan drivers (experimental)
+
+Visual → **Experimental** loads a Vulkan driver package in place of the handheld's own, as
+Android emulators do with Adrenotools - without root, for this app only. It is for Adreno
+GPUs, and for trying: the game is tested on the system's driver, and a driver from elsewhere
+can be slower, draw wrongly or fail to start. Your system's driver is never changed; choosing
+**System** (or Remove) puts everything back.
+
+On the AYN Thor (Adreno 740, Android 13), 6 drivers were measured with every upscaling and
+frame generation choice at the King's Camp:
+- **StevenMXZ's Turnip v27.0.0-R2** (from the Adreno-Tools-Drivers releases) was about 10%
+  faster than the system's driver, and drew the same picture. With Lossless 2x it was slower.
+- **The other Turnip builds tried** were 25-45% slower.
+- **Qualcomm's newer drivers** were as fast as the system's.
+
+Every number is in [`docs/DRIVERS.md`](docs/DRIVERS.md).
 
 ---
 

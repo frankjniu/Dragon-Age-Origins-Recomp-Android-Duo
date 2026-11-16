@@ -303,7 +303,45 @@ shows both, with the commit.
 
 ---
 
-## D16 — No replaceable Vulkan driver (2026-11-03)
+## D17 — Imported Vulkan drivers, as an experimental option (2026-11-16)
+
+Issue #4 asked for custom Adreno drivers through libadrenotools. **The owner had it built,
+behind a collapsed Experimental section on the Visual tab.** It keeps D16's finding that no
+imported driver is a default.
+
+What was built:
+
+- **Options -> Visual -> Experimental -> Vulkan driver.** System is the default. The player
+  imports a driver package (an AdrenoTools `.zip`: `meta.json` and the library) with
+  **Choose…**, picks one, and takes it off with **Remove**. All of this works in the launcher
+  only, and a choice takes effect from the app's next start.
+- **The loader.** The app no longer links `libvulkan`. `warden_vulkan_loader.cc` opens the
+  package's driver through libadrenotools (pinned in `tools/bootstrap.py`) and forwards the 8
+  Vulkan symbols the app imported.
+- **Driver-specific files.** The pipeline cache is kept per driver.
+- **Checks on a driver that won't run:**
+  - `/proc/self/maps` shows whether the package really loaded (BUG-120).
+  - A guard file chooses System again after a start that crashes or hangs before the game's
+    300th frame.
+- **FSR 3.1 on Turnip.** FSR 3.1's SDK is patched so it can make its upscaler on Turnip
+  (BUG-112).
+
+Measured over all 17 upscaling and frame generation combinations on 6 drivers
+(`docs/DRIVERS.md`):
+
+- **StevenMXZ's Turnip v27.0.0-R2** is 9-14% faster than the system's driver without frame
+  generation and with FSR 3.1 2x, and draws the camp alike. It is 6% slower with Lossless 2x.
+- **Qualcomm's newer drivers** match the system's. Lossless 2x is slower on them too.
+- **The other Turnip builds** (T30, v26.0.0 R8, Balemuni Apex v2) run at 55-80% of the
+  system's speed: the GPU part idle at a low clock, D16's finding.
+
+So System stays the default: it is the driver the game is tested on, and the best one for
+Lossless 2x. The option stays experimental, with a faster driver there for the player to try.
+
+## D16 — No replaceable Vulkan driver (2026-11-03) - superseded by D17
+
+**Superseded (the owner, 2026-11-16):** D17 brings the loading of a driver package back, as an
+experimental option. The record below is kept as it was decided.
 
 The owner asked for the loading of a custom Vulkan driver (Mesa's Turnip builds, as
 BOTWRecompAndroid and emulators offer), it was built and tested on the debug app, and then

@@ -11,6 +11,8 @@
 # records 15 s with simpleperf (call graphs and off-CPU time, the NDK's arm64 binary)
 # and writes per-thread reports to build/perf<run>/. The log goes to build/run<run>.log,
 # and the swaps per second over the last five `GPU:` status lines are printed.
+# SHOT=<file.png> also saves the main screen at the camp after the samples (session 47:
+# each driver's picture, to see it draws the scene as the system's does).
 #
 # Reference numbers (2026-10-25): the debug APK with the runtime at -O0, 8 fps; with
 # the runtime and the app code at -O2, 13.5 fps with the console's two 2x MSAA tiles;
@@ -55,6 +57,11 @@ else
     "$ADB" shell 'printf "%s gpu busy %s clock %s cpu7 %s cpu4 %s temp %s\n" "$(date +%T)" "$(cat /sys/class/kgsl/kgsl-3d0/gpu_busy_percentage)" "$(cat /sys/class/kgsl/kgsl-3d0/gpuclk)" "$(cat /sys/devices/system/cpu/cpu7/cpufreq/scaling_cur_freq)" "$(cat /sys/devices/system/cpu/cpu4/cpufreq/scaling_cur_freq)" "$(cat /sys/class/kgsl/kgsl-3d0/temp 2>/dev/null)"'
     sleep 1
   done
+fi
+if [ -n "${SHOT:-}" ]; then
+  # The main screen is HWC display 0; its id is the device's own, so it is looked up here.
+  display=$("$ADB" shell dumpsys SurfaceFlinger --display-id | grep 'HWC display 0' | sed -E 's/^Display ([0-9]+).*/\1/')
+  "$ADB" exec-out screencap -d "$display" -p > "$SHOT"
 fi
 "$ADB" logcat -d > "build/run$RUN.log"
 "$ADB" shell am force-stop "$PKG"

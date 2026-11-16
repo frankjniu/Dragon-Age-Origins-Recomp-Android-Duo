@@ -52,6 +52,8 @@ LOSSLESS = ROOT / "Lossless.dll"
 NM = Path.home() / "AppData" / "Local" / "Android" / "Sdk" / "ndk" / "28.2.13676358" /     "toolchains" / "llvm" / "prebuilt" / "windows-x86_64" / "bin" / "llvm-nm.exe"
 # PLAN 12.6: the published APK makes the game's code on the device - these must be in it.
 REQUIRED = ["lib/arm64-v8a/libwarden.so", "lib/arm64-v8a/libllvm.so",
+            # PLAN 9.23: libadrenotools' hooks, for an imported Vulkan driver package.
+            "lib/arm64-v8a/libhook_impl.so", "lib/arm64-v8a/libmain_hook.so",
             "lib/arm64-v8a/libxenonrecomp.so", "assets/gamecode/toolchain.zip",
             "assets/gamecode/toolchain.version", "assets/gamecode/recipe.json",
             "assets/gamecode/hooks.h", "assets/gamecode/shim.cpp",

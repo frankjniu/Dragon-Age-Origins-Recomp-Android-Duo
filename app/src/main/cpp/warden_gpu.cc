@@ -55,6 +55,7 @@
 #include "warden_suspend.h"
 #include "warden_thermal.h"
 #include "warden_threads.h"
+#include "warden_vulkan_loader.h"
 #include "warden_trace.h"
 #include "xenia/base/logging.h"
 #include "xenia/base/memory.h"
@@ -476,6 +477,10 @@ void StatusLoop() {
     // problem; with none submitted it is the title not drawing yet.
     {
       const uint32_t swaps = xe::gpu::dao_trace::SwapCount();
+      // PLAN 9.23: 300 of the game's frames on an imported driver - its start's guard off.
+      if (swaps >= 300) {
+        warden::vulkan_loader::GameReached();
+      }
       std::string stats;
       for (uint32_t back = 1; back <= 3 && back <= swaps; ++back) {
         xe::gpu::dao_trace::FrameStats frame;

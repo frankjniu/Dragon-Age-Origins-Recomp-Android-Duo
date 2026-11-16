@@ -26,6 +26,7 @@
 
 #include "xenia/base/logging.h"  // fmt, as the rest of the runtime has it
 #include "xenia/ui/vulkan/vulkan_api.h"
+#include "warden_vulkan_loader.h"
 
 namespace {
 
@@ -145,7 +146,9 @@ extern "C" void warden_pipeline_statistics(VkDevice device, VkPipeline pipeline,
   static PFN_vkGetPipelineExecutableStatisticsKHR get_statistics = nullptr;
   static std::once_flag once;
   std::call_once(once, [device] {
-    void* loader = dlopen("libvulkan.so", RTLD_NOW | RTLD_LOCAL);
+    // PLAN 9.23: the loader the game's device came from (the system's, or an imported
+    // driver's copy of it).
+    void* loader = warden_vulkan_loader();
     auto get_device_proc =
         loader ? reinterpret_cast<PFN_vkGetDeviceProcAddr>(dlsym(loader, "vkGetDeviceProcAddr"))
                : nullptr;

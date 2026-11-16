@@ -1,5 +1,23 @@
 # Changelog
 
+## Unreleased
+
+### Added
+
+- **Other Vulkan drivers, as an experiment (issue #4).** Options → Visual → **Experimental**
+  is a section closed by default. In it you can import an Adreno driver package (the `.zip`
+  files Android emulators use with AdrenoTools), choose it, or remove it. The handheld's own
+  driver is never changed, and System puts everything back.
+  - A driver that cannot load on your Android, or a start that crashes or hangs with it, goes
+    back to System by itself and says so.
+  - On the AYN Thor, StevenMXZ's Turnip v27.0.0-R2 ran the game about 10% faster than the
+    system's driver, except with Lossless 2x frame generation. Most other Turnip builds were
+    much slower. `docs/DRIVERS.md` has every result.
+
+### Fixed
+
+- **FSR 3.1 now works on Mesa's Turnip drivers.** Before, it could not start on them.
+
 ## 0.2.2-alpha - "Open Alpha"
 
 ### Changed

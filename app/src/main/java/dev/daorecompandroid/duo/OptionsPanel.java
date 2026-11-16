@@ -94,6 +94,9 @@ final class OptionsPanel {
          * ({@link #hideForEdit}) until the layout's Done ({@link #showAfterEdit}).
          */
         void onAdjustTouchLayout();
+
+        /** PLAN 9.23: before the game, Import a driver package chosen - the file picker. */
+        void onImportDriver();
     }
 
     /** What the pre-launch rows show, from the activity. */
@@ -895,6 +898,16 @@ final class OptionsPanel {
                 Log.i(TAG, "options: Adjust on-screen controls layout");
                 host.onAdjustTouchLayout();
             }
+            // PLAN 9.23: a driver package imported or removed - before the game only.
+            if (options[actionIndex].file.equals("vulkan-driver-import") && preLaunch) {
+                Log.i(TAG, "options: Import a driver package");
+                host.onImportDriver();
+            }
+            if (options[actionIndex].file.equals("vulkan-driver-remove") && preLaunch) {
+                Log.i(TAG, "options: Remove the chosen driver");
+                VulkanDrivers.removeChosen(dir);
+                render();
+            }
             return;
         }
         // PLAN 10.14: a cheat done on demand - the chosen amount, at the next frame of play.
@@ -936,6 +949,10 @@ final class OptionsPanel {
         Options.Option option = options[optionIndex];
         if (option.action) {
             return;  // done by A or a tap (activate), not changed
+        }
+        // PLAN 9.23: a driver chosen anew - what was said of the last one is past.
+        if (option.file.equals(VulkanDrivers.CHOICE)) {
+            VulkanDrivers.note = "";
         }
         int index = option.indexOf(Options.read(dir, option));
         // PLAN 9.22: past the values not offered (Rendering resolution's other aspect).
@@ -1114,7 +1131,21 @@ final class OptionsPanel {
             Options.Option option = options[optionIndex];
             String value = Options.read(dir, option);
             text = option.details[option.indexOf(value)];
-            if (setAside(optionIndex) && option.file.startsWith("cheat-")) {
+            if (option.file.startsWith("vulkan-driver")) {
+                // PLAN 9.23: the driver rows - the next start, and what was last said.
+                if (option.file.equals("vulkan-driver-remove")) {
+                    text = VulkanDrivers.removeDetail(dir);
+                }
+                if (setAside(optionIndex)) {
+                    text = "In the launcher only. " + text;
+                } else if (pendsRestart(optionIndex, value)) {
+                    text = "From the app's next start (close it and open it again). " + text;
+                }
+                // What the last import, removal or start said, first: three lines are shown.
+                if (!VulkanDrivers.note.isEmpty()) {
+                    text = VulkanDrivers.note + "\n" + text;
+                }
+            } else if (setAside(optionIndex) && option.file.startsWith("cheat-")) {
                 text = "In the game only: the cheats run the developers' own scripts on the"
                         + " game in play.";
             } else if (cheatDone != null && Options.isCheatAction(option.file)) {
@@ -1137,6 +1168,12 @@ final class OptionsPanel {
             }
         }
         detail.setText(text);
+    }
+
+    /** PLAN 9.23: a driver package imported (GameActivity): the row's values and words again. */
+    void driversChanged() {
+        VulkanDrivers.refresh(dir);
+        render();
     }
 
     /** The game's prompts: the bottom button is the game's A whatever it is called. */
@@ -1192,6 +1229,10 @@ final class OptionsPanel {
         if (file.startsWith("cheat-")) {
             return preLaunch;
         }
+        // PLAN 9.23: packages are imported and removed in the launcher, not over the game.
+        if (file.equals("vulkan-driver-import") || file.equals("vulkan-driver-remove")) {
+            return !preLaunch;
+        }
         return file.equals("motion-blur") || file.equals("dof") ? !fsr3
                 : (file.equals("upscaling") || file.equals("resolution")) && fsr3;
     }
@@ -1202,6 +1243,10 @@ final class OptionsPanel {
      */
     private boolean pendsRestart(int i, String value) {
         Options.Option option = options[i];
+        // PLAN 9.23: the driver is loaded as the app opens - before the game too.
+        if (option.file.equals(VulkanDrivers.CHOICE)) {
+            return !value.equals(VulkanDrivers.loadedAtStart);
+        }
         return !preLaunch && (!option.live || notTaken[i]) && !value.equals(startValues[i]);
     }
 

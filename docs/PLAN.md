@@ -2696,6 +2696,32 @@ behind the owner's (CLAUDE.md).
       list 960x720 -> 1280x960 -> 1440x1080 and down to 640x480, back to 16:9 taking 1280x720
       and stepping to 2560x1440, never into 4:3's. Not checked on a 4:3 screen itself (the
       launcher, the options panel and the on-screen controller there).
+- [x] 9.23 **Imported Vulkan drivers, experimental (issue #4; the owner asked, 2026-11-16;
+      session 47, runs 744-869; `docs/DECISIONS.md` D17, `docs/DRIVERS.md`).**
+      - **Where the player finds it:** Options -> Visual -> **Experimental**, a section closed by
+        default. In it:
+        - **Vulkan driver:** System, or an imported package, from the app's next start.
+        - **Choose…** imports an AdrenoTools `.zip`.
+        - **Remove** takes off the chosen package and its pipeline cache.
+        - These rows work in the launcher only.
+      - **How it loads:** the app opens the driver through libadrenotools
+        (`warden_vulkan_loader.cc`; `libhook_impl.so` and `libmain_hook.so` in the APK) and no
+        longer links `libvulkan`. Its 8 imported Vulkan symbols are forwarders.
+      - **Cache:** the pipeline cache is per driver (`454108C0-<id>.vk.bin`).
+      - **Guards:**
+        - The package's folder is looked for in the process's maps (BUG-120).
+        - `files/vulkan-driver-trying` chooses System again after a start that does not reach
+          the launcher, or a launch that does not reach the game's 300th frame.
+      - **FSR 3.1:** its SDK finds device-local memory on a driver whose memory types are all
+        host-visible (`tools/build_fsr3_shaders.py`). This brings FSR 3.1 up on Turnip (BUG-112).
+      - **Tested:** `tools/driver_matrix.py` ran 17 upscaling and frame generation combinations
+        on 6 drivers, and the smoke run on every package that loads. The data is in
+        `docs/data/vulkan-drivers/`, the tables are in `docs/DRIVERS.md`.
+      - **Results:**
+        - StevenMXZ's Turnip v27.0.0-R2 is 9-14% faster than the system's driver except with
+          Lossless 2x (-6%).
+        - Qualcomm's newer drivers are even with the system's.
+        - Turnip T30, v26.0.0 R8 and Balemuni Apex v2 run at 55-80% of the system's speed.
 
 ## Phase 10 — Polish
 

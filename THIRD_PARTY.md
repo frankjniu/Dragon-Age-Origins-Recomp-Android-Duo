@@ -11,6 +11,7 @@ Pinned **2026-10-22** (Phase 0.4).
 | [96dot/Dragon-Age-Origins-Recomp](https://github.com/96dot/Dragon-Age-Origins-Recomp) (DAORecomp; it was 96dot/DAORecomp, which still redirects) | `eb2360a435da409082a0ed82acdfb0f4b7b3fbab` | 2026-10-29 | Recompiler config, function database, game patches, vendored Xenia subset. **The irreplaceable piece.** Moved from `1a6c668` (2026-10-21) on 2026-10-30 for its fixes: the Aeducan Thaig switch (config), the pipeline storage's seek (its Xenia subset), and the Ostagar load crash (a game hook, ported into `warden_game.cc`) |
 | [hedge-dev/XenonRecomp](https://github.com/hedge-dev/XenonRecomp) | `ddd128bcca99fe8bfbb99bea583c972351fa6ace` | 2025-08-04 | PowerPC → C++. Routes ARM64 through SIMD Everywhere. **Same commit DAORecomp pins.** Patched in place by DAORecomp's `patch_recompiler.py`, then by ours, `tools/patch_xenonrecomp.py` (PLAN 2.4: `blrl` and the Xenos half-float packs it left as traps). |
 | [xenia-canary/xenia-canary](https://github.com/xenia-canary/xenia-canary) | `1c81b867473806b2845a1946b2d185c9d888a319` | 2026-10-10 | **Source of the Vulkan backend**, SPIR-V shader translator and `ui/vulkan/` presentation layer. **The commit DAORecomp's vendored Xenia subset came from** — see below. |
+| [bylaws/libadrenotools](https://github.com/bylaws/libadrenotools) | `8fae8ce254dfc1344527e05301e43f37dea2df80` | 2024-09-10 | Loads an imported Vulkan driver package in a linker namespace of its own (PLAN 9.23, Visual → Experimental). Pinned 2026-11-16; [below](#imported-vulkan-drivers-libadrenotools-plan-923). |
 
 ### Why this exact Xenia commit
 
@@ -228,3 +229,17 @@ vendor-specific and unportable to this target. See
 The published APK makes the game's code on the device (PLAN 12): XenonRecomp - built for
 Android from the same patched sources as the computer's (`build/device-toolchain/bin/
 xenonrecomp`) - translates the player's own executable, and this compiles it.
+
+## Imported Vulkan drivers (libadrenotools, PLAN 9.23)
+
+| | libadrenotools (with liblinkernsbypass) |
+|---|---|
+| Source | https://github.com/bylaws/libadrenotools (its submodule `lib/linkernsbypass`: https://github.com/bylaws/liblinkernsbypass) |
+| Pin | `8fae8ce254dfc1344527e05301e43f37dea2df80` (2024-09-10, "Update linkernsbypass"); the submodule at the commit it records, `aa3975893d83ef1bc84c321ec60c65fbf1287887` |
+| Licence | BSD 2-Clause (both) |
+| Built | only what a custom driver needs, as our own targets in `app/src/main/cpp/CMakeLists.txt`: `warden_adrenotools` (its `src/driver.cpp`) and `warden_linkernsbypass`, static, in `libwarden.so`; and its two hooks, `libhook_impl.so` and `libmain_hook.so`, shared libraries packaged beside it (the library loads them by name from the app's library folder). Its BCn patcher and its file-redirect and GPU-allocation hooks are not built |
+
+Fetched by `python tools/bootstrap.py` into `third_party/libadrenotools`;
+`app/src/main/cpp/warden_vulkan_loader.cc` calls it. The driver packages themselves are the
+player's own (Options → Visual → Experimental → Import a driver package): never in the
+repository (`*.adpkg.zip` is ignored) nor the APK.

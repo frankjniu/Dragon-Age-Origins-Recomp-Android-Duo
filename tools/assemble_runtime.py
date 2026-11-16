@@ -5819,6 +5819,40 @@ EDITS = [
      "  WardenIdleWaitStrategy wait_strategy_;\n"
      "  dp::multi_threaded_claim_strategy<WardenIdleWaitStrategy> claim_strategy_;\n"
      "  dp::sequence_barrier<WardenIdleWaitStrategy> consumed_;\n"),
+    (VKI_C, "PLAN 9.23: the Vulkan loader from the app (an imported driver) - the declaration",
+     "namespace xe {\n"
+     "namespace ui {\n"
+     "namespace vulkan {\n",
+     "// DAO/Warden (PLAN 9.23): app/src/main/cpp/warden_vulkan_loader.cc - the system's\n"
+     "// loader, or the copy of it that an imported driver package is tied to.\n"
+     "extern \"C\" void* warden_vulkan_loader();\n"
+     "\n"
+     "namespace xe {\n"
+     "namespace ui {\n"
+     "namespace vulkan {\n"),
+    (VKI_C, "PLAN 9.23: the Vulkan loader from the app (an imported driver) - opened",
+     "  vulkan_instance->loader_ = dlopen(loader_library_name, RTLD_NOW | RTLD_LOCAL);\n",
+     "  // DAO/Warden (PLAN 9.23): opened once by the app, which every other Vulkan call of\n"
+     "  // the runtime goes through too, so it is never closed here.\n"
+     "  vulkan_instance->loader_ = warden_vulkan_loader();\n"),
+    (VKI_C, "PLAN 9.23: the Vulkan loader from the app (an imported driver) - kept open",
+     "#if XE_PLATFORM_LINUX\n"
+     "  if (loader_) {\n"
+     "    dlclose(loader_);\n"
+     "  }\n",
+     "#if XE_PLATFORM_LINUX\n"
+     "  // DAO/Warden (PLAN 9.23): the app's loader stays open for the process.\n"),
+    (VPC_C, "PLAN 9.23: an imported driver's own pipeline cache file - the declaration",
+     "#include \"xenia/gpu/vulkan/vulkan_pipeline_cache.h\"\n",
+     "#include \"xenia/gpu/vulkan/vulkan_pipeline_cache.h\"\n"
+     "\n"
+     "// DAO/Warden (PLAN 9.23): app/src/main/cpp/warden_vulkan_loader.cc - \"\" for the\n"
+     "// system's driver, \"-<package>\" for an imported one.\n"
+     "extern \"C\" const char* warden_vulkan_cache_suffix();\n"),
+    (VPC_C, "PLAN 9.23: an imported driver's own pipeline cache file",
+     "      fmt::format(\"{:08X}.vk.bin\", shader_storage_title_id_);\n",
+     "      fmt::format(\"{:08X}{}.vk.bin\", shader_storage_title_id_,\n"
+     "                  warden_vulkan_cache_suffix());  // DAO/Warden (PLAN 9.23): one a driver\n"),
 ]
 
 

@@ -31,7 +31,8 @@
 #include "xenia/ui/vulkan/vulkan_api.h"
 #include "xenia/ui/vulkan/vulkan_device.h"
 
-// libvulkan's own export: the runtime's vulkan_api.h declares no prototypes.
+// The loader's export as warden_vulkan_loader.cc defines it (PLAN 9.23): the loader the
+// game uses. The runtime's vulkan_api.h declares no prototypes.
 extern "C" VKAPI_ATTR PFN_vkVoidFunction VKAPI_CALL vkGetInstanceProcAddr(
     VkInstance instance, const char* name);
 
