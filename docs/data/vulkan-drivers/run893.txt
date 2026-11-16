@@ -1,0 +1,64 @@
+run 893 - driver Turnip 27.0.0-R2 (turnip-27-0-0-r2), bilinear+off (fsr3 off, upscaling bilinear, frame generation off)
+settings: {"frame-rate": "120", "resolution": "1280x720", "shadows": "on", "vignette": "on", "shader-math": "exact", "anisotropic": "16", "vulkan-driver": "turnip-27-0-0-r2", "fsr3": "off", "upscaling": "bilinear", "frame-generation": "off"}
+
+measure_ostagar.sh:
+explore at Ostagar: 21:31:23
+21:31:39 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1920000 temp 70200
+21:31:40 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 70600
+21:31:41 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 70600
+21:31:42 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 70200
+21:31:44 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 71400
+21:31:45 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1785600 temp 70600
+21:31:46 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 71400
+21:31:47 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 71400
+21:31:49 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 71000
+21:31:50 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 70600
+21:31:51 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 72200
+21:31:52 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 70600
+21:31:54 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 70600
+21:31:55 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 71400
+21:31:56 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 71800
+21:31:57 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 71400
+21:31:59 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 71400
+21:32:00 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 71800
+21:32:01 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 71400
+21:32:02 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 71400
+Ostagar: 44.3 swaps/s over the last 5 status lines, 1302 draws a frame
+
+log lines:
+11-16 21:29:19.274 20794 20794 I hook_impl: hook_android_load_sphal_library: filename: vulkan.adreno.so
+11-16 21:29:19.274 20794 20794 I hook_impl: hook_android_dlopen_ext: filename: vulkan.adreno.so
+11-16 21:29:19.274 20794 20794 I hook_impl: hook_android_dlopen_ext: loading custom driver: /data/user/0/dev.daorecompandroid.duo/files/drivers/turnip-27-0-0-r2/libvulkan_freedreno.so
+11-16 21:29:19.309 20794 20794 I Warden  : startup() = true in 48 ms
+11-16 21:29:19.310 20794 20794 I Warden  : vulkan driver: the game's device is on the package turnip-27-0-0-r2
+11-16 21:29:19.372 20794 20835 I warden  : i> 0000513A Vulkan driver: opening the package turnip-27-0-0-r2 - Turnip 27.0.0-R2 (Mesa, Vulkan 1.4.367), libvulkan_freedreno.so from /data/user/0/dev.daorecompandroid.duo/files/drivers/turnip-27-0-0-r2/, the hooks from /data/app/~~t60xsPO3X3AZmyljVNhtPQ==/dev.daorecompandroid.duo-UcZN_qeYcGeARuSHaIrdnQ==/lib/arm64/
+11-16 21:29:19.372 20794 20835 I warden  : i> 0000513A Vulkan driver: imported: Turnip 27.0.0-R2 (Mesa, Vulkan 1.4.367) (files/drivers/turnip-27-0-0-r2)
+11-16 21:29:19.372 20794 20835 I warden  : i> 0000513A Vulkan device ready: Turnip Adreno (TM) 740
+11-16 21:29:20.073 20794 20835 I warden  : i> 0000513A VulkanPresenter: Created 1920x1080 swapchain with format 37, color space 0, presentation mode 1
+11-16 21:29:20.073 20794 20835 I warden  : i> 0000513A GPU: frame rate 120 where the GPU keeps up
+11-16 21:29:20.074 20794 20835 I warden  : i> 0000513A VulkanPresenter: Created 1920x1080 swapchain with format 64, color space 0, presentation mode 1
+11-16 21:29:21.348 20794 20835 I warden  : i> 000051D0 Frame generation: off
+11-16 21:29:21.349 20794 20835 I warden  : i> 000051D0 FSR 3.1: off
+11-16 21:29:21.533 20794 20835 I warden  : i> 000051D0 Loaded 2387696 bytes of VkPipelineCache data
+11-16 21:29:21.553 20794 20835 I warden  : i> 000051D0 FSR 3.1: not upscaling - off (frame 1, 0 upscaled so far)
+11-16 21:29:21.559 20794 20835 I warden  : i> 00005243 Saved 2387696 bytes of VkPipelineCache data, 2 pipelines (5 ms, on its own thread)
+11-16 21:29:22.393 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 10 (movie)
+11-16 21:29:25.030 20794 20835 I warden  : i> 000051D2 Vulkan driver: the game is running on turnip-27-0-0-r2 - the start's guard cleared
+11-16 21:29:31.353 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 8 (pregame)
+11-16 21:29:51.560 20794 20835 I warden  : i> 00005876 VkPipelineCache data unchanged (2387696 bytes, 29 pipelines): not written (2 ms, on its own thread)
+11-16 21:30:21.560 20794 20835 I warden  : i> 00005F0A VkPipelineCache data unchanged (2387696 bytes, 35 pipelines): not written (2 ms, on its own thread)
+11-16 21:30:26.786 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 9 (loading)
+11-16 21:30:29.044 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 0 (explore)
+11-16 21:30:29.277 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 4 (conversation)
+11-16 21:30:51.562 20794 20835 I warden  : i> 00006501 VkPipelineCache data unchanged (2387696 bytes, 56 pipelines): not written (4 ms, on its own thread)
+11-16 21:31:00.756 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 9 (loading)
+11-16 21:31:04.664 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 4 (conversation)
+11-16 21:31:21.562 20794 20835 I warden  : i> 00006AEB VkPipelineCache data unchanged (2387696 bytes, 97 pipelines): not written (2 ms, on its own thread)
+11-16 21:31:22.797 20794 20835 I warden  : i> 000051E1 [Eclipse::Update] game: mode is now 0 (explore)
+11-16 21:31:36.266 20794 20835 I warden  : i> 000051D2 frames: present: 222 frames, interval ms mean 22.5 p50 22.4 p95 23.5 p99 24.0 max 24.4, 1% low 41.3 fps, in refreshes (8.33 ms): 2x1 3x221; title: 223 frames, interval ms mean 22.5 p50 22.4 p95 24.7 p99 25.2 max 26.1, 1% low 39.0 fps, in 60 Hz vblanks (16.67 ms): 1x217 2x6
+11-16 21:31:41.269 20794 20835 I warden  : i> 000051D2 frames: present: 223 frames, interval ms mean 22.5 p50 22.5 p95 23.5 p99 24.0 max 24.5, 1% low 41.2 fps, in refreshes (8.33 ms): 2x1 3x222; title: 222 frames, interval ms mean 22.5 p50 22.5 p95 24.7 p99 25.3 max 25.3, 1% low 39.5 fps, in 60 Hz vblanks (16.67 ms): 1x217 2x5
+11-16 21:31:46.271 20794 20835 I warden  : i> 000051D2 frames: present: 221 frames, interval ms mean 22.6 p50 22.6 p95 23.5 p99 23.9 max 24.8, 1% low 40.9 fps, in refreshes (8.33 ms): 3x221; title: 222 frames, interval ms mean 22.6 p50 22.8 p95 24.7 p99 25.7 max 26.1, 1% low 38.4 fps, in 60 Hz vblanks (16.67 ms): 1x212 2x10
+11-16 21:31:51.514 20794 20835 I warden  : i> 000051D2 frames: present: 233 frames, interval ms mean 22.5 p50 22.6 p95 23.3 p99 24.1 max 24.4, 1% low 41.1 fps, in refreshes (8.33 ms): 3x233; title: 233 frames, interval ms mean 22.5 p50 22.5 p95 24.7 p99 25.6 max 26.4, 1% low 38.3 fps, in 60 Hz vblanks (16.67 ms): 1x229 2x4
+11-16 21:31:51.572 20794 20835 I warden  : i> 000070B4 VkPipelineCache data unchanged (2387696 bytes, 109 pipelines): not written (2 ms, on its own thread)
+11-16 21:31:56.515 20794 20835 I warden  : i> 000051D2 frames: present: 221 frames, interval ms mean 22.6 p50 22.6 p95 23.5 p99 23.7 max 23.9, 1% low 41.9 fps, in refreshes (8.33 ms): 3x221; title: 220 frames, interval ms mean 22.6 p50 22.6 p95 24.8 p99 25.5 max 26.2, 1% low 38.4 fps, in 60 Hz vblanks (16.67 ms): 1x212 2x8
+11-16 21:32:01.517 20794 20835 I warden  : i> 000051D2 frames: present: 221 frames, interval ms mean 22.6 p50 22.7 p95 23.4 p99 23.8 max 24.6, 1% low 41.3 fps, in refreshes (8.33 ms): 3x221; title: 221 frames, interval ms mean 22.6 p50 22.6 p95 25.0 p99 26.1 max 26.6, 1% low 37.9 fps, in 60 Hz vblanks (16.67 ms): 1x212 2x9

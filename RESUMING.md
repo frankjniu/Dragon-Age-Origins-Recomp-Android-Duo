@@ -530,7 +530,30 @@ while iterating, then record it; `--check` proves the recorded set reproduces th
 
 ## 5. The next tasks, in order
 
-**Resume here (2026-11-02, session 41, the end): version 0.1.0-alpha, "Open Alpha",
+**Resume here (2026-11-16, session 47): PLAN 9.24, imported Vulkan drivers as fast as the
+system's, the fix always in our app (the owner).**
+
+PLAN 9.23 is done: Options → Visual → Experimental loads AdrenoTools packages (D17,
+`docs/DRIVERS.md`). The six test packages are installed on the Thor. Their zips were only
+downloaded to a temporary folder, never into the repository: get them again from the releases
+`docs/DRIVERS.md` names, and check them against its SHA-256s. BUG-122 is fixed: the fence watch made every correctly drawing driver as fast as the
+system's or faster without frame generation. Next, in order:
+
+1. **Lossless 2x on imported drivers.**
+   - The gap: lsfg-vk's GPU time a generated frame is 6.8 ms on System and 10-15.7 ms on the
+     others (`docs/DRIVERS.md`, the fence watch section).
+   - Ruled out, in PLAN 9.24.
+   - Next: time its passes one by one on System and on Qualcomm 840 or StevenMXZ.
+   - Tools: `tools/thread_profile.py`, and `tools/driver_matrix.py --combos bilinear+lossless`.
+2. **The full matrix again with the fix:**
+   `python tools/driver_matrix.py --run <N> --combos all --interleave --shots --drivers
+   system,<T30>,<840>,<Balemuni>,<StevenMXZ> --note "full matrix (fence watch)"`.
+   - It takes about 4.7 hours.
+   - Its tables: `python tools/driver_report.py --note "full matrix (fence watch)"`.
+   - Save the owner's options first, and restore them after.
+3. **BUG-123 (R8 draws black)** only if the owner wants R8.
+
+**Session 41, the end (2026-11-02): version 0.1.0-alpha, "Open Alpha",
 with a published APK.** Phase 12 is complete: the APK holds none of the game, and the
 player's device makes the game's program (`libdaogame.so`) from their own disc and title
 update - XenonRecomp and clang/lld for Android in the APK (`libxenonrecomp.so`,

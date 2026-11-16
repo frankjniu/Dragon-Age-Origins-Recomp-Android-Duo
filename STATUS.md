@@ -10,7 +10,7 @@ starts by re-deriving context that was already paid for.
 | **Version** | **0.2.2-alpha, "Open Alpha"** (`CHANGELOG.md`; published 2026-11-09, the tag `v0.2.2-alpha`, an update from the launcher: the standby battery with the lid shut. Before it 0.2.1-alpha, 2026-11-08: the on-screen controller's size and layout, the panel's tabs. Before that 0.2.0-alpha, 2026-11-04, a manual update - players installed by hand and chose Build again, as the GPU rest changes the game code's ABI), after the first public release, 0.1.0-alpha: the source, and an APK that holds none of the game (`gradle.properties`: `warden.version`, `warden.releaseName`; `docs/DECISIONS.md` D14) |
 | **Current phase** | **Phase 12 complete: a published APK, the game's code made on the device from the player's own discs.** Phases 0-4, 7, 8, 10, 11 and 12 complete. Phase 5 reached. Phase 6 reached by script - the hand playthrough to Ostagar is left, the alpha's players its testers. Phase 9 done but for what the owner deferred (9.15, 9.9) and 3.8's Adreno work. §2 has the board. |
 | **Overall state** | The whole game runs on the AYN Thor: the main campaign, Awakening and every DLC from the Ultimate Edition's disc 2, and all 118 areas the game's debug menus reach, loaded and profiled (`docs/AREAS.md`). With it: the companion deck on the second screen, button prompts for three controllers, up to 120 fps, FSR 3.1, two kinds of frame generation, HDR10, PC mods with an in-app converter, saves named on the keyboard with thumbnails, export, import and restore, and Debugging Mode's one-file bug reports. [`README.md`](README.md) is the user's manual. |
-| **Next action** | **PLAN 9.23 done, unreleased** (session 47, issue #4). Imported Vulkan drivers are under Options -> Visual -> Experimental, through libadrenotools (`docs/DECISIONS.md` D17). FSR 3.1 now runs on Turnip (BUG-112), and a package that cannot load is caught (BUG-120). The driver matrix covers 17 combinations on 6 drivers (`docs/DRIVERS.md`, the data in `docs/data/vulkan-drivers/`): StevenMXZ's Turnip v27.0.0-R2 is about 10% faster than the system's driver except with Lossless 2x. The other Turnips are slow, and Qualcomm's newer drivers are even. `CHANGELOG.md` Unreleased. The game code's ABI is unchanged. Next: the next release when the owner wants it; what the alpha's players report; the open bugs. Before that, **0.2.2-alpha published** (session 46: PLAN 10.22 done, the battery with the lid shut - BUG-119, the render thread's spin held by signal and the polls stopped; BUG-058's spin-waits napping while idle; put away 1.4-1.7% of a core where it was 29-94%, and the owner's Thor 100% -> 99% in an hour of closed-lid standby with the game open; `CHANGELOG.md`, an update from the launcher - the game code's ABI unchanged; the APK in the build clone's `build/releases/0.2.2-alpha`, SHA-256 `c40ac930…`, `tools/release.py` clean). Next: what the alpha's players report (Debugging Mode's reports, `docs/TESTING.md`); the open bugs. 0.2.2-alpha is the published version. `RESUMING.md` §5. |
+| **Next action** | **PLAN 9.24 in progress: imported drivers as fast as the system's, the fix in our app** (session 47). **Done:** BUG-122, the fence watch (`warden_fence_watch.cc`). Turnip before Mesa e984ef29 waited for the GPU at each of Xenia's fence checks. Now every driver that draws correctly is at or above the system's without frame generation (T30 20 -> 42.9, Balemuni 24 -> 45.2, the system 41.8; screenshots alike). **Next:** 1. **Lossless 2x is slower on every imported driver:** lsfg-vk's GPU time a generated frame is 6.8 ms on System, 10-15.7 elsewhere. Time its passes one by one (`docs/PLAN.md` 9.24 has what is ruled out). 2. **The full matrix again with the fix:** 5 drivers × 17 combinations, `--shots`, about 4.7 hours. 3. **R8 draws black (BUG-123):** the driver's own; left. **State:** the debug APK on the Thor has the fix, uncommitted work none (all pushed). PLAN 9.23 (imported drivers, experimental) done the same session, `CHANGELOG.md` Unreleased. 0.2.2-alpha is the published version. `RESUMING.md` §5. |
 | **Blockers** | None |
 
 The authoritative task list is [`docs/PLAN.md`](docs/PLAN.md); each session's detail is
@@ -1868,6 +1868,33 @@ Then continue from **Next action** at the top of this file.
 Newest first. One short entry per session: what changed, what's next.
 
 ### 2026-11-16 (session 47) - imported Vulkan drivers, experimental (PLAN 9.23, issue #4)
+
+- **Later (PLAN 9.24, the owner):** the imported drivers should be as fast as the system's or
+  faster, with any fix in our app.
+  - **Found** (`tools/thread_profile.py`, new):
+    - On the slow Turnips no thread was the limit. The command processor spent two thirds of
+      its time in Turnip's `wait_timestamp_safe`, under Xenia's fence status check.
+    - Those drivers predate Mesa's e984ef29 (2026-10-08), so a status check with a timeout of 0
+      waited for the GPU (BUG-122).
+  - **Fixed:** the fence watch, a thread per completion timeline that waits on the fences.
+    Xenia reads its number (seven edits in `assemble_runtime.py`; `files/fence-watch` set to
+    `off` for A/B).
+  - **Results:**
+    - T30: 20.2 -> 42.0 swaps a second (run 877 against 876).
+    - Balemuni: 24 -> 45.2.
+    - The system driver: 41.8, unchanged.
+    - StevenMXZ: 44.7. Qualcomm 840: 42.0.
+    - Screenshots alike (891-897).
+  - **R8 draws black** (BUG-123: the game's own frames all zero). Its numbers are void.
+  - **Lossless 2x is still slower on every imported driver:** lsfg-vk's GPU time is 6.8 ms on
+    System, 10-15.7 elsewhere (runs 885-890).
+    - Ruled out: the clock, memory types, the queue.
+    - 32-bit generator shaders are slower everywhere (runs 898-901).
+    - Next is timing its passes.
+  - **The Thor afterwards:**
+    - The owner's options are back, Vulkan driver is System, the route is off, and the test
+      switches are removed.
+    - This build is installed. The six packages stay installed.
 
 - **The owner's ask:** build issue #4's custom Adreno drivers behind a collapsed Experimental
   section on the Visual tab, and test every upscaling and frame generation combination on a few

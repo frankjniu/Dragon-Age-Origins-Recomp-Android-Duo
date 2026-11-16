@@ -12,7 +12,61 @@ generation choice. The test is run with `tools/driver_matrix.py`. Every run's da
 The tables below are made from `matrix.csv` with `python tools/driver_report.py`.
 `docs/DECISIONS.md` D17 records the decision this test supports.
 
-## Summary
+## Since the first matrix: the fence watch (PLAN 9.24, BUG-122)
+
+**The full matrix and its summary below were measured before this fix.** On Turnip builds older
+than 2026-10-08, those numbers are half of what the drivers do now.
+
+**The cause** (`docs/BUGS.md` BUG-122):
+- Xenia asked each pending fence's status at every submission it began.
+- Turnip on Qualcomm's kernel driver, before Mesa commit e984ef29 (2026-10-08), turned that
+  question into a wait for the GPU.
+- So the command processor stood still while the GPU drained, and the GPU then stood idle at a
+  low clock.
+
+**The fix is in the app.** A thread waits on the fences in order (`warden_fence_watch.cc`), and
+Xenia reads its number instead.
+
+The same build with it, Bilinear at 1280x720 to 1920x1080, no frame generation, uncapped:
+
+| Driver | Before (first matrix) | With the fence watch | GPU | Picture |
+|---|---|---|---|---|
+| System (v676.53) | 41.9 fps | 41.8 (run 879), 41.6 (891) | 99%, 680 MHz | the reference (shot 891) |
+| Turnip T30 (Mr_Purple_666) | 23.1 | 42.9 (880), 43.2 (895) | 99%, 680 MHz | alike (shot 895) |
+| Qualcomm 840 | 41.9 | 42.0 (882), 41.6 (896) | 99%, 680 MHz | alike (shot 896) |
+| Turnip Balemuni Apex v2 ULTIMATE | 24.1 | 45.2 (883), 45.2 (897) | 99%, 680 MHz | alike (shot 897) |
+| Turnip v27.0.0-R2 (StevenMXZ) | 45.6 | 44.7 (884), 44.8 (893) | 99%, 680 MHz | alike (shot 893) |
+| Turnip v26.0.0 R8 (K11MCH1) | 32.0 | 76.3 (881), 76.2 (892) | 99%, 680 MHz | **black** (shot 892, BUG-123) |
+
+"Alike" means within 2.6 levels out of 255 of the system's screenshot, from moving foliage
+and animation.
+- **No frame generation:** every driver that draws correctly now matches the system's driver or
+  beats it, by up to 8% (Balemuni).
+- **R8 draws nothing,** not even the game's own frames. Its numbers here and in the first
+  matrix measure a black screen.
+
+**Lossless 2x is still slower on every imported driver** (Bilinear, runs 885-890):
+
+| Driver | Game fps | Frames shown | lsfg-vk's GPU ms a generated frame |
+|---|---|---|---|
+| System | 31.2 | 62.3 | 6.8 |
+| Turnip T30 | 24.6 | 49.2 | 10.0 |
+| Qualcomm 840 | 27.1 | 54.2 | 11.6 |
+| Turnip Balemuni Apex v2 | 25.8 | 51.4 | 15.7 |
+| Turnip v27.0.0-R2 (StevenMXZ) | 29.1 | 58.0 | 10.8 |
+
+**The generator's own GPU work is the gap.** Ruled out so far:
+- **The clock:** all run at 680 MHz now.
+- **lsfg-vk's memory types:** Qualcomm 840 picks the system's.
+- **Its queue:** Qualcomm 840 has its own, as the system's driver does, and is slow too.
+- **32-bit shaders** (`files/frame-generation-fp16` set to `off`; runs 898-901) are slower on every
+  driver: System 10.7 ms, Qualcomm 840 17.9, and on the Turnips 232 ms (T30) and 357 ms
+  (StevenMXZ), the game at 2.7 frames a second. 16-bit stays.
+
+Next (PLAN 9.24): time lsfg-vk's passes one by one on each driver, to find the pass that
+differs. Then run the full matrix again with the fix.
+
+## The first matrix's summary (before the fence watch)
 
 At Ostagar's King's Camp, uncapped, on the AYN Thor (all 102 matrix runs, 6 drivers × 17
 combinations, plus the smoke runs and warm checks; every run reached the camp with no faults):
@@ -122,7 +176,7 @@ between 54 and 74 C, under the heat guard's 75 C (and the heat guard is off by d
 | Qualcomm v676.53 (package) | K11MCH1/AdrenoToolsDrivers | `59b7056b58090779` | - | the system's own version: not measured |
 | Turnip T30 (Mr_Purple_666) | the package D16's test used (2026-11-03) | `f65b2d3353fd4aa7` | PurpleVK-public Adreno (TM) 740, `0x6802063` | loads; the full matrix |
 | Turnip T29 (Mr_Purple_666) | the same | `606d5c1d7fa3e544` | - | **does not load**: needs `pthread_getaffinity_np` (Android 14's libc) |
-| Turnip v26.0.0 R8 | K11MCH1/AdrenoToolsDrivers | `e634db0f929e2205` | Turnip Adreno (TM) 740, `0x6463063` | loads; the full matrix |
+| Turnip v26.0.0 R8 | K11MCH1/AdrenoToolsDrivers | `e634db0f929e2205` | Turnip Adreno (TM) 740, `0x6463063` | loads, but **draws every frame black** (BUG-123); its numbers measure a black screen |
 | Turnip Balemuni Apex v2 ULTIMATE (SD 8 Gen 2) | Balemuni/Balemunis-Aurora, release `V2` (2026-08-26; Mesa 26.3.0-devel b9a2bf3) | `810567af3bc849b3` | Turnip Adreno (TM) 740, `0x6802063` | loads; the full matrix |
 | Turnip v27.0.0-R2 (StevenMXZ, A7xx) | StevenMXZ/Adreno-Tools-Drivers, release `v39` (2026-11-07; the file `Turnip_v27.0.0-R2.zip`) | `8d30be022582d0c0` | Turnip Adreno (TM) 740, `0x6863063` | loads; the full matrix |
 
@@ -130,6 +184,8 @@ The packages' SHA-256s match the digests their GitHub releases publish (Balemuni
 StevenMXZ's checked on download). No package is in the repository.
 
 ## Results
+
+The first matrix (before the fence watch; R8 drew black), then the other runs by their note.
 
 #### What each combination renders at and is upscaled to
 
@@ -372,23 +428,55 @@ StevenMXZ's checked on download). No package is in the repository.
 
 #### Every driver that loads, Bilinear, no frame generation (the smoke runs)
 
-| Run | Driver | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 758 | System (v676.53) | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 40.7 | 34.9 | 99 | 680 | 40.7 |
-| 759 | Turnip T30 (Mr_Purple_666) | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 22.7 | 20.5 | 73 | 475 | 22.6 |
-| 760 | Turnip v26.0.0 R8 (K11MCH1) | Turnip Adreno (TM) 740 | 0x6463063 | 1280x720 | 1920x1080 | 32.0 | 28.6 | 63 | 401 | 31.9 |
-| 761 | Qualcomm Adreno 840 | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 41.2 | 32.4 | 99 | 680 | 41.1 |
-| 762 | Qualcomm Adreno 805 | Adreno (TM) 740 | 0x80325000 | 1280x720 | 1920x1080 | 41.5 | 34.7 | 99 | 680 | 41.4 |
-| 763 | Qualcomm Adreno 819.2 | Adreno (TM) 740 | 0x80333002 | 1280x720 | 1920x1080 | 41.3 | 34.6 | 99 | 680 | 41.3 |
-| 764 | Qualcomm Adreno 837.6 | Adreno (TM) 740 | 0x80345006 | 1280x720 | 1920x1080 | 42.2 | 34.6 | 99 | 680 | 42.1 |
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 758 | System (v676.53) | bilinear+off | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 40.7 | 34.9 | 99 | 680 | 40.7 | smoke and pipeline warm-up |
+| 759 | Turnip T30 (Mr_Purple_666) | bilinear+off | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 22.7 | 20.5 | 73 | 475 | 22.6 | smoke and pipeline warm-up |
+| 760 | Turnip v26.0.0 R8 (K11MCH1) | bilinear+off | Turnip Adreno (TM) 740 | 0x6463063 | 1280x720 | 1920x1080 | 32.0 | 28.6 | 63 | 401 | 31.9 | smoke and pipeline warm-up |
+| 761 | Qualcomm Adreno 840 | bilinear+off | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 41.2 | 32.4 | 99 | 680 | 41.1 | smoke and pipeline warm-up |
+| 762 | Qualcomm Adreno 805 | bilinear+off | Adreno (TM) 740 | 0x80325000 | 1280x720 | 1920x1080 | 41.5 | 34.7 | 99 | 680 | 41.4 | smoke and pipeline warm-up |
+| 763 | Qualcomm Adreno 819.2 | bilinear+off | Adreno (TM) 740 | 0x80333002 | 1280x720 | 1920x1080 | 41.3 | 34.6 | 99 | 680 | 41.3 | smoke and pipeline warm-up |
+| 764 | Qualcomm Adreno 837.6 | bilinear+off | Adreno (TM) 740 | 0x80345006 | 1280x720 | 1920x1080 | 42.2 | 34.6 | 99 | 680 | 42.1 | smoke and pipeline warm-up |
 
 #### Bilinear, no frame generation, again after the matrix (the warm checks, each with a screenshot)
 
-| Run | Driver | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps |
-|---|---|---|---|---|---|---|---|---|---|---|
-| 867 | System (v676.53) | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 41.1 | 34.5 | 99 | 680 | 41.1 |
-| 868 | Turnip Balemuni Apex v2 ULTIMATE | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 21.7 | 20.1 | 75 | 401 | 21.8 |
-| 869 | Turnip v27.0.0-R2 (StevenMXZ) | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 45.1 | 38.5 | 99 | 680 | 45.1 |
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 867 | System (v676.53) | bilinear+off | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 41.1 | 34.5 | 99 | 680 | 41.1 | warm check, with a screenshot |
+| 868 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+off | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 21.7 | 20.1 | 75 | 401 | 21.8 | warm check, with a screenshot |
+| 869 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+off | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 45.1 | 38.5 | 99 | 680 | 45.1 | warm check, with a screenshot |
+| 891 | System (v676.53) | bilinear+off | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 41.6 | 34.5 | 99 | 680 | 41.6 | warm check, with a screenshot (fence watch) |
+| 892 | Turnip v26.0.0 R8 (K11MCH1) | bilinear+off | Turnip Adreno (TM) 740 | 0x6463063 | 1280x720 | 1920x1080 | 76.2 | 40.2 | 99 | 680 | 76.3 | warm check, with a screenshot (fence watch) |
+| 893 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+off | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 44.8 | 37.9 | 99 | 680 | 44.8 | warm check, with a screenshot (fence watch) |
+| 895 | Turnip T30 (Mr_Purple_666) | bilinear+off | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 43.2 | 37.1 | 99 | 680 | 43.2 | warm check, with a screenshot (fence watch) |
+| 896 | Qualcomm Adreno 840 | bilinear+off | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 41.6 | 34.3 | 99 | 680 | 41.6 | warm check, with a screenshot (fence watch) |
+| 897 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+off | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 45.2 | 36.6 | 99 | 680 | 45.2 | warm check, with a screenshot (fence watch) |
+
+#### Runs noted "fence watch (PLAN 9.24)"
+
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 879 | System (v676.53) | bilinear+off | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 41.8 | 35.4 | 99 | 680 | 41.8 | fence watch (PLAN 9.24) |
+| 880 | Turnip T30 (Mr_Purple_666) | bilinear+off | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 42.9 | 36.2 | 99 | 680 | 42.9 | fence watch (PLAN 9.24) |
+| 881 | Turnip v26.0.0 R8 (K11MCH1) | bilinear+off | Turnip Adreno (TM) 740 | 0x6463063 | 1280x720 | 1920x1080 | 76.3 | 44.0 | 99 | 680 | 76.3 | fence watch (PLAN 9.24) |
+| 882 | Qualcomm Adreno 840 | bilinear+off | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 42.0 | 35.5 | 99 | 680 | 42.0 | fence watch (PLAN 9.24) |
+| 883 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+off | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 45.2 | 37.1 | 99 | 680 | 45.2 | fence watch (PLAN 9.24) |
+| 884 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+off | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 44.7 | 36.6 | 99 | 680 | 44.7 | fence watch (PLAN 9.24) |
+| 885 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 31.2 | 26.7 | 99 | 680 | 62.3 | fence watch (PLAN 9.24) |
+| 886 | Turnip T30 (Mr_Purple_666) | bilinear+lossless | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 24.6 | 21.9 | 99 | 680 | 49.2 | fence watch (PLAN 9.24) |
+| 887 | Turnip v26.0.0 R8 (K11MCH1) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6463063 | 1280x720 | 1920x1080 | 33.9 | 28.0 | 99 | 680 | 67.8 | fence watch (PLAN 9.24) |
+| 888 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 27.1 | 23.7 | 99 | 680 | 54.2 | fence watch (PLAN 9.24) |
+| 889 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 25.8 | 22.7 | 99 | 680 | 51.4 | fence watch (PLAN 9.24) |
+| 890 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 29.1 | 25.2 | 99 | 680 | 58.0 | fence watch (PLAN 9.24) |
+
+#### Runs noted "test: 32-bit generator shaders (frame-generation-fp16 off)"
+
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 898 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 27.6 | 23.9 | 99 | 680 | 55.4 | test: 32-bit generator shaders (frame-generation-fp16 off) |
+| 899 | Turnip T30 (Mr_Purple_666) | bilinear+lossless | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | test: 32-bit generator shaders (frame-generation-fp16 off) |
+| 900 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 23.2 | 20.7 | 99 | 680 | 46.5 | test: 32-bit generator shaders (frame-generation-fp16 off) |
+| 901 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | test: 32-bit generator shaders (frame-generation-fp16 off) |
 
 #### The warm checks' screenshots (the camp, Bilinear, 1280x720 to 1920x1080)
 

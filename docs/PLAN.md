@@ -2721,7 +2721,38 @@ behind the owner's (CLAUDE.md).
         - StevenMXZ's Turnip v27.0.0-R2 is 9-14% faster than the system's driver except with
           Lossless 2x (-6%).
         - Qualcomm's newer drivers are even with the system's.
-        - Turnip T30, v26.0.0 R8 and Balemuni Apex v2 run at 55-80% of the system's speed.
+        - Turnip T30, v26.0.0 R8 and Balemuni Apex v2 run at 55-80% of the system's speed
+          (BUG-122, fixed in 9.24).
+        - R8's numbers measured a black screen (BUG-123).
+- [ ] 9.24 **Imported drivers as fast as the system's, the fix in our app (the owner asked,
+      2026-11-16: "the custom drivers SHOULD provide better or the same performance across the
+      board"; session 47, runs 870-905).**
+      - **Done:** BUG-122, the fence watch (`warden_fence_watch.cc`).
+        - **The cause:** Xenia asked each fence's status at every submission. On Turnip before
+          Mesa's e984ef29 (2026-10-08) that question waited for the GPU.
+        - **The fix:** a thread now waits on the fences in order. The timeline reads its number.
+        - **The result** (Bilinear, uncapped):
+          - Turnip T30 20.2 -> 42.0 swaps a second; Balemuni Apex v2 24.1 -> 45.2.
+          - The system driver 41.8, unchanged.
+          - Every driver at or above the system's without frame generation, the pictures alike
+            (screenshots 891-897).
+        - **For comparing:** `files/fence-watch` set to `off` restores Xenia's own checks.
+        - **The tool:** `tools/thread_profile.py`.
+      - **Left:**
+        - **Lossless 2x is still slower on every imported driver.** lsfg-vk's GPU time per
+          generated frame is 6.8 ms on the system's driver, against 10.0 on T30, 11.6 on
+          Qualcomm 840, 10.8 on StevenMXZ and 15.7 on Balemuni (runs 885-890).
+        - **Ruled out so far:**
+          - Clocks: all at 680 MHz now.
+          - Memory types: lsfg-vk's are the system's on Qualcomm 840.
+          - Its own queue against the game's: Qualcomm 840 has its own, and is slow too.
+          - 32-bit shaders: slower everywhere (runs 898-901; System 10.7 ms, 840 17.9, T30 232,
+            StevenMXZ 357).
+        - **Next:** time lsfg-vk's passes one by one on System and on 840/StevenMXZ, to find the
+          one that differs (its shaders, a format or a barrier).
+        - **R8 draws black (BUG-123):** the driver's own. Look at it only if the owner wants R8.
+        - **Then the full matrix again** with the fix: 5 drivers × 17 combinations, about
+          4.7 hours, `--shots` on the Bilinear runs.
 
 ## Phase 10 — Polish
 

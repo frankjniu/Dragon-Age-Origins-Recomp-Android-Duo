@@ -1498,6 +1498,26 @@ tables `docs/DRIVERS.md` holds.
 option files are put back from what was saved before (session 47:
 `build/options-before-9.23.txt`).
 
+**Where a driver loses time** (PLAN 9.24, BUG-122): `python tools/thread_profile.py <run>
+<driver-id|system> [name=value ...]` boots to the camp with the matrix's settings.
+- **Each thread's share of a core** goes to `build/perf<run>/threads.txt`. A thread near 100%
+  is the limit. If none is near it, the threads wait on each other or on the GPU.
+- **Where the command processor and the title's render thread block** goes to
+  `offcpu-gpu-commands.txt` and `offcpu-render.txt`: simpleperf with off-CPU time, as caller
+  graphs.
+- **Frame pointers, not DWARF:** the call graphs are recorded with frame pointers, since DWARF
+  unwinding stops at a driver's frames.
+- **The GPU status line** helps read it: `GPU waits N for T ms` counts only Xenia's blocking
+  waits for the GPU (`AwaitSubmissionImpl`). Time blocked elsewhere in the driver while that
+  count stays 0 is a call that should not wait.
+- **The fence watch** (a "GPU fences" thread a timeline, `warden_fence_watch.cc`): Xenia learns
+  finished submissions from it, never from `vkGetFenceStatus`. `files/fence-watch` set to
+  `off` restores Xenia's own checks for an A/B run. The log says which at the start (`GPU
+  fences: ...`).
+- **Whether the picture is drawn:** `files/guest-output-<tick>.png` (the game's own frames at
+  10-150 s) shows it as well as the main screen does. An all-zero capture means the driver
+  drew nothing (BUG-123, Turnip v26.0.0 R8).
+
 ### PC mods and the converter (Phase 10)
 
 - **The layers (10.12):** a mod folder holding a copy of a game file (a patch .tlk, an

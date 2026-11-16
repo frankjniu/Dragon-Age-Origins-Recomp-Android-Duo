@@ -374,12 +374,14 @@ GPUs, and for trying: the game is tested on the system's driver, and a driver fr
 can be slower, draw wrongly or fail to start. Your system's driver is never changed; choosing
 **System** (or Remove) puts everything back.
 
-On the AYN Thor (Adreno 740, Android 13), 6 drivers were measured with every upscaling and
-frame generation choice at the King's Camp:
-- **StevenMXZ's Turnip v27.0.0-R2** (from the Adreno-Tools-Drivers releases) was about 10%
-  faster than the system's driver, and drew the same picture. With Lossless 2x it was slower.
-- **The other Turnip builds tried** were 25-45% slower.
-- **Qualcomm's newer drivers** were as fast as the system's.
+On the AYN Thor (Adreno 740, Android 13), 6 drivers were measured at the King's Camp:
+- **As fast or faster:** every driver that draws the game correctly runs it as fast as the
+  system's driver or up to about 8% faster, without frame generation. That covers Turnip T30,
+  Balemuni Apex v2 ULTIMATE, StevenMXZ's v27.0.0-R2 and Qualcomm 840.
+- **Lossless 2x is still slower on all of them.**
+- **Drivers to avoid:**
+  - **K11MCH1's Turnip v26.0.0 R8** draws a black screen in this game.
+  - **Turnip T29 and Qualcomm 849** need Android 14.
 
 Every number is in [`docs/DRIVERS.md`](docs/DRIVERS.md).
 

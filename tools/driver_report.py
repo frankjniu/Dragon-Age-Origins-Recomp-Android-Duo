@@ -129,17 +129,29 @@ def main():
         smoke = [r for r in rows if r["note"].startswith(prefix)]
         if not smoke:
             continue
-        out.write("#### %s\n\n" % title)
-        out.write("| Run | Driver | Device | Driver version | Rendered at | Upscaled to | Game fps"
-                  " | 1% low | GPU busy | GPU MHz | Shown fps |\n")
-        out.write("|---|---|---|---|---|---|---|---|---|---|---|\n")
-        for r in smoke:
-            out.write("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n" % (
-                r["run"], short(r["driver"]), r["device"], r["driver_version"],
-                r.get("render_resolution", ""), r.get("output_resolution", ""),
-                cell(r, "title_fps"), cell(r, "title_1pct_low"), cell(r, "gpu_busy_pct"),
-                cell(r, "gpu_mhz"), cell(r, "panel_fps")))
-        out.write("\n")
+        runs_table(out, title, smoke)
+    # Session 47 (PLAN 9.24): every other set of runs - after the fence watch, and the tests -
+    # a table each, by its note.
+    others = OrderedDict()
+    for r in rows:
+        if r["note"] != a.note and not r["note"].startswith(("smoke", "warm")):
+            others.setdefault(r["note"], []).append(r)
+    for note, group in others.items():
+        runs_table(out, "Runs noted \"%s\"" % note, group)
+
+
+def runs_table(out, title, group):
+    out.write("#### %s\n\n" % title)
+    out.write("| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to"
+              " | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |\n")
+    out.write("|---|---|---|---|---|---|---|---|---|---|---|---|---|\n")
+    for r in group:
+        out.write("| %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s | %s |\n" % (
+            r["run"], short(r["driver"]), r["combo"], r["device"], r["driver_version"],
+            r.get("render_resolution", ""), r.get("output_resolution", ""),
+            cell(r, "title_fps"), cell(r, "title_1pct_low"), cell(r, "gpu_busy_pct"),
+            cell(r, "gpu_mhz"), cell(r, "panel_fps"), r["note"]))
+    out.write("\n")
 
 
 if __name__ == "__main__":

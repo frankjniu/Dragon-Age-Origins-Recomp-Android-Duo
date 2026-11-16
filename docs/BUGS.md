@@ -83,6 +83,8 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-058](#bug-058) | upstream (Xenia) | low | **FIXED** | Xenia's timer queue and log writer spin-wait: about 10% of one core each. Now they nap while the game is held or not yet started (the launcher); in play they spin as before |
 | [BUG-059](#bug-059) | upstream (Xenia) / our runtime | low | **FIXED** | With no Vulkan instance the boot went on, and crashed in the command processor's constructor |
 | [BUG-079](#bug-079) | our runtime | medium | **FIXED** | The guest output captures, a debugging aid, ran in every session: a 4 MB PNG of the screen every minute of play, never removed (about 240 MB an hour in the app's files directory), each with a GPU readback and a PNG encode |
+| [BUG-123](#bug-123) | an imported driver (Mesa Turnip v26.0.0 R8) | medium | **OPEN** (the driver's; not worked around) | On K11MCH1's Turnip v26.0.0 R8 (Mesa 26.0.0-devel git-5ac41be677) the game draws nothing: every frame black from the first menu, at 76 frames a second once BUG-122 was fixed. Its matrix numbers measured a black screen |
+| [BUG-122](#bug-122) | our runtime (Xenia's completion timeline) / Turnip on KGSL before Mesa e984ef29 | high | **FIXED** (session 47, PLAN 9.24) | On Turnip builds before 2026-10-08 the game ran at about half the system driver's speed with the GPU part idle: Xenia's fence status checks waited for the GPU. The fences are now watched on their own thread |
 | [BUG-121](#bug-121) | our tools (`driver_matrix.py`) | low | **FIXED** | The driver matrix's rows were written with more columns than its CSV's header (a newer version appending to an older one's file): read back, four columns ran past the header and the note and the FSR 3.1 and frame generation states were lost |
 | [BUG-120](#bug-120) | libadrenotools / our runtime (PLAN 9.23) | medium | **FIXED** (found) | A chosen driver package that cannot load on the device (Turnip T29, Qualcomm 849 on Android 13) was reported as loaded: the hook loads the system's driver in its place, silently. The app now checks the process's maps and says so |
 | [BUG-119](#bug-119) | our runtime and app / the title's render thread | high | **FIXED** | Put away (the lid, the lock), the game kept a core busy: the render thread spun on a flag a held thread sets in half the lid-closes in play (93% of a core); the XMA decoder, the deck and the touch check polled on. Held by signal, the polls stopped: 1.4-1.7% of a core |
@@ -3031,6 +3033,84 @@ The game code's ABI is unchanged (no override was added): no Build again.
 
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
+
+## BUG-123
+**Turnip v26.0.0 R8 draws every frame black**
+an imported driver (K11MCH1's Mesa Turnip v26.0.0 R8, Mesa 26.0.0-devel git-5ac41be677) · severity medium
+· **OPEN** (the driver's own; not worked around)
+
+**What it looks like** (runs 892, 894):
+- The main screen is black at the King's Camp.
+- So are the game's own captures of its frames (`files/guest-output-*.png`, all-zero RGBA from
+  the first menus on).
+- The game runs on, with no fault and no error in the log, with the same draws as on every other
+  driver.
+- With BUG-122 fixed it showed 76 frames a second, against the system driver's 42: the GPU does
+  about half its work.
+
+**Not known:**
+- **The cause.** The device reports the same features and extensions as StevenMXZ's Turnip
+  v27.0.0-R2, which draws the camp correctly. A miscompiled shader is likely, for instance the
+  resolve that copies each frame into the game's memory. No test switch picks another resolve
+  path.
+- **Whether R8 was black before the fix.** Its runs in the first matrix (765-832) had no
+  screenshot. They are counted as measuring a black screen (`docs/DRIVERS.md`).
+
+The other Turnip builds tried draw correctly: T30, Balemuni Apex v2 ULTIMATE and StevenMXZ
+v27.0.0-R2 (screenshots 869, 893, 895, 897).
+
+## BUG-122
+**Turnip before Mesa's e984ef29 ran the game at half speed: the fence checks waited for the GPU**
+our runtime (Xenia's `VulkanGPUCompletionTimeline`) / Turnip on Qualcomm's kernel driver · severity high ·
+**FIXED** session 47 (PLAN 9.24)
+
+**What it looked like** (`docs/DRIVERS.md`, the first matrix):
+- Turnip T30, v26.0.0 R8 and Balemuni Apex v2 ULTIMATE ran the camp at 55-80% of the system
+  driver's speed.
+- The GPU was only 63-75% busy, at 401-475 MHz of its 680.
+- StevenMXZ's Turnip v27.0.0-R2, of 2026-11-07, did not do this.
+
+**Found** (runs 873-875, `tools/thread_profile.py`):
+- **No thread was the limit.** The command processor used 28% of a core, the title's render
+  thread 21%.
+- **The command processor was blocked.** Two thirds of its time went to Turnip's
+  `wait_timestamp_safe`, called from `VulkanCommandProcessor::CheckSubmissionCompletionAndDeviceLoss`
+  (frame-pointer call graphs; DWARF unwinding stopped at the driver's frames).
+- **The GPU status line had already pointed there.** It said `GPU waits 0`: Xenia's only
+  blocking wait never ran, so the time was in `UpdateCompletedSubmission`, which only asks
+  `vkGetFenceStatus`.
+
+**Cause.**
+- **The driver's side.** Turnip on KGSL implemented a fence status check with a timeout of 0 as
+  `IOCTL_KGSL_DEVICE_WAITTIMESTAMP_CTXTID` with a timeout of 0, which the kernel driver takes as
+  no timeout. Every status check waited for the oldest pending submission to finish.
+- **Our side.** Xenia asks at every submission it begins. So the command processor stood still
+  while the GPU drained, then the GPU stood idle while the command processor recorded.
+- **The driver's fix.** Mesa fixed it on 2026-10-08 (commit e984ef29, "tu/kgsl: Prevent indefinite
+  wait times for 0 timeout waits": a timeout of 0 now reads the retired timestamp). So builds after
+  it - StevenMXZ's v27.0.0-R2 - never had it.
+
+**Fixed in the app, not the driver** (`app/src/main/cpp/warden_fence_watch.cc`, seven edits in
+`tools/assemble_runtime.py` to `vulkan_gpu_completion_timeline.*`):
+- **The watcher.** Each completion timeline has a thread ("GPU fences") that waits on the
+  submitted fences in order, with no timeout - a wait every driver does right - and publishes
+  the last finished submission.
+- **The timeline.** It reads that number instead of asking a fence's status, waits on the thread
+  instead of on a fence, and frees a fence only once the thread is done with it.
+- **A switch for comparing:** `files/fence-watch` set to `off` keeps Xenia's own checks.
+
+**The result** (Bilinear, 1280x720, uncapped):
+
+| Driver | Before | After | GPU after |
+|---|---|---|---|
+| Turnip T30 | 20.2 swaps a second (run 877) | 42.0 (run 876) | 99% at 680 MHz |
+| Balemuni Apex v2 ULTIMATE | 24.1 | 45.2 | |
+| The system driver | 41.9 | 41.8 | unchanged |
+| Qualcomm 840 | | 42.0 | unchanged |
+| StevenMXZ v27.0.0-R2 | | 44.7 | unchanged |
+
+Every driver is now at or above the system's without frame generation (runs 879-884, 891-897).
+The pictures are the system's (screenshots).
 
 ## BUG-121
 **The driver matrix's rows ran past its CSV's header**

@@ -1,0 +1,529 @@
+Cmdline: /data/user/0/dev.daorecompandroid.duo/simpleperf record --app dev.daorecompandroid.duo --add-meta-info app_type=debuggable --in-app --tracepoint-events /data/local/tmp/tracepoint_events --out-fd 3 --stop-signal-fd 4 --call-graph fp --duration 8 -e cpu-clock -f 1000 --trace-offcpu
+Arch: arm64
+Event: cpu-clock (type 1, config 0)
+Samples: 2908
+Error Callchains: 155, 5.330124%
+Time in ns: 7993682029
+
+Children  Self    Symbol
+95.25%    0.00%   __start_thread
+       |
+       -- __start_thread
+          |
+           -- __pthread_start(void*)
+              xe::threading::PosixCondition<xe::threading::Thread>::ThreadStartRoutine(void*)
+               |
+               |--100.00%-- xe::gpu::CommandProcessor::WorkerThreadMain()
+               |            xe::gpu::vulkan::VulkanCommandProcessor::ExecutePrimaryBuffer(unsigned int, unsigned int)
+               |    |
+               |    |--99.99%-- xe::gpu::vulkan::VulkanCommandProcessor::ExecutePacketType3(unsigned int)
+               |    |    |
+               |    |    |--99.94%-- xe::gpu::vulkan::VulkanCommandProcessor::ExecuteIndirectBuffer(unsigned int, unsigned int)
+               |    |    |    |--0.04%-- [hit in function]
+               |    |    |    |
+               |    |    |    |--90.27%-- xe::gpu::vulkan::VulkanCommandProcessor::ExecutePacketType3(unsigned int)
+               |    |    |    |    |--0.13%-- [hit in function]
+               |    |    |    |    |
+               |    |    |    |    |--78.21%-- xe::gpu::vulkan::VulkanCommandProcessor::ExecuteIndirectBuffer(unsigned int, unsigned int)
+               |    |    |    |    |    |
+               |    |    |    |    |    |--99.99%-- xe::gpu::vulkan::VulkanCommandProcessor::ExecutePacketType3(unsigned int)
+               |    |    |    |    |    |           xe::gpu::vulkan::VulkanCommandProcessor::ExecutePacketType3Draw(unsigned int, char const*, unsigned int, unsigned int)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--99.82%-- xe::gpu::vulkan::VulkanCommandProcessor::IssueDraw(xe::gpu::xenos::PrimitiveType, unsigned int, xe::gpu::CommandProcessor::IndexBufferInfo*, bool)
+               |    |    |    |    |    |    |    |--0.07%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--99.60%-- xe::gpu::vulkan::VulkanCommandProcessor::BeginSubmission(bool)
+               |    |    |    |    |    |    |    |    |--0.17%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--99.82%-- xe::gpu::vulkan::VulkanCommandProcessor::CheckSubmissionCompletionAndDeviceLoss(unsigned long)
+               |    |    |    |    |    |    |    |    |    |--0.02%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |     --99.98%-- xe::ui::vulkan::VulkanGPUCompletionTimeline::UpdateCompletedSubmission()
+               |    |    |    |    |    |    |    |    |                vk_common_GetFenceStatus
+               |    |    |    |    |    |    |    |    |                kgsl_syncobj_wait(tu_device*, kgsl_syncobj*, unsigned long)
+               |    |    |    |    |    |    |    |    |                wait_timestamp_safe(int, unsigned int, unsigned int, unsigned long)
+               |    |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |    |         |--99.94%-- __ioctl
+               |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |    |         |    |--100.00%-- [kernel.kallsyms][+ffffffdadbc4a3ae]
+               |    |    |    |    |    |    |    |    |         |    |            [kernel.kallsyms][+ffffffdae0f3ca9a]
+               |    |    |    |    |    |    |    |    |         |    |            [kernel.kallsyms][+ffffffdae0f3c976]
+               |    |    |    |    |    |    |    |    |         |    |            [kernel.kallsyms][+ffffffdae0f2bd16]
+               |    |    |    |    |    |    |    |    |         |    |            [kernel.kallsyms][+ffffffdae0f66d26]
+               |    |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |    |         |    |    |--99.98%-- [kernel.kallsyms][+ffffffdae0fa4d7a]
+               |    |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadca43bce]
+               |    |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |
+               |    |    |    |    |--18.29%-- xe::gpu::vulkan::VulkanCommandProcessor::ExecutePacketType3Draw(unsigned int, char const*, unsigned int, unsigned int)
+               |    |    |    |    |    |--0.24%-- [hit in function]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--81.07%-- xe::gpu::vulkan::VulkanCommandProcessor::IssueDraw(xe::gpu::xenos::PrimitiveType, unsigned int, xe::gpu::CommandProcessor::IndexBufferInfo*, bool)
+               |    |    |    |    |    |    |--4.01%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--25.55%-- xe::gpu::vulkan::VulkanCommandProcessor::UpdateBindings(xe::gpu::vulkan::VulkanShader const*, xe::gpu::vulkan::VulkanShader const*)
+               |    |    |    |    |    |    |    |--35.78%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--31.78%-- void tu_update_descriptor_sets<(chip)7>(tu_device const*, VkDescriptorSet_T*, unsigned int, VkWriteDescriptorSet const*, unsigned int, VkCopyDescriptorSet const*)
+               |    |    |    |    |    |    |    |    |--95.77%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --4.23%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |         |--71.33%-- [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |          --28.67%-- [kernel.kallsyms][+ffffffdadc9f4b7e]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadb889476]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadb814966]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadca489f6]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadb9da06a]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadb94c842]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadb8100c8]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--8.12%-- xe::gpu::vulkan::VulkanTextureCache::GetActiveBindingOrNullImageView(unsigned int, xe::gpu::xenos::FetchOpDimension, bool)
+               |    |    |    |    |    |    |    |    |--73.91%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --26.09%-- xe::gpu::dao_trace::Active()
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--7.87%-- xe::gpu::dao_trace::Active()
+               |    |    |    |    |    |    |    |    |--97.82%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--7.65%-- xe::gpu::vulkan::VulkanCommandProcessor::WriteTransientTextureBindings(bool, unsigned int, unsigned int, VkDescriptorSetLayout_T*, VkDescriptorImageInfo const*, VkDescriptorImageInfo const*, VkWriteDescriptorSet*)
+               |    |    |    |    |    |    |    |    |--94.95%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --5.05%-- std::__ndk1::deque<xe::gpu::vulkan::VulkanCommandProcessor::UsedTextureTransientDescriptorSet, std::__ndk1::allocator<xe::gpu::vulkan::VulkanCommandProcessor::UsedTextureTransientDescriptorSet>>::__add_back_capacity()
+               |    |    |    |    |    |    |    |               operator new(unsigned long)
+               |    |    |    |    |    |    |    |               malloc
+               |    |    |    |    |    |    |    |               scudo_malloc
+               |    |    |    |    |    |    |    |               scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::allocate(unsigned long, scudo::Chunk::Origin, unsigned long, bool)
+               |    |    |    |    |    |    |    |               scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::refill(scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::PerClass*, unsigned long)
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--3.08%-- xe::ui::vulkan::VulkanUploadBufferPool::Request(unsigned long, unsigned long, unsigned long, VkBuffer_T*&, unsigned long&)
+               |    |    |    |    |    |    |    |    |--37.45%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --62.55%-- xe::ui::GraphicsUploadBufferPool::Request(unsigned long, unsigned long, unsigned long, unsigned long&)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--13.03%-- xe::gpu::vulkan::VulkanRenderTargetCache::Update(bool, xe::gpu::reg::RB_DEPTHCONTROL, unsigned int, xe::gpu::Shader const&, int)
+               |    |    |    |    |    |    |    |--11.46%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--57.49%-- xe::gpu::RenderTargetCache::Update(bool, xe::gpu::reg::RB_DEPTHCONTROL, unsigned int, xe::gpu::Shader const&, int)
+               |    |    |    |    |    |    |    |    |--19.53%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--39.06%-- xe::gpu::DaoEdramMapCheck()
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--96.65%-- std::__ndk1::chrono::steady_clock::now()
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |--93.04%-- __kernel_clock_gettime
+               |    |    |    |    |    |    |    |    |    |    |    |--99.14%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |     --6.96%-- clock_gettime
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |     --3.35%-- @plt
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--19.07%-- xe::gpu::RenderTargetCache::GetOrCreateRenderTarget(xe::gpu::RenderTargetCache::RenderTargetKey)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--13.36%-- xe::gpu::RenderTargetCache::ChangeOwnership(xe::gpu::RenderTargetCache::RenderTargetKey, unsigned int, unsigned int, std::__ndk1::vector<xe::gpu::RenderTargetCache::Transfer, std::__ndk1::allocator<xe::gpu::RenderTargetCache::Transfer>>*, xe::gpu::RenderTargetCache::Transfer::Rectangle const*, bool)
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--90.18%-- xe::gpu::RenderTargetCache::ChangeOwnership(xe::gpu::RenderTargetCache::RenderTargetKey, unsigned int, unsigned int, std::__ndk1::vector<xe::gpu::RenderTargetCache::Transfer, std::__ndk1::allocator<xe::gpu::RenderTargetCache::Transfer>>*, xe::gpu::RenderTargetCache::Transfer::Rectangle const*, bool)::$_1::operator()(unsigned int, unsigned int) const
+               |    |    |    |    |    |    |    |    |    |    |--86.10%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |--8.84%-- scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::deallocate(void*, scudo::Chunk::Origin, unsigned long, unsigned long)
+               |    |    |    |    |    |    |    |    |    |    |          scudo::Allocator<scudo::AndroidConfig, &scudo_malloc_postinit>::quarantineOrDeallocateChunk(scudo::Options, void*, scudo::Chunk::UnpackedHeader*, unsigned long)
+               |    |    |    |    |    |    |    |    |    |    |          scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::drain(scudo::SizeClassAllocatorLocalCache<scudo::SizeClassAllocator64<scudo::AndroidConfig>>::PerClass*, unsigned long)
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |     --5.06%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |     --9.82%-- std::__ndk1::__tree_node_base<void*>*& std::__ndk1::__tree<std::__ndk1::__value_type<unsigned int, xe::gpu::RenderTargetCache::OwnershipRange>, std::__ndk1::__map_value_compare<unsigned int, std::__ndk1::__value_type<unsigned int, xe::gpu::RenderTargetCache::OwnershipRange>, std::__ndk1::less<unsigned int>, true>, std::__ndk1::allocator<std::__ndk1::__value_type<unsigned int, xe::gpu::RenderTargetCache::OwnershipRange>>>::__find_equal<unsigned int>(std::__ndk1::__tree_const_iterator<std::__ndk1::__value_type<unsigned int, xe::gpu::RenderTargetCache::OwnershipRange>, std::__ndk1::__tree_node<std::__ndk1::__value_type<unsigned int, xe::gpu::RenderTargetCache::OwnershipRange>, void*>*, long>, std::__ndk1::__tree_end_node<std::__ndk1::__tree_node_base<void*>*>*&, std::__ndk1::__tree_node_base<void*>*&, unsigned int const&)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--5.26%-- xe::gpu::DrawExtentEstimator::EstimateMaxY(bool, xe::gpu::Shader const&, bool)
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--75.00%-- xe::gpu::DrawExtentEstimator::EstimateVertexMaxY(xe::gpu::Shader const&, bool)
+               |    |    |    |    |    |    |    |    |    |           xe::gpu::ShaderInterpreter::Execute()
+               |    |    |    |    |    |    |    |    |    |           xe::gpu::ShaderInterpreter::ExecuteAluInstruction(xe::gpu::ucode::AluInstruction)
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |     --25.00%-- xe::gpu::ShaderInterpreter::Execute()
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--20.73%-- xe::gpu::vulkan::VulkanRenderTargetCache::PerformTransfersAndResolveClears(unsigned int, xe::gpu::RenderTargetCache::RenderTarget* const*, std::__ndk1::vector<xe::gpu::RenderTargetCache::Transfer, std::__ndk1::allocator<xe::gpu::RenderTargetCache::Transfer>> const*, unsigned long const*, xe::gpu::RenderTargetCache::Transfer::Rectangle const*)
+               |    |    |    |    |    |    |    |    |--47.31%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--14.58%-- std::__ndk1::__hash_iterator<std::__ndk1::__hash_node<std::__ndk1::__hash_value_type<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey, xe::gpu::vulkan::VulkanRenderTargetCache::Framebuffer>, void*>*> std::__ndk1::__hash_table<std::__ndk1::__hash_value_type<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey, xe::gpu::vulkan::VulkanRenderTargetCache::Framebuffer>, std::__ndk1::__unordered_map_hasher<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey, std::__ndk1::__hash_value_type<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey, xe::gpu::vulkan::VulkanRenderTargetCache::Framebuffer>, xe::hash::XXHasher<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey>, std::__ndk1::equal_to<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey>, true>, std::__ndk1::__unordered_map_equal<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey, std::__ndk1::__hash_value_type<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey, xe::gpu::vulkan::VulkanRenderTargetCache::Framebuffer>, std::__ndk1::equal_to<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey>, xe::hash::XXHasher<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey>, true>, std::__ndk1::allocator<std::__ndk1::__hash_value_type<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey, xe::gpu::vulkan::VulkanRenderTargetCache::Framebuffer>>>::find<xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey>(xe::gpu::vulkan::VulkanRenderTargetCache::FramebufferKey const&)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--10.95%-- xe::gpu::vulkan::VulkanRenderTargetCache::GetHostRenderTargetsRenderPass(xe::gpu::vulkan::VulkanRenderTargetCache::RenderPassKey)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--7.29%-- xe::gpu::vulkan::VulkanRenderTargetCache::GetTransferPipelines(xe::gpu::vulkan::VulkanRenderTargetCache::TransferPipelineKey)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--5.32%-- xe::gpu::dao_trace::Active()
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--3.66%-- xe::gpu::vulkan::VulkanCommandProcessor::SubmitBarriersAndEnterRenderTargetCacheRenderPass(VkRenderPass_T*, xe::gpu::vulkan::VulkanRenderTargetCache::Framebuffer const*)
+               |    |    |    |    |    |    |    |    |          xe::gpu::vulkan::VulkanCommandProcessor::SubmitBarriers(bool)
+               |    |    |    |    |    |    |    |    |          @plt
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--3.64%-- std::__ndk1::vector<unsigned long, std::__ndk1::allocator<unsigned long>>::__append(unsigned long)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--3.63%-- xe::gpu::RenderTargetCache::Transfer::GetRangeRectangles(unsigned int, unsigned int, xe::gpu::RenderTargetCache::RenderTargetKey, xe::gpu::RenderTargetCache::Transfer::Rectangle*, xe::gpu::RenderTargetCache::Transfer::Rectangle const*)
+               |    |    |    |    |    |    |    |    |          xe::gpu::RenderTargetCache::Transfer::AddRectangle(xe::gpu::RenderTargetCache::Transfer::Rectangle const&, xe::gpu::RenderTargetCache::Transfer::Rectangle*, xe::gpu::RenderTargetCache::Transfer::Rectangle const*)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --3.62%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--3.77%-- xe::gpu::vulkan::VulkanCommandProcessor::PushImageMemoryBarrier(VkImage_T*, VkImageSubresourceRange const&, unsigned int, unsigned int, unsigned int, unsigned int, VkImageLayout, VkImageLayout, unsigned int, unsigned int, bool, VkSampleLocationsInfoEXT const*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--11.45%-- xe::gpu::vulkan::VulkanTextureCache::RequestTextures(unsigned int)
+               |    |    |    |    |    |    |    |--1.71%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--93.14%-- xe::gpu::TextureCache::RequestTextures(unsigned int)
+               |    |    |    |    |    |    |    |    |--3.69%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--39.64%-- xe::gpu::vulkan::VulkanTextureCache::UpdateTextureBindingsImpl(unsigned int)
+               |    |    |    |    |    |    |    |    |           xe::gpu::vulkan::VulkanTextureCache::VulkanTexture::GetView(bool, unsigned int, bool)
+               |    |    |    |    |    |    |    |    |    |--97.66%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--20.82%-- std::__ndk1::__hash_iterator<std::__ndk1::__hash_node<std::__ndk1::__hash_value_type<xe::gpu::TextureCache::TextureKey, std::__ndk1::unique_ptr<xe::gpu::TextureCache::Texture, std::__ndk1::default_delete<xe::gpu::TextureCache::Texture>>>, void*>*> std::__ndk1::__hash_table<std::__ndk1::__hash_value_type<xe::gpu::TextureCache::TextureKey, std::__ndk1::unique_ptr<xe::gpu::TextureCache::Texture, std::__ndk1::default_delete<xe::gpu::TextureCache::Texture>>>, std::__ndk1::__unordered_map_hasher<xe::gpu::TextureCache::TextureKey, std::__ndk1::__hash_value_type<xe::gpu::TextureCache::TextureKey, std::__ndk1::unique_ptr<xe::gpu::TextureCache::Texture, std::__ndk1::default_delete<xe::gpu::TextureCache::Texture>>>, xe::hash::XXHasher<xe::gpu::TextureCache::TextureKey>, std::__ndk1::equal_to<xe::gpu::TextureCache::TextureKey>, true>, std::__ndk1::__unordered_map_equal<xe::gpu::TextureCache::TextureKey, std::__ndk1::__hash_value_type<xe::gpu::TextureCache::TextureKey, std::__ndk1::unique_ptr<xe::gpu::TextureCache::Texture, std::__ndk1::default_delete<xe::gpu::TextureCache::Texture>>>, std::__ndk1::equal_to<xe::gpu::TextureCache::TextureKey>, xe::hash::XXHasher<xe::gpu::TextureCache::TextureKey>, true>, std::__ndk1::allocator<std::__ndk1::__hash_value_type<xe::gpu::TextureCache::TextureKey, std::__ndk1::unique_ptr<xe::gpu::TextureCache::Texture, std::__ndk1::default_delete<xe::gpu::TextureCache::Texture>>>>>::find<xe::gpu::TextureCache::TextureKey>(xe::gpu::TextureCache::TextureKey const&)
+               |    |    |    |    |    |    |    |    |    |--89.38%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |     --10.62%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--8.91%-- xe::gpu::TextureCache::LoadTexturesData(xe::gpu::TextureCache::Texture**, unsigned int)
+               |    |    |    |    |    |    |    |    |    |--20.74%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--58.59%-- xe::gpu::vulkan::VulkanTextureCache::LoadTextureDataFromResidentMemoryImpl(xe::gpu::TextureCache::Texture&, bool, bool)
+               |    |    |    |    |    |    |    |    |    |    |--35.34%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |--29.43%-- void tu_update_descriptor_sets<(chip)7>(tu_device const*, VkDescriptorSet_T*, unsigned int, VkWriteDescriptorSet const*, unsigned int, VkCopyDescriptorSet const*)
+               |    |    |    |    |    |    |    |    |    |    |    |--97.18%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |--17.62%-- xe::gpu::vulkan::DeferredCommandBuffer::WriteCommand(xe::gpu::vulkan::DeferredCommandBuffer::Command, unsigned long)
+               |    |    |    |    |    |    |    |    |    |    |           memset
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |     --17.62%-- xe::gpu::vulkan::VulkanCommandProcessor::SubmitBarriers(bool)
+               |    |    |    |    |    |    |    |    |    |                xe::gpu::vulkan::VulkanCommandProcessor::SplitPendingBarrier()
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--10.35%-- xe::gpu::vulkan::VulkanSharedMemory::UploadRanges(std::__ndk1::pair<unsigned int, unsigned int> const*, unsigned int)
+               |    |    |    |    |    |    |    |    |    |           xe::Memory::State::Heap::QueryRangeAccess(unsigned int, unsigned int)
+               |    |    |    |    |    |    |    |    |    |           pthread_mutex_lock
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |     --10.33%-- memcpy_opt
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--6.44%-- xe::gpu::TextureCache::FindOrCreateTexture(xe::gpu::TextureCache::TextureKey)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--5.56%-- xe::gpu::TextureCache::LoadTextureData(xe::gpu::TextureCache::Texture&)
+               |    |    |    |    |    |    |    |    |    |--16.57%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--35.51%-- xe::gpu::vulkan::VulkanTextureCache::LoadTextureDataFromResidentMemoryImpl(xe::gpu::TextureCache::Texture&, bool, bool)
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |--93.48%-- xe::gpu::vulkan::DeferredCommandBuffer::WriteCommand(xe::gpu::vulkan::DeferredCommandBuffer::Command, unsigned long)
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |     --6.52%-- xe::gpu::vulkan::VulkanCommandProcessor::SubmitBarriers(bool)
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--17.02%-- @plt
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--16.62%-- __aarch64_swp4_rel
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--12.77%-- xe::xe_global_mutex::unlock()
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--3.69%-- xe::gpu::TextureCache::BindingInfoFromFetchConstant(xe::gpu::xenos::xe_gpu_texture_fetch_t const&, xe::gpu::TextureCache::TextureKey&, unsigned char*)
+               |    |    |    |    |    |    |    |    |    |--24.98%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |     --75.02%-- xe::gpu::texture_util::GetSubresourcesFromFetchConstant(xe::gpu::xenos::xe_gpu_texture_fetch_t const&, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--6.04%-- xe::gpu::vulkan::VulkanTextureCache::GetSamplerParameters(xe::gpu::SpirvShader::SamplerBinding const&) const
+               |    |    |    |    |    |    |    |--46.14%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--24.52%-- xe::gpu::TextureCache::BindingInfoFromFetchConstant(xe::gpu::xenos::xe_gpu_texture_fetch_t const&, xe::gpu::TextureCache::TextureKey&, unsigned char*)
+               |    |    |    |    |    |    |    |    |--80.49%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --19.51%-- xe::gpu::texture_util::GetSubresourcesFromFetchConstant(xe::gpu::xenos::xe_gpu_texture_fetch_t const&, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*)
+               |    |    |    |    |    |    |    |         |--68.07%-- [hit in function]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |          --31.93%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--15.91%-- xe::gpu::texture_util::GetSubresourcesFromFetchConstant(xe::gpu::xenos::xe_gpu_texture_fetch_t const&, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*, unsigned int*)
+               |    |    |    |    |    |    |    |    |--92.02%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --7.98%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--11.08%-- xe::gpu::texture_util::SwizzleSigns(xe::gpu::xenos::xe_gpu_texture_fetch_t const&)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--5.63%-- xe::gpu::vulkan::VulkanSharedMemory::UploadRanges(std::__ndk1::pair<unsigned int, unsigned int> const*, unsigned int)
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--99.62%-- mprotect
+               |    |    |    |    |    |    |    |    |--3.50%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --96.50%-- [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadbbbd37a]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |         |--58.29%-- [kernel.kallsyms][+ffffffdadbbbdb02]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--25.91%-- [kernel.kallsyms][+ffffffdadbbbd2f2]
+               |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadbbba282]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--72.44%-- [kernel.kallsyms][+ffffffdadbbba07e]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--66.72%-- [kernel.kallsyms][+ffffffdadb93b94e]
+               |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |--50.35%-- [kernel.kallsyms][+ffffffdadbbed2c2]
+               |    |    |    |    |    |    |    |         |    |    |    |    |           [kernel.kallsyms][+ffffffdadbbf1a72]
+               |    |    |    |    |    |    |    |         |    |    |    |    |           [kernel.kallsyms][+ffffffdadbbeec50]
+               |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |     --49.65%-- [kernel.kallsyms][+ffffffdadbbed158]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--16.67%-- [kernel.kallsyms][+ffffffdadb820b78]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |     --16.61%-- [kernel.kallsyms][+ffffffdadb820b70]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |     --27.56%-- [kernel.kallsyms][+ffffffdadbbba152]
+               |    |    |    |    |    |    |    |         |    |         |
+               |    |    |    |    |    |    |    |         |    |         |--43.62%-- [kernel.kallsyms][+ffffffdadbbb708a]
+               |    |    |    |    |    |    |    |         |    |         |           [kernel.kallsyms][+ffffffdadbb9f470]
+               |    |    |    |    |    |    |    |         |    |         |
+               |    |    |    |    |    |    |    |         |    |         |--43.55%-- [kernel.kallsyms][+ffffffdadbbb7194]
+               |    |    |    |    |    |    |    |         |    |         |
+               |    |    |    |    |    |    |    |         |    |          --12.84%-- [kernel.kallsyms][+ffffffdadbbb74ba]
+               |    |    |    |    |    |    |    |         |    |                     [kernel.kallsyms][+ffffffdadbbb6c08]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--24.96%-- [kernel.kallsyms][+ffffffdadbbbd2aa]
+               |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadbbba282]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--74.91%-- [kernel.kallsyms][+ffffffdadbbba152]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--16.73%-- [kernel.kallsyms][+ffffffdadbbb7194]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--16.72%-- [kernel.kallsyms][+ffffffdadbbb6ec6]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadbc05776]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadbc03104]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--16.65%-- [kernel.kallsyms][+ffffffdadbbb74ba]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadbbb6d12]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadbff3ff8]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--16.65%-- [kernel.kallsyms][+ffffffdadbc056d0]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--16.64%-- [kernel.kallsyms][+ffffffdadbbb6f3a]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadbb9f44c]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |     --16.62%-- [kernel.kallsyms][+ffffffdadbbb6f02]
+               |    |    |    |    |    |    |    |         |    |    |                [kernel.kallsyms][+ffffffdadca40132]
+               |    |    |    |    |    |    |    |         |    |    |                [kernel.kallsyms][+ffffffdadb9c1a8c]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |     --25.09%-- [kernel.kallsyms][+ffffffdadbbba07e]
+               |    |    |    |    |    |    |    |         |    |                [kernel.kallsyms][+ffffffdadb93b94e]
+               |    |    |    |    |    |    |    |         |    |         |
+               |    |    |    |    |    |    |    |         |    |         |--50.24%-- [kernel.kallsyms][+ffffffdadbbed158]
+               |    |    |    |    |    |    |    |         |    |         |
+               |    |    |    |    |    |    |    |         |    |          --49.76%-- [kernel.kallsyms][+ffffffdadbbed208]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--19.45%-- [kernel.kallsyms][+ffffffdadbbbd1e2]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--83.92%-- [kernel.kallsyms][+ffffffdadbbb7c32]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--61.74%-- [kernel.kallsyms][+ffffffdadbbb7862]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadb93bb16]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadb93baba]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadb9f8802]
+               |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |--79.69%-- [kernel.kallsyms][+ffffffdadb9fadde]
+               |    |    |    |    |    |    |    |         |    |    |    |    |           [kernel.kallsyms][+ffffffdadba0411e]
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |--60.91%-- [kernel.kallsyms][+ffffffdadb988d52]
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadca45d8c]
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |     --39.09%-- [kernel.kallsyms][+ffffffdadb988d80]
+               |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |     --20.31%-- [kernel.kallsyms][+ffffffdadb9facfe]
+               |    |    |    |    |    |    |    |         |    |    |    |                [kernel.kallsyms][+ffffffdadca45d8c]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |     --38.26%-- [kernel.kallsyms][+ffffffdadbbb6fc6]
+               |    |    |    |    |    |    |    |         |    |    |         |
+               |    |    |    |    |    |    |    |         |    |    |         |--50.13%-- [kernel.kallsyms][+ffffffdadbb9f530]
+               |    |    |    |    |    |    |    |         |    |    |         |
+               |    |    |    |    |    |    |    |         |    |    |          --49.87%-- [kernel.kallsyms][+ffffffdadbb9f6fc]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |     --16.08%-- [kernel.kallsyms][+ffffffdadbbb7bf6]
+               |    |    |    |    |    |    |    |         |    |                [kernel.kallsyms][+ffffffdadbbb7c80]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--17.23%-- [kernel.kallsyms][+ffffffdadbbbd27e]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--63.64%-- [kernel.kallsyms][+ffffffdadbb31df2]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--85.32%-- [kernel.kallsyms][+ffffffdadbb31886]
+               |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |--66.62%-- [kernel.kallsyms][+ffffffdadbb30fe6]
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |--50.13%-- [kernel.kallsyms][+ffffffdadbb3cbce]
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadbb43f84]
+               |    |    |    |    |    |    |    |         |    |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |     --49.87%-- [kernel.kallsyms][+ffffffdadbb3c96e]
+               |    |    |    |    |    |    |    |         |    |    |    |    |                [kernel.kallsyms][+ffffffdadbb2ef22]
+               |    |    |    |    |    |    |    |         |    |    |    |    |                [kernel.kallsyms][+ffffffdadba19856]
+               |    |    |    |    |    |    |    |         |    |    |    |    |                [kernel.kallsyms][+ffffffdadc51613c]
+               |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |     --33.38%-- [kernel.kallsyms][+ffffffdadbb30ff8]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |     --14.68%-- [kernel.kallsyms][+ffffffdadbb318d2]
+               |    |    |    |    |    |    |    |         |    |    |                [kernel.kallsyms][+ffffffdadca3b832]
+               |    |    |    |    |    |    |    |         |    |    |                [kernel.kallsyms][+ffffffdadca3c34e]
+               |    |    |    |    |    |    |    |         |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |         |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--18.23%-- [kernel.kallsyms][+ffffffdadbb31bce]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb820db0]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |     --18.13%-- [kernel.kallsyms][+ffffffdadbb31dfa]
+               |    |    |    |    |    |    |    |         |    |                [kernel.kallsyms][+ffffffdadbbefee0]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--9.34%-- [kernel.kallsyms][+ffffffdadbbbd22a]
+               |    |    |    |    |    |    |    |         |    |          [kernel.kallsyms][+ffffffdadbbbd096]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--66.70%-- [kernel.kallsyms][+ffffffdadbbb0b38]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |     --33.30%-- [kernel.kallsyms][+ffffffdadbbb0c6c]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |     --3.11%-- [kernel.kallsyms][+ffffffdadbbbd20a]
+               |    |    |    |    |    |    |    |         |               [kernel.kallsyms][+ffffffdadbbb691c]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |         |--28.11%-- [kernel.kallsyms][+ffffffdadbbbd982]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--87.07%-- [kernel.kallsyms][+ffffffdadca4019e]
+               |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadca40b1e]
+               |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |     --12.93%-- [kernel.kallsyms][+ffffffdadca40176]
+               |    |    |    |    |    |    |    |         |         |
+               |    |    |    |    |    |    |    |         |         |--50.05%-- [kernel.kallsyms][+ffffffdadb9c1a8c]
+               |    |    |    |    |    |    |    |         |         |
+               |    |    |    |    |    |    |    |         |          --49.95%-- [kernel.kallsyms][+ffffffdadb9c1aa0]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |         |--9.10%-- [kernel.kallsyms][+ffffffdadbbbd9aa]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--80.01%-- [kernel.kallsyms][+ffffffdadbbb9bd0]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |     --19.99%-- [kernel.kallsyms][+ffffffdadbbb9bf0]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |         |--3.76%-- [kernel.kallsyms][+ffffffdadbbbda8e]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--96.44%-- [kernel.kallsyms][+ffffffdadbe9a9e2]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--50.18%-- [kernel.kallsyms][+ffffffdadbea9308]
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |     --49.82%-- [kernel.kallsyms][+ffffffdadbea930a]
+               |    |    |    |    |    |    |    |         |    |                [kernel.kallsyms][+ffffffdadbeaf2da]
+               |    |    |    |    |    |    |    |         |    |                [kernel.kallsyms][+ffffffdadbeae8e8]
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |     --3.56%-- [kernel.kallsyms][+ffffffdadc9fe358]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--4.92%-- xe::gpu::PrimitiveProcessor::Process(xe::gpu::PrimitiveProcessor::ProcessingResult&)
+               |    |    |    |    |    |    |    |--15.97%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--62.08%-- xe::gpu::vulkan::VulkanSharedMemory::UploadRanges(std::__ndk1::pair<unsigned int, unsigned int> const*, unsigned int)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--83.92%-- mprotect
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--96.16%-- [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadbbbd37a]
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |--65.36%-- [kernel.kallsyms][+ffffffdadbbbdb02]
+               |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |--32.78%-- [kernel.kallsyms][+ffffffdadbbbd2aa]
+               |    |    |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadbbba282]
+               |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |    |--55.96%-- [kernel.kallsyms][+ffffffdadbbba07e]
+               |    |    |    |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb93b94e]
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |--33.45%-- [kernel.kallsyms][+ffffffdadbbed2c2]
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadbbf1a72]
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadbbeed94]
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |--33.31%-- [kernel.kallsyms][+ffffffdadbbed158]
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |    |     --33.24%-- [kernel.kallsyms][+ffffffdadbbed2ae]
+               |    |    |    |    |    |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadbbf548c]
+               |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |     --44.04%-- [kernel.kallsyms][+ffffffdadbbba152]
+               |    |    |    |    |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |    |    |    |    |         |--42.33%-- [kernel.kallsyms][+ffffffdadbbb6fc6]
+               |    |    |    |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadbb9f688]
+               |    |    |    |    |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |    |    |    |    |         |--42.26%-- [kernel.kallsyms][+ffffffdadbbb6f02]
+               |    |    |    |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadca40132]
+               |    |    |    |    |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadb9c1ac0]
+               |    |    |    |    |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |    |    |    |    |          --15.41%-- [kernel.kallsyms][+ffffffdadbbb74ba]
+               |    |    |    |    |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadbbb6d12]
+               |    |    |    |    |    |    |    |    |    |    |    |                     [kernel.kallsyms][+ffffffdadbff4004]
+               |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |--30.52%-- [kernel.kallsyms][+ffffffdadbbbd2f2]
+               |    |    |    |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadbbba282]
+               |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |    |--79.99%-- [kernel.kallsyms][+ffffffdadbbba152]
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |--49.96%-- [kernel.kallsyms][+ffffffdadbbb6f3a]
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |    |    |    |    |--50.01%-- [kernel.kallsyms][+ffffffdadbb9f454]
+               |    |    |    |    |    

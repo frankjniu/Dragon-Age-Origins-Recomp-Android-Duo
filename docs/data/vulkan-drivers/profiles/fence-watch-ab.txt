@@ -1,0 +1,9 @@
+Fence watch A/B (PLAN 9.24, BUG-122): the matrix's settings, Bilinear, no frame generation, uncapped;
+tools/measure_ostagar.sh's sampling. Each line: run, driver, the fence watch, swaps a second (the last five
+GPU status lines), the GPU samples' mean busy % and clock.
+
+run 876  Turnip T30  fences watched on their own thread            42.0 swaps/s
+run 877  Turnip T30  fences checked by Xenia itself                20.2 swaps/s
+run 878  system      fences watched on their own thread            40.4 swaps/s
+
+GPU busy/clock (from the run): 876 99% 680 MHz; 877 76% 401 MHz; 878 99% 680 MHz.

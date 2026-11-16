@@ -1,0 +1,477 @@
+Cmdline: /data/user/0/dev.daorecompandroid.duo/simpleperf record --app dev.daorecompandroid.duo --add-meta-info app_type=debuggable --in-app --tracepoint-events /data/local/tmp/tracepoint_events --out-fd 3 --stop-signal-fd 4 --call-graph fp --duration 8 -e cpu-clock -f 1000 --trace-offcpu
+Arch: arm64
+Event: cpu-clock (type 1, config 0)
+Samples: 5473
+Time in ns: 8012642080
+
+Children  Self    Symbol
+99.85%    0.00%   __start_thread
+       |
+       -- __start_thread
+          |
+           -- __pthread_start(void*)
+              warden::(anonymous namespace)::GuestThreadMain(void*)
+              warden::RunGuestThread(char const*, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int, unsigned int)
+              tu6_sub_82AB8B30(PPCContext&, unsigned char*)
+              __imp__tu6_sub_8261C7F0
+              __imp__tu6_sub_8261C928
+               |--0.01%-- [hit in function]
+               |
+               |--94.05%-- __imp__tu6_sub_82682BF0
+               |    |--1.28%-- [hit in function]
+               |    |
+               |    |--98.58%-- __imp__tu6_sub_82681DB0
+               |    |    |--0.31%-- [hit in function]
+               |    |    |
+               |    |    |--71.05%-- __imp__tu6_sub_825FD6B8
+               |    |    |    |--0.45%-- [hit in function]
+               |    |    |    |
+               |    |    |    |--95.34%-- __imp__tu6_sub_82606C50
+               |    |    |    |    |--0.71%-- [hit in function]
+               |    |    |    |    |
+               |    |    |    |    |--90.42%-- tu6_sub_82698558(PPCContext&, unsigned char*)
+               |    |    |    |    |    |--0.22%-- [hit in function]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--97.57%-- __imp__tu6_sub_82D9DB20
+               |    |    |    |    |    |    |--0.26%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--90.39%-- tu6_sub_82DA76A8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |--0.53%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--99.27%-- __imp__tu6_sub_82DA6CC8
+               |    |    |    |    |    |    |    |    |--0.03%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--99.92%-- tu6_sub_82DA2530(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--99.93%-- tu6_sub_82DA23A8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |--99.87%-- tu6_sub_82DA1A68(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |    |    |    |    |--0.03%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |     --99.97%-- __imp__tu6_sub_82DA13D8
+               |    |    |    |    |    |    |    |    |    |    |         |--0.02%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |    |    |    |         |--99.94%-- __imp__tu6_sub_82DA0FB8
+               |    |    |    |    |    |    |    |    |    |    |         |    |--0.03%-- [hit in function]
+               |    |    |    |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |    |    |    |         |    |--99.97%-- syscall
+               |    |    |    |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |    |    |    |    |    |    |    |    |         |    |           [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |            [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |            [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadba32bca]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |            [kernel.kallsyms][+ffffffdadba2fee6]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadba307da]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadba34756]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |    |    |--99.97%-- [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |    |    |    |         |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--5.17%-- tu6_sub_82DA2530(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--99.13%-- tu6_sub_82DA23A8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |           tu6_sub_82DA1A68(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |           __imp__tu6_sub_82DA13D8
+               |    |    |    |    |    |    |    |           __imp__tu6_sub_82DA0FB8
+               |    |    |    |    |    |    |    |           syscall
+               |    |    |    |    |    |    |    |    |--0.44%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --99.56%-- [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |         |--99.99%-- [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadba32bca]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadba2fee6]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadba307da]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadba34756]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |         |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.75%-- tu6_sub_82DA7550(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |--3.99%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--94.97%-- __imp__tu6_sub_82DA6CC8
+               |    |    |    |    |    |    |    |           tu6_sub_82DA2530(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |           tu6_sub_82DA23A8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |           tu6_sub_82DA1A68(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |--99.57%-- __imp__tu6_sub_82DA13D8
+               |    |    |    |    |    |    |    |    |           __imp__tu6_sub_82DA0FB8
+               |    |    |    |    |    |    |    |    |           syscall
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |    |    |    |    |    |    |           [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |    |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadba32bca]
+               |    |    |    |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadba2fee6]
+               |    |    |    |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadba307da]
+               |    |    |    |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadba34756]
+               |    |    |    |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |
+               |    |    |    |    |--5.19%-- __imp__tu6_sub_825FEFD0
+               |    |    |    |    |    |--11.22%-- [hit in function]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--28.01%-- __imp__tu6_sub_825FF138
+               |    |    |    |    |    |    |--39.84%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--20.09%-- __imp__tu6_sub_826186B8
+               |    |    |    |    |    |    |    |--29.71%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--51.49%-- tu6_sub_82A946D0(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |    |--95.27%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--13.61%-- __tu6_savegprlr_28(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --5.19%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--17.36%-- tu6_sub_82279190(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |--71.10%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--15.81%-- warden_guest_trace
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --13.09%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--11.05%-- __tu6_restgprlr_28(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |--60.69%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--37.11%-- warden_guest_trace
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.85%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.70%-- warden_guest_trace
+               |    |    |    |    |    |    |    |--74.33%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --25.67%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--25.06%-- tu6_sub_825FFAD8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |--24.26%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--60.95%-- __imp__tu6_sub_8267D950
+               |    |    |    |    |    |    |    |--67.79%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--16.33%-- tu6_sub_825855D8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |    |--95.62%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --4.38%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--7.55%-- __tu6_savegprlr_21(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--4.48%-- __imp__tu6_sub_82585640
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --3.84%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.41%-- __tu6_savegprlr_26(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.32%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |          [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.05%-- tu6_sub_825855D8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.05%-- __imp____tu6_restgprlr_21
+               |    |    |    |    |    |    |    |--50.06%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --49.94%-- warden_guest_trace
+               |    |    |    |    |    |
+               |    |    |    |    |    |--12.70%-- __imp__tu6_sub_825FF730
+               |    |    |    |    |    |    |--15.16%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--56.99%-- tu6_sub_82678F38(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |--90.09%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --9.91%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--21.81%-- __imp__tu6_sub_82618840
+               |    |    |    |    |    |    |    |--45.60%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--40.58%-- tu6_sub_82A946D0(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |    |--68.15%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --31.85%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --13.82%-- __tu6_savegprlr_28(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--3.02%-- __tu6_savegprlr_28(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |          warden_guest_trace
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |     --3.02%-- @plt
+               |    |    |    |    |    |
+               |    |    |    |    |    |--8.91%-- tu6_sub_82618280(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |--21.05%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--59.37%-- tu6_sub_82A946D0(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |--89.24%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --10.76%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--16.41%-- __imp____tu6_savegprlr_27
+               |    |    |    |    |    |    |    |--52.32%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--26.27%-- warden_guest_trace
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --21.41%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |     --3.17%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |
+               |    |    |--15.40%-- __imp__tu6_sub_826C93B0
+               |    |    |    |--0.00%-- [hit in function]
+               |    |    |    |
+               |    |    |     --100.00%-- tu6_sub_8269DE48(PPCContext&, unsigned char*)
+               |    |    |         |
+               |    |    |         |--100.00%-- tu6_sub_82D9E780(PPCContext&, unsigned char*)
+               |    |    |         |    |--0.00%-- [hit in function]
+               |    |    |         |    |
+               |    |    |         |    |--94.76%-- __imp__tu6_sub_82DA16F0
+               |    |    |         |    |    |
+               |    |    |         |    |    |--99.99%-- syscall
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadba32bca]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadba2fee6]
+               |    |    |         |    |    |    |
+               |    |    |         |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadba307da]
+               |    |    |         |    |    |    |    |
+               |    |    |         |    |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadba34756]
+               |    |    |         |    |    |    |    |            [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |         |    |    |    |    |    |
+               |    |    |         |    |    |    |    |    |--100.00%-- [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |         |    |    |    |    |    |            [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |         |    |
+               |    |    |         |    |--5.23%-- tu6_sub_82DA1A68(PPCContext&, unsigned char*)
+               |    |    |         |    |          __imp__tu6_sub_82DA13D8
+               |    |    |         |    |          __imp__tu6_sub_82DA0FB8
+               |    |    |         |    |          syscall
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadba32bca]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadba2fee6]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadba307da]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadba34756]
+               |    |    |         |    |          [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |         |    |    |
+               |    |    |         |    |    |--99.98%-- [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |
+               |    |    |--8.34%-- tu6_sub_825FD348(PPCContext&, unsigned char*)
+               |    |    |    |--1.44%-- [hit in function]
+               |    |    |    |
+               |    |    |    |--88.98%-- __imp__tu6_sub_82606C50
+               |    |    |    |    |--1.76%-- [hit in function]
+               |    |    |    |    |
+               |    |    |    |    |--82.91%-- tu6_sub_82698558(PPCContext&, unsigned char*)
+               |    |    |    |    |    |--1.27%-- [hit in function]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--92.95%-- __imp__tu6_sub_82D9DB20
+               |    |    |    |    |    |    |--0.45%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--96.27%-- tu6_sub_82DA76A8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |--1.56%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--98.40%-- __imp__tu6_sub_82DA6CC8
+               |    |    |    |    |    |    |    |    |--0.23%-- [hit in function]
+               |    |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |     --99.77%-- tu6_sub_82DA2530(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |         |
+               |    |    |    |    |    |    |    |         |--94.37%-- tu6_sub_82DA23A8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |         |    |
+               |    |    |    |    |    |    |    |         |    |--99.90%-- tu6_sub_82DA1A68(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |         |    |           __imp__tu6_sub_82DA13D8
+               |    |    |    |    |    |    |    |         |    |           __imp__tu6_sub_82DA0FB8
+               |    |    |    |    |    |    |    |         |    |    |
+               |    |    |    |    |    |    |    |         |    |    |--99.99%-- syscall
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb81164a]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadc9f3c82]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadc9f3d0a]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb8b627e]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb8b63a6]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadb8b6476]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadba32bca]
+               |    |    |    |    |    |    |    |         |    |    |           [kernel.kallsyms][+ffffffdadba2fee6]
+               |    |    |    |    |    |    |    |         |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |--99.99%-- [kernel.kallsyms][+ffffffdadba307da]
+               |    |    |    |    |    |    |    |         |    |    |    |           [kernel.kallsyms][+ffffffdadba34756]
+               |    |    |    |    |    |    |    |         |    |    |    |    |
+               |    |    |    |    |    |    |    |         |    |    |    |    |--99.73%-- [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |    |    |         |    |    |    |    |           [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |    |    |         |    |    |    |    |           [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |
+               |    |    |    |    |--5.62%-- __imp__tu6_sub_825FEFD0
+               |    |    |    |    |    |--21.84%-- [hit in function]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--19.39%-- tu6_sub_825FFAD8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |--16.64%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--66.67%-- __imp__tu6_sub_8267D950
+               |    |    |    |    |    |    |    |--75.13%-- [hit in function]
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --24.87%-- tu6_sub_825855D8(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |     --16.69%-- __tu6_savegprlr_26(PPCContext&, unsigned char*)
+               |    |    |    |    |    |
+               |    |    |    |    |    |--17.58%-- __imp__tu6_sub_825FF730
+               |    |    |    |    |    |    |--36.72%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--46.17%-- tu6_sub_82678F38(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--9.49%-- __imp__tu6_sub_82618840
+               |    |    |    |    |    |    |          tu6_sub_82A946D0(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |     --7.62%-- warden_guest_trace
+               |    |    |    |    |    |
+               |    |    |    |    |    |--17.45%-- __imp__tu6_sub_825FF138
+               |    |    |    |    |    |    |--18.46%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--55.56%-- __imp__tu6_sub_826186B8
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |    |--66.58%-- tu6_sub_82A946D0(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |    |
+               |    |    |    |    |    |    |     --33.42%-- __tu6_savegprlr_28(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--18.45%-- __tu6_restgprlr_28(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |    |--4.05%-- tu6_sub_82279190(PPCContext&, unsigned char*)
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |     --3.48%-- __tu6_savegprlr_24(PPCContext&, unsigned char*)
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |               [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--6.46%-- tu6_sub_82618280(PPCContext&, unsigned char*)
+               |    |    |    |    |    |
+               |    |    |    |    |    |--4.23%-- warden_guest_trace
+               |    |    |    |    |    |    |--76.16%-- [hit in function]
+               |    |    |    |    |    |    |
+               |    |    |    |    |    |     --23.84%-- [kernel.kallsyms][+ffffffdadb811806]
+               |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4646]
+               |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4672]
+               |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadc9f4bba]
+               |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadb8a677a]
+               |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c21a]
+               |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c092]
+               |    |    |    |    |    |                [kernel.kallsyms][+ffffffdadca3c094]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--3.24%-- __tu6_savegprlr_28(PPCContext&, unsigned char*)
+               |    |    |    |    |    |
+               |    |    |    |    |    |--3.23%-- __imp____tu6_savegprlr_27
+               |    |    |    |
+               |    |    |    |--5.92%-- tu6_sub_825FD800(PPCContext&, unsigned char*)
+               |    |    |    |    |--39.34%-- [hit in function]
+               |    |    |    |    |
+               |    |    |    |    |--27.18%-- tu6_sub_82618088(PPCContext&, unsigned char*)
+               |    |    |    |    |    |--10.02%-- [hit in function]
+               |    |    |    |    |    |
+               |    |    |    |    |    |--79.94%-- tu6_sub_82A946D0(PPCContext&, unsigned char*)
+               |    |    |    |    |    |
+   

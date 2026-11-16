@@ -1,0 +1,26 @@
+  29.3%  13332   Eclipse::Update      last on cpu 6
+  27.5%  13315   GPU Commands         last on cpu 3
+  21.4%  13333   DragonAge::Rend      last on cpu 4
+  12.3%  13461   Eclipse::Update      last on cpu 3
+   3.7%  13175   compandroid.duo      last on cpu 6
+   3.6%  13215   compandroid.duo      last on cpu 6
+   3.3%  13217   Logging Writer       last on cpu 6
+   2.6%  13424   XAudio worker        last on cpu 4
+   2.1%  13423   Eclipse::Update      last on cpu 6
+   2.1%  13321   deck-pull            last on cpu 6
+   1.8%  13318   compandroid.duo      last on cpu 7
+   1.8%  13304   VsyncReceiver        last on cpu 0
+   1.8%  13296   compandroid.duo      last on cpu 4
+   1.5%  13337   Eclipse::Worker      last on cpu 4
+   1.5%  13205   RenderThread         last on cpu 6
+   1.5%  13338   Eclipse::Worker      last on cpu 6
+   1.5%  13319   compandroid.duo      last on cpu 2
+   1.4%  13971   Eclipse::Update      last on cpu 4
+   1.1%  13320   Eclipse::Startu      last on cpu 0
+   0.6%  13972   Eclipse::Update      last on cpu 4
+   0.6%  13484   Eclipse::Update      last on cpu 4
+   0.6%  13340   Eclipse::Update      last on cpu 3
+   0.6%  13336   Eclipse::Stream      last on cpu 6
+   0.6%  13201   binder:13175_4       last on cpu 2
+   0.5%  13488   Eclipse::Update      last on cpu 3
+process 128.9% of one core

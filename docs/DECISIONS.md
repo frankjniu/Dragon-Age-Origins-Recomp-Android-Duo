@@ -338,6 +338,14 @@ Measured over all 17 upscaling and frame generation combinations on 6 drivers
 So System stays the default: it is the driver the game is tested on, and the best one for
 Lossless 2x. The option stays experimental, with a faster driver there for the player to try.
 
+**Later the same day (the owner: the imported drivers should be as fast or faster, the fix
+in our app; PLAN 9.24):** the old Turnips' slowness was ours to fix (BUG-122).
+- **The cause:** Xenia's fence status checks, which those drivers turned into waits for the GPU.
+- **The fix:** a thread now does the waiting.
+- **Since then:** every driver that draws correctly is at or above the system's without frame
+  generation.
+- **Still open:** Lossless 2x is slower on all of them (PLAN 9.24). R8 draws black (BUG-123).
+
 ## D16 — No replaceable Vulkan driver (2026-11-03) - superseded by D17
 
 **Superseded (the owner, 2026-11-16):** D17 brings the loading of a driver package back, as an

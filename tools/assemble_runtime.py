@@ -74,6 +74,8 @@ VKP_C = "xenia/ui/vulkan/vulkan_presenter.cc"
 VKI_H = "xenia/ui/vulkan/vulkan_instance.h"
 VKI_C = "xenia/ui/vulkan/vulkan_instance.cc"
 GCT_H = "xenia/ui/gpu_completion_timeline.h"
+VGCT_H = "xenia/ui/vulkan/vulkan_gpu_completion_timeline.h"
+VGCT_C = "xenia/ui/vulkan/vulkan_gpu_completion_timeline.cc"
 VCP_H = "xenia/gpu/vulkan/vulkan_command_processor.h"
 VCP_C = "xenia/gpu/vulkan/vulkan_command_processor.cc"
 CP_C = "xenia/gpu/command_processor.cc"
@@ -3060,6 +3062,135 @@ EDITS = [
      "\n"
      "namespace xe {\n"
      "namespace ui {\n"),
+    # PLAN 9.24 (BUG-122): the finished submissions learned from a thread that waits on the
+    # fences (app/src/main/cpp/warden_fence_watch.cc), never by asking a fence's status - on
+    # Turnip before Mesa's e984ef29 that question waited for the GPU, and the command
+    # processor stood still with it. The timeline reads the watch's number, waits on the
+    # watch, and frees a fence only after the watch is done with it.
+    (VGCT_H, "each submitted fence to the fence watch",
+     "          completion_timeline_->pending_submission_fences_.emplace_back(\n"
+     "              completion_timeline_->GetUpcomingSubmission(), fence_);\n"
+     "          completion_timeline_->IncrementUpcomingSubmission();\n",
+     "          completion_timeline_->pending_submission_fences_.emplace_back(\n"
+     "              completion_timeline_->GetUpcomingSubmission(), fence_);\n"
+     "          // DAO/Warden (PLAN 9.24): warden_fence_watch.cc.\n"
+     "          completion_timeline_->WardenWatchSubmitted(\n"
+     "              completion_timeline_->GetUpcomingSubmission(), fence_);\n"
+     "          completion_timeline_->IncrementUpcomingSubmission();\n"),
+    (VGCT_H, "the fence watch's member",
+     "  std::deque<std::pair<uint64_t, VkFence>> pending_submission_fences_;\n",
+     "  std::deque<std::pair<uint64_t, VkFence>> pending_submission_fences_;\n"
+     "\n"
+     "  // DAO/Warden (PLAN 9.24): app/src/main/cpp/warden_fence_watch.cc.\n"
+     "  void WardenWatchSubmitted(uint64_t submission, VkFence fence);\n"
+     "  void* warden_fence_watch_ = nullptr;\n"),
+    (VGCT_C, "the fence watch's declarations",
+     "#include \"xenia/base/logging.h\"\n"
+     "\n"
+     "namespace xe {\n",
+     "#include \"xenia/base/logging.h\"\n"
+     "\n"
+     "// DAO/Warden (PLAN 9.24): app/src/main/cpp/warden_fence_watch.cc.\n"
+     "extern \"C\" bool warden_fence_watch_wanted();\n"
+     "extern \"C\" void* warden_fence_watch_create(VkDevice device,\n"
+     "                                           PFN_vkWaitForFences wait_for_fences);\n"
+     "extern \"C\" void warden_fence_watch_push(void* watch, uint64_t submission,\n"
+     "                                         VkFence fence);\n"
+     "extern \"C\" uint64_t warden_fence_watch_completed(void* watch, int* lost_out);\n"
+     "extern \"C\" int warden_fence_watch_await(void* watch, uint64_t submission);\n"
+     "extern \"C\" void warden_fence_watch_destroy(void* watch);\n"
+     "\n"
+     "namespace xe {\n"),
+    (VGCT_C, "the fence watch ended first",
+     "VulkanGPUCompletionTimeline::~VulkanGPUCompletionTimeline() {\n"
+     "#ifndef NDEBUG\n"
+     "  assert_zero(fences_acquired_);\n"
+     "#endif\n",
+     "VulkanGPUCompletionTimeline::~VulkanGPUCompletionTimeline() {\n"
+     "#ifndef NDEBUG\n"
+     "  assert_zero(fences_acquired_);\n"
+     "#endif\n"
+     "\n"
+     "  // DAO/Warden (PLAN 9.24): every fence pushed waited for, the watch's thread ended.\n"
+     "  if (warden_fence_watch_) {\n"
+     "    warden_fence_watch_destroy(warden_fence_watch_);\n"
+     "    warden_fence_watch_ = nullptr;\n"
+     "  }\n"),
+    (VGCT_C, "the finished submissions as the fence watch saw them",
+     "void VulkanGPUCompletionTimeline::UpdateCompletedSubmission() {\n"
+     "  while (!pending_submission_fences_.empty()) {\n",
+     "void VulkanGPUCompletionTimeline::UpdateCompletedSubmission() {\n"
+     "  // DAO/Warden (PLAN 9.24): the finished submissions as the fence watch saw them - no\n"
+     "  // fence's status asked here (warden_fence_watch.cc says why).\n"
+     "  if (warden_fence_watch_) {\n"
+     "    int lost = 0;\n"
+     "    const uint64_t watched =\n"
+     "        warden_fence_watch_completed(warden_fence_watch_, &lost);\n"
+     "    if (lost) {\n"
+     "      vulkan_device_->SetLost();\n"
+     "    }\n"
+     "    while (!pending_submission_fences_.empty() &&\n"
+     "           pending_submission_fences_.front().first <= watched) {\n"
+     "      SetCompletedSubmission(pending_submission_fences_.front().first);\n"
+     "      free_fences_.push_back(pending_submission_fences_.front().second);\n"
+     "      pending_submission_fences_.pop_front();\n"
+     "    }\n"
+     "    return;\n"
+     "  }\n"
+     "  while (!pending_submission_fences_.empty()) {\n"),
+    (VGCT_C, "the waits on the fence watch",
+     "void VulkanGPUCompletionTimeline::AwaitSubmissionImpl(\n"
+     "    const uint64_t awaited_submission) {\n",
+     "void VulkanGPUCompletionTimeline::AwaitSubmissionImpl(\n"
+     "    const uint64_t awaited_submission) {\n"
+     "  // DAO/Warden (PLAN 9.24): waited for on the fence watch's thread, which alone waits\n"
+     "  // on the fences - for the last pending submission up to the awaited one, as below.\n"
+     "  if (warden_fence_watch_) {\n"
+     "    uint64_t target = 0;\n"
+     "    for (const auto& pending : pending_submission_fences_) {\n"
+     "      if (pending.first > awaited_submission) {\n"
+     "        break;\n"
+     "      }\n"
+     "      target = pending.first;\n"
+     "    }\n"
+     "    if (target && warden_fence_watch_await(warden_fence_watch_, target)) {\n"
+     "      vulkan_device_->SetLost();\n"
+     "      return;\n"
+     "    }\n"
+     "    UpdateCompletedSubmission();\n"
+     "    if (GetCompletedSubmissionFromLastUpdate() < awaited_submission) {\n"
+     "      SetCompletedSubmission(awaited_submission);\n"
+     "    }\n"
+     "    return;\n"
+     "  }\n"),
+    (VGCT_C, "each submitted fence handed to the fence watch",
+     "}  // namespace vulkan\n"
+     "}  // namespace ui\n"
+     "}  // namespace xe\n",
+     "// DAO/Warden (PLAN 9.24): each successful submission's fence to the fence watch, made at\n"
+     "// the first one (with every fence then pending).\n"
+     "void VulkanGPUCompletionTimeline::WardenWatchSubmitted(const uint64_t submission,\n"
+     "                                                       const VkFence fence) {\n"
+     "  if (!warden_fence_watch_) {\n"
+     "    if (!warden_fence_watch_wanted()) {\n"
+     "      return;\n"
+     "    }\n"
+     "    warden_fence_watch_ = warden_fence_watch_create(\n"
+     "        vulkan_device_->device(), vulkan_device_->functions().vkWaitForFences);\n"
+     "    if (!warden_fence_watch_) {\n"
+     "      return;\n"
+     "    }\n"
+     "    for (const auto& pending : pending_submission_fences_) {\n"
+     "      warden_fence_watch_push(warden_fence_watch_, pending.first, pending.second);\n"
+     "    }\n"
+     "    return;\n"
+     "  }\n"
+     "  warden_fence_watch_push(warden_fence_watch_, submission, fence);\n"
+     "}\n"
+     "\n"
+     "}  // namespace vulkan\n"
+     "}  // namespace ui\n"
+     "}  // namespace xe\n"),
     # BUG-112: the pipeline barriers and render passes executed, counted for the GPU
     # status line - what a driver that drains the GPU at each barrier (Mesa's Turnip) pays per
     # frame, which Xenia's EDRAM emulation makes many of.
