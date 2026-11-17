@@ -1514,6 +1514,15 @@ option files are put back from what was saved before (session 47:
   finished submissions from it, never from `vkGetFenceStatus`. `files/fence-watch` set to
   `off` restores Xenia's own checks for an A/B run. The log says which at the start (`GPU
   fences: ...`).
+- **lsfg-vk's passes timed:** `files/frame-generation-timing` set to `passes` (PLAN 9.24,
+  `warden_lsfg.cc`) writes GPU timestamps around its shader chains. Every 5 s the log says
+  `Frame generation passes, GPU ms (N timed): mipmaps, alpha, beta, gamma/delta by level (7),
+  generate`. The timestamps barely change the total.
+  - Combine it with `files/frame-generation-fp16` set to `off` for the 32-bit shaders.
+  - To read a shader, take its SPIR-V from the player's own `Lossless.dll` on the computer,
+    never into the repository (resource 49 + id, +49 for 32-bit, +23 for performance mode;
+    `shader_registry.cpp`), and disassemble it with the NDK's `spirv-dis`
+    (`shader-tools/windows-x86_64`).
 - **Whether the picture is drawn:** `files/guest-output-<tick>.png` (the game's own frames at
   10-150 s) shows it as well as the main screen does. An all-zero capture means the driver
   drew nothing (BUG-123, Turnip v26.0.0 R8).

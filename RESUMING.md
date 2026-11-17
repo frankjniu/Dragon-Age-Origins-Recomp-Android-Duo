@@ -539,18 +539,14 @@ downloaded to a temporary folder, never into the repository: get them again from
 `docs/DRIVERS.md` names, and check them against its SHA-256s. BUG-122 is fixed: the fence watch made every correctly drawing driver as fast as the
 system's or faster without frame generation. Next, in order:
 
-1. **Lossless 2x on imported drivers.**
-   - The gap: lsfg-vk's GPU time a generated frame is 6.8 ms on System and 10-15.7 ms on the
-     others (`docs/DRIVERS.md`, the fence watch section).
-   - Ruled out, in PLAN 9.24.
-   - Next: time its passes one by one on System and on Qualcomm 840 or StevenMXZ.
-   - Tools: `tools/thread_profile.py`, and `tools/driver_matrix.py --combos bilinear+lossless`.
-2. **The full matrix again with the fix:**
-   `python tools/driver_matrix.py --run <N> --combos all --interleave --shots --drivers
-   system,<T30>,<840>,<Balemuni>,<StevenMXZ> --note "full matrix (fence watch)"`.
-   - It takes about 4.7 hours.
-   - Its tables: `python tools/driver_report.py --note "full matrix (fence watch)"`.
-   - Save the owner's options first, and restore them after.
+1. **Lossless 2x on imported drivers: the owner's choice** (session 48, `docs/DRIVERS.md` "Lossless 2x
+   pass by pass").
+   - Timed pass by pass, the gap is each driver's compiler on a few of lsfg-vk's shaders.
+   - Choosing the precision per pass at the generator's start would help Qualcomm 840 (11.6 to
+     about 7.5 ms). Nothing found helps Turnip.
+   - Ask before building it.
+2. **The full matrix:** not wanted (the owner, 2026-11-17). Run 720p, Bilinear, frame rate 120
+   instead (`--combos bilinear+off,bilinear+lossless --shots`).
 3. **BUG-123 (R8 draws black)** only if the owner wants R8.
 
 **Session 41, the end (2026-11-02): version 0.1.0-alpha, "Open Alpha",

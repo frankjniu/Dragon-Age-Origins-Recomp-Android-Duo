@@ -179,7 +179,8 @@ def parse(run, stdout):
         if re.search(r"Vulkan driver|vulkan driver|Vulkan device ready|Debugging Mode: GPU|"
                      r"VulkanPresenter: Created|the upscaler is made|generator is up|"
                      r"frames put together at|GPU: rendering at|"
-                     r"FSR 3\.1:|Frame generation:|frame generation|fault on guest|Warden:F|"
+                     r"FSR 3\.1:|Frame generation:|Frame generation passes|frame generation|"
+                     r"GPU fences:|fault on guest|Warden:F|"
                      r"FATAL|SIGSEGV|libadrenotools|hook_android|adrenotools|game: mode is now|"
                      r"VkPipelineCache|unavailable|not made|frames: |GPU: frame rate|"
                      r"startup\(\) =", line) and OUR_TAGS.search(line):

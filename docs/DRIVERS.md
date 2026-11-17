@@ -63,8 +63,65 @@ and animation.
   driver: System 10.7 ms, Qualcomm 840 17.9, and on the Turnips 232 ms (T30) and 357 ms
   (StevenMXZ), the game at 2.7 frames a second. 16-bit stays.
 
-Next (PLAN 9.24): time lsfg-vk's passes one by one on each driver, to find the pass that
-differs. Then run the full matrix again with the fix.
+**The same at 720p, Bilinear, frame rate 120, the next day** (runs 902-911, the owner's
+choice in place of the full matrix): the numbers repeat. No frame generation:
+
+| Driver | Game fps |
+|---|---|
+| System | 41.7 |
+| Turnip T30 | 43.1 |
+| Qualcomm 840 | 41.5 |
+| Turnip Balemuni Apex v2 | 46.5 |
+| Turnip v27.0.0-R2 (StevenMXZ) | 45.4 |
+
+Lossless 2x: 30.9, 24.9, 27.4, 25.9 and 29.3. Every screenshot is within 2.8 levels out of 255
+of the system's.
+
+### Lossless 2x pass by pass
+
+`files/frame-generation-timing` set to `passes` writes timestamps around lsfg-vk's shader chains
+(`warden_lsfg.cc`). The table is GPU ms per generated frame, 300 frames each; the "full-size"
+gamma/delta level is the last of the seven, at the frame's own size.
+
+| Pass | System | Turnip T30 | Qualcomm 840 | Balemuni | StevenMXZ |
+|---|---|---|---|---|---|
+| mipmaps | 0.18 | 0.10 | 0.19 | 0.21 | 0.17 |
+| alpha | 0.88 | **3.23** | 1.01 | **5.06** | **2.27** |
+| beta | 0.28 | 0.19 | **6.77** | 0.30 | 0.30 |
+| gamma/delta, levels 1-6 | 1.43 | 1.70 | 1.03 | 2.64 | 2.10 |
+| gamma/delta, full size | 3.11 | **4.09** | 1.68 | **6.47** | **4.88** |
+| generate | 0.16 | 0.11 | 0.17 | 0.17 | 0.17 |
+| the whole generation | 6.78 | 9.89 | 11.60 | 15.60 | 10.64 |
+
+The runs are 912-916, all 16-bit.
+
+**With 32-bit shaders** (runs 917-919), the same passes:
+
+| Pass | System | Qualcomm 840 | StevenMXZ |
+|---|---|---|---|
+| alpha | 1.02 | 3.10 | 71.55 |
+| beta | 2.02 | **3.40** | 0.30 |
+| full-size gamma/delta | 4.72 | 7.23 | 203.64 |
+
+**What it means:**
+- **The gap is in a few of lsfg-vk's own shaders, compiled differently by each driver.**
+- **Qualcomm 840's is one pass:** beta, whose last shader (resource 328) runs 1,024 threads a
+  workgroup with shared memory and five barriers to build six mip levels. It is 24 times
+  System's in 16-bit and half that in 32-bit. Meanwhile 840 runs the biggest pass, the
+  full-size gamma/delta, at almost twice System's speed.
+- **The Turnips are slower on alpha and the full-size gamma/delta.** These are straight-line,
+  8×8, heavy in 16-bit math (up to 922 operations, explicit-LOD sampling, RGBA8 writes). In
+  32-bit they collapse (StevenMXZ's alpha 71.6 ms): Mesa's compiler on this kind of shader.
+- **The shaders are already optimized.** `spirv-opt -O` takes off only 2-10% of their
+  instructions, checked on the computer with the owner's own `Lossless.dll`, which is never in
+  the repository.
+
+**What the app could do:**
+- **Choose the precision per pass:** measure both at the generator's start and keep the faster.
+  That would bring Qualcomm 840 from 11.6 to about 7.5 ms (System 6.8), and does nothing for
+  Turnip.
+- **Turnip's gap is the driver's compiler.** No app-side change to the shaders found closes it
+  (PLAN 9.24).
 
 ## The first matrix's summary (before the fence watch)
 
@@ -477,6 +534,39 @@ The first matrix (before the fence watch; R8 drew black), then the other runs by
 | 899 | Turnip T30 (Mr_Purple_666) | bilinear+lossless | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | test: 32-bit generator shaders (frame-generation-fp16 off) |
 | 900 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 23.2 | 20.7 | 99 | 680 | 46.5 | test: 32-bit generator shaders (frame-generation-fp16 off) |
 | 901 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | test: 32-bit generator shaders (frame-generation-fp16 off) |
+
+#### Runs noted "720p, Bilinear, frame rate 120 (fence watch)"
+
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 902 | System (v676.53) | bilinear+off | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 41.7 | 33.9 | 99 | 680 | 41.7 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 903 | Turnip T30 (Mr_Purple_666) | bilinear+off | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 43.1 | 35.4 | 99 | 680 | 43.1 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 904 | Qualcomm Adreno 840 | bilinear+off | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 41.5 | 34.2 | 99 | 680 | 41.5 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 905 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+off | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 46.5 | 37.9 | 99 | 680 | 46.6 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 906 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+off | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 45.4 | 38.0 | 99 | 680 | 45.4 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 907 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 30.9 | 25.0 | 99 | 680 | 61.8 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 908 | Turnip T30 (Mr_Purple_666) | bilinear+lossless | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 24.9 | 21.8 | 99 | 680 | 49.6 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 909 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 27.4 | 23.6 | 99 | 680 | 54.9 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 910 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 25.9 | 23.0 | 99 | 680 | 51.7 | 720p, Bilinear, frame rate 120 (fence watch) |
+| 911 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 29.3 | 24.7 | 99 | 680 | 58.6 | 720p, Bilinear, frame rate 120 (fence watch) |
+
+#### Runs noted "test: lsfg-vk's passes timed (frame-generation-timing passes)"
+
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 912 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 31.1 | 24.5 | 99 | 680 | 62.3 | test: lsfg-vk's passes timed (frame-generation-timing passes) |
+| 913 | Turnip T30 (Mr_Purple_666) | bilinear+lossless | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 24.8 | 21.7 | 99 | 680 | 49.5 | test: lsfg-vk's passes timed (frame-generation-timing passes) |
+| 914 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 27.4 | 24.1 | 99 | 680 | 54.8 | test: lsfg-vk's passes timed (frame-generation-timing passes) |
+| 915 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 26.0 | 23.7 | 99 | 680 | 52.0 | test: lsfg-vk's passes timed (frame-generation-timing passes) |
+| 916 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 29.4 | 25.8 | 99 | 680 | 58.8 | test: lsfg-vk's passes timed (frame-generation-timing passes) |
+
+#### Runs noted "test: lsfg-vk's passes timed, 32-bit shaders"
+
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 917 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 27.5 | 23.0 | 99 | 680 | 55.0 | test: lsfg-vk's passes timed, 32-bit shaders |
+| 918 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 23.2 | 21.1 | 99 | 680 | 46.4 | test: lsfg-vk's passes timed, 32-bit shaders |
+| 919 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | test: lsfg-vk's passes timed, 32-bit shaders |
 
 #### The warm checks' screenshots (the camp, Bilinear, 1280x720 to 1920x1080)
 

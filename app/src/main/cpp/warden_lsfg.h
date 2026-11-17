@@ -68,6 +68,13 @@ class Generator {
   virtual bool Dump(const std::string& dir, std::string* error) = 0;
   // Whether the 16-bit shaders were loaded.
   virtual bool fp16() const = 0;
+  // PLAN 9.24, a test switch's: the next Record with a generation writes kStageStamps
+  // timestamps into pool from query `first` on (reset by the caller), around its shader
+  // chains - before the mipmaps, after them, after the alphas, after the betas, after each
+  // of the seven gamma/delta levels, after the generate pass (the first generated frame's
+  // passes only). VK_NULL_HANDLE writes none.
+  static constexpr uint32_t kStageStamps = 12;
+  virtual void TimeStages(VkQueryPool pool, uint32_t first) = 0;
 };
 
 }  // namespace warden::lsfg

@@ -1,0 +1,58 @@
+run 902 - driver system, bilinear+off (fsr3 off, upscaling bilinear, frame generation off)
+settings: {"frame-rate": "120", "resolution": "1280x720", "shadows": "on", "vignette": "on", "shader-math": "exact", "anisotropic": "16", "vulkan-driver": "system", "fsr3": "off", "upscaling": "bilinear", "frame-generation": "off"}
+
+measure_ostagar.sh:
+explore at Ostagar: 14:59:21
+14:59:39 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 59200
+14:59:40 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 59200
+14:59:42 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 59600
+14:59:43 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1920000 temp 59900
+14:59:44 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 59900
+14:59:45 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 60300
+14:59:47 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 59900
+14:59:48 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 59900
+14:59:49 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 60300
+14:59:50 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 60700
+14:59:52 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1651200 temp 59600
+14:59:53 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 60700
+14:59:54 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 1785600 temp 60300
+14:59:55 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 60300
+14:59:57 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 60700
+14:59:58 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1920000 temp 59900
+14:59:59 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 60300
+15:00:00 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 60300
+15:00:02 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 60300
+15:00:03 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1920000 temp 59900
+Ostagar: 41.2 swaps/s over the last 5 status lines, 1307 draws a frame
+
+log lines:
+11-17 14:57:20.370 12271 12271 I Warden  : startup() = true in 70 ms
+11-17 14:57:20.412 12271 12311 I warden  : i> 00002FEF Vulkan driver: system's (no package chosen)
+11-17 14:57:20.412 12271 12311 I warden  : i> 00002FEF Vulkan device ready: Adreno (TM) 740
+11-17 14:57:21.113 12271 12311 I warden  : i> 00002FEF VulkanPresenter: Created 1920x1080 swapchain with format 37, color space 0, presentation mode 1
+11-17 14:57:21.114 12271 12311 I warden  : i> 00002FEF GPU: frame rate 120 where the GPU keeps up
+11-17 14:57:21.114 12271 12311 I warden  : i> 00002FEF VulkanPresenter: Created 1920x1080 swapchain with format 64, color space 0, presentation mode 1
+11-17 14:57:22.713 12271 12311 I warden  : i> 0000307A Frame generation: off
+11-17 14:57:22.713 12271 12311 I warden  : i> 0000307A FSR 3.1: off
+11-17 14:57:22.897 12271 12311 I warden  : i> 0000307A Loaded 9732674 bytes of VkPipelineCache data
+11-17 14:57:22.928 12271 12311 I warden  : i> 0000307A FSR 3.1: not upscaling - off (frame 1, 0 upscaled so far)
+11-17 14:57:22.934 12271 12311 I warden  : i> 00003128 VkPipelineCache data unchanged (9732674 bytes, 2 pipelines): not written (6 ms, on its own thread)
+11-17 14:57:22.988 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 10 (movie)
+11-17 14:57:31.963 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 8 (pregame)
+11-17 14:57:52.935 12271 12311 I warden  : i> 000036D3 VkPipelineCache data unchanged (9732674 bytes, 29 pipelines): not written (7 ms, on its own thread)
+11-17 14:58:22.935 12271 12311 I warden  : i> 00003C69 VkPipelineCache data unchanged (9732674 bytes, 35 pipelines): not written (6 ms, on its own thread)
+11-17 14:58:27.814 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 9 (loading)
+11-17 14:58:29.999 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 0 (explore)
+11-17 14:58:30.212 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 4 (conversation)
+11-17 14:58:52.941 12271 12311 I warden  : i> 00004237 VkPipelineCache data unchanged (9732674 bytes, 56 pipelines): not written (9 ms, on its own thread)
+11-17 14:59:01.780 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 9 (loading)
+11-17 14:59:05.687 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 4 (conversation)
+11-17 14:59:22.938 12271 12311 I warden  : i> 000047E9 VkPipelineCache data unchanged (9732674 bytes, 97 pipelines): not written (5 ms, on its own thread)
+11-17 14:59:23.824 12271 12311 I warden  : i> 0000308C [Eclipse::Update] game: mode is now 0 (explore)
+11-17 14:59:37.353 12271 12311 I warden  : i> 0000307C frames: present: 206 frames, interval ms mean 24.3 p50 24.3 p95 24.9 p99 25.5 max 25.9, 1% low 38.8 fps, in refreshes (8.33 ms): 3x206; title: 206 frames, interval ms mean 24.3 p50 24.3 p95 26.7 p99 27.3 max 27.5, 1% low 36.5 fps, in 60 Hz vblanks (16.67 ms): 1x140 2x66
+11-17 14:59:42.356 12271 12311 I warden  : i> 0000307C frames: present: 207 frames, interval ms mean 24.3 p50 24.2 p95 24.9 p99 25.1 max 25.2, 1% low 39.7 fps, in refreshes (8.33 ms): 3x207; title: 206 frames, interval ms mean 24.3 p50 24.3 p95 26.7 p99 27.5 max 28.1, 1% low 35.8 fps, in 60 Hz vblanks (16.67 ms): 1x143 2x63
+11-17 14:59:47.358 12271 12311 I warden  : i> 0000307C frames: present: 206 frames, interval ms mean 24.3 p50 24.3 p95 24.9 p99 25.6 max 26.6, 1% low 38.0 fps, in refreshes (8.33 ms): 3x206; title: 206 frames, interval ms mean 24.3 p50 24.2 p95 26.9 p99 27.6 max 27.9, 1% low 36.0 fps, in 60 Hz vblanks (16.67 ms): 1x134 2x72
+11-17 14:59:52.597 12271 12311 I warden  : i> 0000307C frames: present: 215 frames, interval ms mean 24.3 p50 24.3 p95 25.0 p99 25.2 max 25.8, 1% low 39.2 fps, in refreshes (8.33 ms): 3x215; title: 216 frames, interval ms mean 24.3 p50 24.4 p95 26.7 p99 28.6 max 29.6, 1% low 33.9 fps, in 60 Hz vblanks (16.67 ms): 1x140 2x76
+11-17 14:59:52.943 12271 12311 I warden  : i> 00004DB8 VkPipelineCache data unchanged (9732674 bytes, 111 pipelines): not written (6 ms, on its own thread)
+11-17 14:59:57.598 12271 12311 I warden  : i> 0000307C frames: present: 207 frames, interval ms mean 24.3 p50 24.2 p95 24.9 p99 25.2 max 26.3, 1% low 38.6 fps, in refreshes (8.33 ms): 3x207; title: 206 frames, interval ms mean 24.2 p50 24.2 p95 26.7 p99 27.6 max 27.9, 1% low 36.0 fps, in 60 Hz vblanks (16.67 ms): 1x144 2x62
+11-17 15:00:02.600 12271 12311 I warden  : i> 0000307C frames: present: 206 frames, interval ms mean 24.3 p50 24.3 p95 24.9 p99 25.2 max 27.3, 1% low 38.0 fps, in refreshes (8.33 ms): 3x206; title: 206 frames, interval ms mean 24.3 p50 24.3 p95 26.7 p99 27.9 max 30.5, 1% low 34.1 fps, in 60 Hz vblanks (16.67 ms): 1x150 2x56

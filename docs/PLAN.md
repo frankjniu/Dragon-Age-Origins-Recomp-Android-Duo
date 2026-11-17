@@ -2748,11 +2748,25 @@ behind the owner's (CLAUDE.md).
           - Its own queue against the game's: Qualcomm 840 has its own, and is slow too.
           - 32-bit shaders: slower everywhere (runs 898-901; System 10.7 ms, 840 17.9, T30 232,
             StevenMXZ 357).
-        - **Next:** time lsfg-vk's passes one by one on System and on 840/StevenMXZ, to find the
-          one that differs (its shaders, a format or a barrier).
+        - **Timed pass by pass** (2026-11-17, `files/frame-generation-timing` set to `passes`;
+          runs 912-919; `docs/DRIVERS.md`, "Lossless 2x pass by pass"):
+          - **The gap is a few of lsfg-vk's own shaders,** each driver's compiler on them.
+          - **Qualcomm 840:** the beta pass, 6.77 ms against 0.28 on System. Its last shader
+            runs 1,024 threads a workgroup with shared memory and barriers. 32-bit halves it.
+          - **The Turnips:** alpha and the full-size gamma/delta level are 2.5-6× System's
+            (heavy 16-bit math); 32-bit collapses.
+          - `spirv-opt -O` takes off only 2-10% of their instructions: they are already
+            optimized.
+        - **Open, the owner to choose:**
+          - **Precision chosen per pass**, measured at the generator's start, the faster kept
+            (`ShaderRegistry` groups taken from a 32-bit build). Qualcomm 840 would go from about
+            11.6 to 7.5 ms; nothing for Turnip.
+          - **Turnip's Lossless gap** is the driver's compiler. No app-side change to the
+            shaders found closes it.
         - **R8 draws black (BUG-123):** the driver's own. Look at it only if the owner wants R8.
-        - **Then the full matrix again** with the fix: 5 drivers × 17 combinations, about
-          4.7 hours, `--shots` on the Bilinear runs.
+        - **The full matrix again:** not wanted (the owner, 2026-11-17). 720p, Bilinear,
+          frame rate 120 instead, with and without Lossless 2x, on the five drivers that draw
+          correctly (runs 902-911). They repeat runs 879-890.
 
 ## Phase 10 — Polish
 

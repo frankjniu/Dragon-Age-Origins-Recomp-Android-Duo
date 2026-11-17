@@ -10,7 +10,7 @@ starts by re-deriving context that was already paid for.
 | **Version** | **0.2.2-alpha, "Open Alpha"** (`CHANGELOG.md`; published 2026-11-09, the tag `v0.2.2-alpha`, an update from the launcher: the standby battery with the lid shut. Before it 0.2.1-alpha, 2026-11-08: the on-screen controller's size and layout, the panel's tabs. Before that 0.2.0-alpha, 2026-11-04, a manual update - players installed by hand and chose Build again, as the GPU rest changes the game code's ABI), after the first public release, 0.1.0-alpha: the source, and an APK that holds none of the game (`gradle.properties`: `warden.version`, `warden.releaseName`; `docs/DECISIONS.md` D14) |
 | **Current phase** | **Phase 12 complete: a published APK, the game's code made on the device from the player's own discs.** Phases 0-4, 7, 8, 10, 11 and 12 complete. Phase 5 reached. Phase 6 reached by script - the hand playthrough to Ostagar is left, the alpha's players its testers. Phase 9 done but for what the owner deferred (9.15, 9.9) and 3.8's Adreno work. §2 has the board. |
 | **Overall state** | The whole game runs on the AYN Thor: the main campaign, Awakening and every DLC from the Ultimate Edition's disc 2, and all 118 areas the game's debug menus reach, loaded and profiled (`docs/AREAS.md`). With it: the companion deck on the second screen, button prompts for three controllers, up to 120 fps, FSR 3.1, two kinds of frame generation, HDR10, PC mods with an in-app converter, saves named on the keyboard with thumbnails, export, import and restore, and Debugging Mode's one-file bug reports. [`README.md`](README.md) is the user's manual. |
-| **Next action** | **PLAN 9.24 in progress: imported drivers as fast as the system's, the fix in our app** (session 47). **Done:** BUG-122, the fence watch (`warden_fence_watch.cc`). Turnip before Mesa e984ef29 waited for the GPU at each of Xenia's fence checks. Now every driver that draws correctly is at or above the system's without frame generation (T30 20 -> 42.9, Balemuni 24 -> 45.2, the system 41.8; screenshots alike). **Next:** 1. **Lossless 2x is slower on every imported driver:** lsfg-vk's GPU time a generated frame is 6.8 ms on System, 10-15.7 elsewhere. Time its passes one by one (`docs/PLAN.md` 9.24 has what is ruled out). 2. **The full matrix again with the fix:** 5 drivers × 17 combinations, `--shots`, about 4.7 hours. 3. **R8 draws black (BUG-123):** the driver's own; left. **State:** the debug APK on the Thor has the fix, uncommitted work none (all pushed). PLAN 9.23 (imported drivers, experimental) done the same session, `CHANGELOG.md` Unreleased. 0.2.2-alpha is the published version. `RESUMING.md` §5. |
+| **Next action** | **PLAN 9.24 in progress: imported drivers as fast as the system's, the fix in our app** (sessions 47-48). **Done:** BUG-122, the fence watch: every driver that draws correctly is at or above the system's without frame generation (720p, Bilinear, uncapped: System 41.7, T30 43.1, Qualcomm 840 41.5, Balemuni 46.5, StevenMXZ 45.4; runs 902-906, screenshots alike). **Lossless 2x** is still slower on them. Timed pass by pass (`files/frame-generation-timing` set to `passes`), the gap is how each driver compiles a few of lsfg-vk's shaders: Qualcomm 840's beta pass (24× System's), Turnip's alpha and full-size gamma/delta (2.5-6×). **The owner to choose:** precision chosen per pass at the generator's start (840 11.6 -> about 7.5 ms, nothing for Turnip), or leave Lossless 2x on imported drivers as it is; Turnip's gap is its compiler (`docs/DRIVERS.md`, 'Lossless 2x pass by pass'). R8 draws black (BUG-123), the driver's own. The full matrix is not wanted. **State:** the debug APK with the pass timing is on the Thor, all pushed. 0.2.2-alpha is published; `CHANGELOG.md` Unreleased has PLAN 9.23 and BUG-122. `RESUMING.md` §5. |
 | **Blockers** | None |
 
 The authoritative task list is [`docs/PLAN.md`](docs/PLAN.md); each session's detail is
@@ -1866,6 +1866,24 @@ Then continue from **Next action** at the top of this file.
 ## 9. Session log
 
 Newest first. One short entry per session: what changed, what's next.
+
+### 2026-11-17 (session 48) - Lossless 2x on imported drivers, pass by pass (PLAN 9.24)
+
+- **The 720p runs** (the owner: no full matrix; 720p, no upscaler, frame rate 120): runs 902-911,
+  Bilinear with and without Lossless 2x, on System, T30, Qualcomm 840, Balemuni and StevenMXZ. They
+  repeat session 47's numbers, and every screenshot is alike.
+- **lsfg-vk's passes timed:** `files/frame-generation-timing` set to `passes` (new, `warden_lsfg.cc`
+  and `warden_frame_generation.cc`); runs 912-919.
+  - Qualcomm 840's beta pass takes 6.77 ms against 0.28 on System. Its last shader runs 1,024
+    threads a workgroup with barriers; 32-bit takes 3.40.
+  - The Turnips' alpha and full-size gamma/delta passes are 2.5-6× System's; 32-bit is far worse.
+  - The shaders are already optimized: `spirv-opt -O` takes off only 2-10% of their instructions
+    (the owner's `Lossless.dll`, on the computer only).
+- **Next, the owner's choice:** a per-pass precision chosen at the generator's start (Qualcomm 840
+  about 7.5 ms), or nothing for Lossless 2x. Turnip's gap is its compiler.
+- **The Thor afterwards:**
+  - The owner's options are back, the route is off, and the test switches are removed.
+  - The pass-timing build is installed.
 
 ### 2026-11-16 (session 47) - imported Vulkan drivers, experimental (PLAN 9.23, issue #4)
 

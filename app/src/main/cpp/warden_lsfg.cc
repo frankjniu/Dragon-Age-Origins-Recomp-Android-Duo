@@ -206,8 +206,27 @@ class GeneratorImpl final : public Generator {
   uint64_t frames() const override { return fidx_; }
   bool Dump(const std::string& dir, std::string* error) override;
   bool fp16() const override { return base_->shaders.is_fp16; }
+  void TimeStages(VkQueryPool pool, uint32_t first) override {
+    stage_pool_ = pool;
+    stage_first_ = first;
+    if (pool && !write_timestamp_) {
+      write_timestamp_ = reinterpret_cast<PFN_vkCmdWriteTimestamp>(
+          base_->vk.fi().GetDeviceProcAddr(base_->vk.dev(), "vkCmdWriteTimestamp"));
+    }
+  }
 
  private:
+  // PLAN 9.24: stage `i`'s timestamp, when TimeStages asked for them.
+  void Stamp(VkCommandBuffer command_buffer, uint32_t i) const {
+    if (stage_pool_ && write_timestamp_) {
+      write_timestamp_(command_buffer, VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT, stage_pool_,
+                       stage_first_ + i);
+    }
+  }
+  VkQueryPool stage_pool_ = VK_NULL_HANDLE;
+  uint32_t stage_first_ = 0;
+  PFN_vkCmdWriteTimestamp write_timestamp_ = nullptr;
+
   // Frame n's: lsfg-vk's mipmaps take source n % 2.
   VkImage source(uint64_t frame) const {
     return frame % 2 ? source_images_.second.handle() : source_images_.first.handle();
@@ -359,25 +378,46 @@ GeneratorImpl::GeneratorImpl(std::unique_ptr<Base> base, VkExtent2D extent, size
 bool GeneratorImpl::Record(VkCommandBuffer command_buffer, bool generate, std::string* error) {
   try {
     const vk::CommandBuffer cmdbuf{command_buffer};
+    // PLAN 9.24: the stages timed only on a frame with the whole chain.
+    const bool timed = generate && fidx_ && stage_pool_;
+    if (timed) {
+      Stamp(command_buffer, 0);
+    }
     mipmaps_.render(ctx_.vk, cmdbuf, fidx_);
+    if (timed) {
+      Stamp(command_buffer, 1);
+    }
     for (size_t i = 0; i < 7; ++i) {
       alpha0_.at(6 - i).render(ctx_.vk, cmdbuf);
       alpha1_.at(6 - i).render(ctx_.vk, cmdbuf, fidx_);
     }
+    if (timed) {
+      Stamp(command_buffer, 2);
+    }
     beta0_.render(ctx_.vk, cmdbuf, fidx_);
     beta1_.render(ctx_.vk, cmdbuf);
+    if (timed) {
+      Stamp(command_buffer, 3);
+    }
     if (generate && fidx_) {
+      bool first_pass = true;
       for (const Pass& pass : passes_) {
         for (size_t j = 0; j < 7; j++) {
           pass.gamma0.at(j).render(ctx_.vk, cmdbuf, fidx_);
           pass.gamma1.at(j).render(ctx_.vk, cmdbuf);
-          if (j < 4) {
-            continue;
+          if (j >= 4) {
+            pass.delta0.at(j - 4).render(ctx_.vk, cmdbuf, fidx_);
+            pass.delta1.at(j - 4).render(ctx_.vk, cmdbuf);
           }
-          pass.delta0.at(j - 4).render(ctx_.vk, cmdbuf, fidx_);
-          pass.delta1.at(j - 4).render(ctx_.vk, cmdbuf);
+          if (timed && first_pass) {
+            Stamp(command_buffer, 4 + uint32_t(j));
+          }
         }
         pass.generate->render(ctx_.vk, cmdbuf, fidx_);
+        if (timed && first_pass) {
+          Stamp(command_buffer, 11);
+        }
+        first_pass = false;
       }
     }
     fidx_++;

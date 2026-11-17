@@ -292,6 +292,11 @@ class FrameGeneration {
   uint32_t window_real_only_ = 0;
   double window_ms_[2] = {};
   uint32_t window_timed_[2] = {};
+  // PLAN 9.24, files/frame-generation-timing "passes": lsfg-vk's shader chains timed, a
+  // slot's Generator::kStageStamps timestamps each; their GPU ms since the last summary.
+  VkQueryPool stage_pool_ = VK_NULL_HANDLE;
+  double window_stage_ms_[warden::lsfg::Generator::kStageStamps - 1] = {};
+  uint32_t window_stage_timed_ = 0;
   uint64_t generated_total_ = 0;
   // The last frame taken had its generation recorded (what a dump reads).
   bool last_generated_ = false;
@@ -355,6 +360,16 @@ FrameGeneration::FrameGeneration(vulkan::VulkanCommandProcessor& command_process
   if (dfn.vkCreateQueryPool(device->device(), &query_info, nullptr, &timing_pool_) !=
       VK_SUCCESS) {
     timing_pool_ = VK_NULL_HANDLE;
+  }
+  if (!fsr3_ && SettingWord("frame-generation-timing") == "passes") {
+    // PLAN 9.24, a test switch: lsfg-vk's shader chains timed one by one.
+    query_info.queryCount = kTimingSlots * warden::lsfg::Generator::kStageStamps;
+    if (dfn.vkCreateQueryPool(device->device(), &query_info, nullptr, &stage_pool_) !=
+        VK_SUCCESS) {
+      stage_pool_ = VK_NULL_HANDLE;
+    }
+    XELOGI("Frame generation: lsfg-vk's passes timed one by one ({})",
+           stage_pool_ ? "files/frame-generation-timing" : "no query pool");
   }
   VkPhysicalDeviceProperties properties;
   ifn.vkGetPhysicalDeviceProperties(device->physical_device(), &properties);
@@ -571,6 +586,9 @@ FrameGeneration::~FrameGeneration() {
   }
   if (timing_pool_) {
     Device()->functions().vkDestroyQueryPool(Device()->device(), timing_pool_, nullptr);
+  }
+  if (stage_pool_) {
+    Device()->functions().vkDestroyQueryPool(Device()->device(), stage_pool_, nullptr);
   }
 }
 
@@ -1012,7 +1030,19 @@ void FrameGeneration::Record(VkCommandBuffer command_buffer) {
   }
 
   std::string error;
+  // PLAN 9.24: the slot's stage timestamps reset, and asked of this frame's chain.
+  const bool stages_timed = stage_pool_ && p.timing_slot >= 0 && p.generate;
+  if (stages_timed) {
+    dfn.vkCmdResetQueryPool(command_buffer, stage_pool_,
+                            uint32_t(p.timing_slot) * warden::lsfg::Generator::kStageStamps,
+                            warden::lsfg::Generator::kStageStamps);
+    generator_->TimeStages(stage_pool_,
+                           uint32_t(p.timing_slot) * warden::lsfg::Generator::kStageStamps);
+  }
   const bool recorded = generator_->Record(command_buffer, p.generate, &error);
+  if (stages_timed) {
+    generator_->TimeStages(VK_NULL_HANDLE, 0);
+  }
   if (!recorded) {
     failed_ = true;
     if (!record_failure_logged_) {
@@ -1078,6 +1108,27 @@ void FrameGeneration::ReadTimings() {
     const int kind = timing_generated_[slot] ? 1 : 0;
     window_ms_[kind] += double(stamps[2] - stamps[0]) * timestamp_period_ns_ / 1.0e6;
     ++window_timed_[kind];
+    // PLAN 9.24: the slot's stages, when a generation was timed whole.
+    constexpr uint32_t kStamps = warden::lsfg::Generator::kStageStamps;
+    if (stage_pool_ && kind == 1) {
+      uint64_t stage[kStamps * 2] = {};
+      if (Device()->functions().vkGetQueryPoolResults(
+              Device()->device(), stage_pool_, slot * kStamps, kStamps, sizeof(stage), stage,
+              2 * sizeof(uint64_t),
+              VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT) == VK_SUCCESS) {
+        bool whole = true;
+        for (uint32_t i = 0; i < kStamps; ++i) {
+          whole = whole && stage[i * 2 + 1] && (!i || stage[i * 2] >= stage[i * 2 - 2]);
+        }
+        if (whole) {
+          for (uint32_t i = 0; i + 1 < kStamps; ++i) {
+            window_stage_ms_[i] +=
+                double(stage[i * 2 + 2] - stage[i * 2]) * timestamp_period_ns_ / 1.0e6;
+          }
+          ++window_stage_timed_;
+        }
+      }
+    }
   }
 }
 
@@ -1097,6 +1148,19 @@ void FrameGeneration::Summarize() {
            "output with a generation ({} timed), {:.2f} ms taken alone ({} timed)",
            window_generated_, window_outputs_, window_hudless_, window_real_only_,
            average(1), window_timed_[1], average(0), window_timed_[0]);
+  }
+  if (stage_pool_ && window_stage_timed_) {
+    // PLAN 9.24: lsfg-vk's shader chains, GPU ms each a generation.
+    const auto stage = [&](int i) { return window_stage_ms_[i] / window_stage_timed_; };
+    XELOGI("Frame generation passes, GPU ms ({} timed): mipmaps {:.2f}, alpha {:.2f}, beta "
+           "{:.2f}, gamma/delta by level {:.2f} {:.2f} {:.2f} {:.2f} {:.2f} {:.2f} {:.2f}, "
+           "generate {:.2f}",
+           window_stage_timed_, stage(0), stage(1), stage(2), stage(3), stage(4), stage(5),
+           stage(6), stage(7), stage(8), stage(9), stage(10));
+    for (double& ms : window_stage_ms_) {
+      ms = 0.0;
+    }
+    window_stage_timed_ = 0;
   }
   window_fsr3_none_ = 0;
   window_outputs_ = 0;

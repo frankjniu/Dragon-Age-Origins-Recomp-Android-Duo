@@ -1,0 +1,64 @@
+run 904 - driver Qualcomm Adreno 840 (qualcomm-adreno-840), bilinear+off (fsr3 off, upscaling bilinear, frame generation off)
+settings: {"frame-rate": "120", "resolution": "1280x720", "shadows": "on", "vignette": "on", "shader-math": "exact", "anisotropic": "16", "vulkan-driver": "qualcomm-adreno-840", "fsr3": "off", "upscaling": "bilinear", "frame-generation": "off"}
+
+measure_ostagar.sh:
+explore at Ostagar: 15:04:56
+15:05:14 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64300
+15:05:15 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 63900
+15:05:17 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 64700
+15:05:18 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1651200 temp 64300
+15:05:19 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64300
+15:05:20 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64300
+15:05:22 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 64300
+15:05:23 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64300
+15:05:24 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 64300
+15:05:25 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 63900
+15:05:27 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64300
+15:05:28 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 65500
+15:05:29 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64700
+15:05:30 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 63900
+15:05:32 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 64700
+15:05:33 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64700
+15:05:34 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2054400 temp 64300
+15:05:36 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 63900
+15:05:37 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 65500
+15:05:38 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2054400 temp 64700
+Ostagar: 40.9 swaps/s over the last 5 status lines, 1307 draws a frame
+
+log lines:
+11-17 15:02:55.057 29580 29580 I hook_impl: hook_android_load_sphal_library: filename: vulkan.adreno.so
+11-17 15:02:55.057 29580 29580 I hook_impl: hook_android_dlopen_ext: filename: vulkan.adreno.so
+11-17 15:02:55.058 29580 29580 I hook_impl: hook_android_dlopen_ext: loading custom driver: /data/user/0/dev.daorecompandroid.duo/files/drivers/qualcomm-adreno-840/vulkan.adreno.so
+11-17 15:02:55.117 29580 29580 I Warden  : startup() = true in 73 ms
+11-17 15:02:55.118 29580 29580 I Warden  : vulkan driver: the game's device is on the package qualcomm-adreno-840
+11-17 15:02:55.156 29580 29631 I warden  : i> 0000738C Vulkan driver: opening the package qualcomm-adreno-840 - Qualcomm Adreno 840 (Qualcomm, Vulkan 1.4), vulkan.adreno.so from /data/user/0/dev.daorecompandroid.duo/files/drivers/qualcomm-adreno-840/, the hooks from /data/app/~~t60xsPO3X3AZmyljVNhtPQ==/dev.daorecompandroid.duo-UcZN_qeYcGeARuSHaIrdnQ==/lib/arm64/
+11-17 15:02:55.156 29580 29631 I warden  : i> 0000738C Vulkan driver: imported: Qualcomm Adreno 840 (Qualcomm, Vulkan 1.4) (files/drivers/qualcomm-adreno-840)
+11-17 15:02:55.156 29580 29631 I warden  : i> 0000738C Vulkan device ready: Adreno (TM) 740
+11-17 15:02:55.857 29580 29631 I warden  : i> 0000738C VulkanPresenter: Created 1920x1080 swapchain with format 37, color space 0, presentation mode 1
+11-17 15:02:55.857 29580 29631 I warden  : i> 0000738C GPU: frame rate 120 where the GPU keeps up
+11-17 15:02:55.858 29580 29631 I warden  : i> 0000738C VulkanPresenter: Created 1920x1080 swapchain with format 64, color space 0, presentation mode 1
+11-17 15:02:57.807 29580 29631 I warden  : i> 0000742A Frame generation: off
+11-17 15:02:57.809 29580 29631 I warden  : i> 0000742A FSR 3.1: off
+11-17 15:02:57.999 29580 29631 I warden  : i> 0000742A Loaded 2403179 bytes of VkPipelineCache data
+11-17 15:02:58.027 29580 29631 I warden  : i> 0000742A FSR 3.1: not upscaling - off (frame 1, 0 upscaled so far)
+11-17 15:02:58.030 29580 29631 I warden  : i> 000074C3 VkPipelineCache data unchanged (2403179 bytes, 2 pipelines): not written (1 ms, on its own thread)
+11-17 15:02:58.103 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 10 (movie)
+11-17 15:03:05.938 29580 29631 I warden  : i> 0000742C Vulkan driver: the game is running on qualcomm-adreno-840 - the start's guard cleared
+11-17 15:03:07.097 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 8 (pregame)
+11-17 15:03:28.037 29580 29631 I warden  : i> 00007A9E VkPipelineCache data unchanged (2403179 bytes, 29 pipelines): not written (2 ms, on its own thread)
+11-17 15:03:58.039 29580 29631 I warden  : i> 0000016D VkPipelineCache data unchanged (2403179 bytes, 35 pipelines): not written (2 ms, on its own thread)
+11-17 15:04:02.565 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 9 (loading)
+11-17 15:04:04.748 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 0 (explore)
+11-17 15:04:04.964 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 4 (conversation)
+11-17 15:04:28.043 29580 29631 I warden  : i> 00000BB7 VkPipelineCache data unchanged (2403179 bytes, 56 pipelines): not written (4 ms, on its own thread)
+11-17 15:04:36.548 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 9 (loading)
+11-17 15:04:40.390 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 4 (conversation)
+11-17 15:04:58.040 29580 29631 I warden  : i> 00001447 VkPipelineCache data unchanged (2403179 bytes, 97 pipelines): not written (1 ms, on its own thread)
+11-17 15:04:58.574 29580 29631 I warden  : i> 00007439 [Eclipse::Update] game: mode is now 0 (explore)
+11-17 15:05:12.105 29580 29631 I warden  : i> 0000742C frames: present: 203 frames, interval ms mean 24.6 p50 24.7 p95 25.7 p99 26.1 max 26.2, 1% low 38.2 fps, in refreshes (8.33 ms): 3x203; title: 203 frames, interval ms mean 24.6 p50 24.6 p95 27.5 p99 28.1 max 28.4, 1% low 35.3 fps, in 60 Hz vblanks (16.67 ms): 1x122 2x81
+11-17 15:05:17.107 29580 29631 I warden  : i> 0000742C frames: present: 205 frames, interval ms mean 24.4 p50 24.4 p95 25.4 p99 25.7 max 26.8, 1% low 38.0 fps, in refreshes (8.33 ms): 3x205; title: 205 frames, interval ms mean 24.4 p50 24.3 p95 27.0 p99 27.7 max 28.0, 1% low 35.9 fps, in 60 Hz vblanks (16.67 ms): 1x136 2x69
+11-17 15:05:22.109 29580 29631 I warden  : i> 0000742C frames: present: 205 frames, interval ms mean 24.4 p50 24.4 p95 25.5 p99 26.0 max 27.4, 1% low 37.2 fps, in refreshes (8.33 ms): 3x205; title: 205 frames, interval ms mean 24.4 p50 24.5 p95 27.0 p99 28.3 max 29.6, 1% low 34.4 fps, in 60 Hz vblanks (16.67 ms): 1x130 2x75
+11-17 15:05:27.352 29580 29631 I warden  : i> 0000742C frames: present: 215 frames, interval ms mean 24.4 p50 24.4 p95 25.6 p99 26.1 max 26.5, 1% low 37.9 fps, in refreshes (8.33 ms): 3x215; title: 214 frames, interval ms mean 24.4 p50 24.4 p95 27.0 p99 28.4 max 29.1, 1% low 34.7 fps, in 60 Hz vblanks (16.67 ms): 1x140 2x74
+11-17 15:05:28.046 29580 29631 I warden  : i> 00001AF7 VkPipelineCache data unchanged (2403179 bytes, 111 pipelines): not written (1 ms, on its own thread)
+11-17 15:05:32.353 29580 29631 I warden  : i> 0000742C frames: present: 205 frames, interval ms mean 24.4 p50 24.4 p95 25.5 p99 26.0 max 30.7, 1% low 35.0 fps, in refreshes (8.33 ms): 2x1 3x203 4x1; title: 205 frames, interval ms mean 24.4 p50 24.3 p95 26.9 p99 28.2 max 29.6, 1% low 34.2 fps, in 60 Hz vblanks (16.67 ms): 1x139 2x66
+11-17 15:05:37.356 29580 29631 I warden  : i> 0000742C frames: present: 205 frames, interval ms mean 24.4 p50 24.4 p95 25.5 p99 25.8 max 25.9, 1% low 38.6 fps, in refreshes (8.33 ms): 3x205; title: 205 frames, interval ms mean 24.4 p50 24.6 p95 27.2 p99 28.1 max 28.5, 1% low 35.3 fps, in 60 Hz vblanks (16.67 ms): 1x125 2x80
