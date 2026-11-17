@@ -1,13 +1,5 @@
 # Changelog
 
-## Unreleased
-
-### Fixed
-
-- **The faces on the second screen's Party tab have their real colours.** They were dark and
-  sepia, with the clothes cut away; they now look as they do in the game's own HUD, framed
-  the same way: the head and shoulders at the HUD's size, where they were zoomed in before.
-
 ## 0.2.3-alpha - "Open Alpha"
 
 ### Added
@@ -26,6 +18,9 @@
 
 ### Fixed
 
+- **The faces on the second screen's Party tab have their real colours.** They were dark and
+  sepia, with the clothes cut away; they now look as they do in the game's own HUD, framed
+  the same way: the head and shoulders at the HUD's size, where they were zoomed in before.
 - **FSR 3.1 now works on Mesa's Turnip drivers.** Before, it could not start on them.
 - **Lossless 2x frame generation starts in a moment.** It used to hold the game for about two
   seconds at boot while its shaders were prepared. They are now kept between starts.
