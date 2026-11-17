@@ -2778,6 +2778,22 @@ behind the owner's (CLAUDE.md).
         - **The full matrix again:** not wanted (the owner, 2026-11-17). 720p, Bilinear,
           frame rate 120 instead, with and without Lossless 2x, on the five drivers that draw
           correctly (runs 902-911). They repeat runs 879-890.
+- [x] 9.25 **The game's rate with Lossless 2x on (the owner asked, 2026-11-17; session 48, runs
+      931-938) - investigated, left as it is by the owner.**
+      - The data: `docs/data/frame-generation/lossless-cost.txt`.
+      - **System, 720p, uncapped:** 41.7 fps without frame generation, 31.1 with Lossless 2x.
+      - **The cost per real frame:**
+        - lsfg-vk's own passes, ~6.0 ms: its algorithm. Balanced and fast cut it to 3.0 and
+          1.7 ms, 35.0 and 36.1 fps.
+        - The UI passes and two copies, ~0.75 ms.
+        - The capture of the image before the UI, ~0.6 ms: it splits a render pass.
+        - The presenter's second paint and the rest, ~0.85 ms by subtraction.
+      - **The GPU is 99% busy, so only less work raises the game's rate.** Without changing the
+        picture, about 1 ms looked removable (+3%):
+        - a capture that does not split the pass;
+        - the UI pass writing the presenter's image directly;
+        - the paint timed.
+      - **The owner chose to leave it.**
 
 ## Phase 10 — Polish
 

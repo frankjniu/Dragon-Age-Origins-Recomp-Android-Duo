@@ -1891,6 +1891,12 @@ Newest first. One short entry per session: what changed, what's next.
     - The first boot is 3-7 s longer, once. Later the generator is up in 16-45 ms (it took
       about 2 s).
   - Remove deletes a driver's files.
+- **PLAN 9.25, the game's rate with Lossless 2x** (runs 931-938):
+  - On System it falls from 41.7 to 31.1 fps.
+  - lsfg-vk's own passes are ~6 of the ~8 ms added per frame.
+  - Our overhead is ~2.2 ms (the UI passes, the capture splitting a pass, the second paint),
+    of which about 1 ms looked removable.
+  - The owner chose to leave it. The data is in `docs/data/frame-generation/`.
 - **The Thor afterwards:**
   - The owner's options are back, the route is off, and the test switches are removed.
   - The pass-timing build is installed.

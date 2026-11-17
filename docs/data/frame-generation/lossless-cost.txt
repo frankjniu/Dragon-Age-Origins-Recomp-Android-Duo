@@ -1,0 +1,21 @@
+Lossless 2x's cost at the King's Camp (PLAN 9.25, session 48, 2026-11-17). The system's driver,
+720p, Bilinear, frame rate 120 (uncapped), Dynamic shadows and Corner vignette on, the fence
+watch and the per-pass precision in.
+
+Game fps: no frame generation 41.7 (run 902); Lossless 2x 31.1 (935); without the UI pass
+(files/frame-generation-ui off) 32.2 (936); balanced 35.0 (937); fast 36.1 (938).
+
+lsfg-vk's GPU ms a generated frame: 6.81 with the UI pass, 6.26 without; balanced 3.01,
+fast 1.73. Its shader chains alone: 6.04 (run 912's pass timing).
+
+One traced camp frame (tools/gpu_profile.sh, the files beside this one):
+  frame generation off (run 933): 19.58 ms in 60 render passes, 3.87 ms between them
+  Lossless 2x          (run 934): 19.52 ms in 61 render passes, 4.44 ms between them
+  - the difference is the capture of the image before the UI: a render pass split at draw
+    1197 and 0.3 ms more before draw 1178, about 0.6 ms.
+
+Per real frame, with Lossless 2x: the game 23.9 ms + lsfg-vk's passes ~6.0 + the UI passes and
+two copies ~0.75 + the capture ~0.6 (in the game's frame) + the presenter's second paint and the
+rest ~0.85 (by subtraction) = about 32 ms, 31 fps. The GPU is 99% busy: only removing work
+raises the game's rate. Without changing the picture, at most about 1 ms looked removable
+(about +3%). The owner chose to leave it.
