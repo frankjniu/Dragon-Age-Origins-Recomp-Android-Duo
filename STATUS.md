@@ -1902,6 +1902,15 @@ Newest first. One short entry per session: what changed, what's next.
   - In `CHANGELOG.md` Unreleased: the 0.2.3-alpha on the owner's Thor does not have it.
   - Runs 942-943 sat at the main menu, the route off after `gpu_profile.sh`; the owner saw the
     menu's cutscene loop.
+- **0.2.3-alpha prepared for release** (the owner confirmed BUG-125 works in play):
+  - **The privacy sweep:** the Thor's display ids are out of the docs and scripts. Nothing else
+    was found; the ids stay in the history, which was not rewritten.
+  - **The changelog:** written for players, with how to load a driver package (not where to
+    get one) and the table of the drivers measured on a Snapdragon 8 Gen 2.
+  - **The release:** the APK stays f4f65a9's (`7ff2535a…`; the app holds no changelog), so
+    the tag `v0.2.3-alpha` goes at f4f65a9.
+  - **The README** for it is on the local branch `readme-0.2.3` (e4d3016), not pushed: merge
+    it on the owner's go to publish.
 - **BUG-125 (the owner's report):** the deck's stamina or mana showed full with Powerful Swings on.
   - The HUD also observes `.Attributes.8.Modifier`, the sustained reserve; the deck now measures
     against the pool without it.
