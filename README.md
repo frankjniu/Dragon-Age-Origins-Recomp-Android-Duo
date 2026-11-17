@@ -320,7 +320,7 @@ setting's description in the panel matches the table.
 | Shader math \* | **Exact** · Fast | *Exact:* The Xbox 360's own arithmetic: zero times anything is zero.<br>*Fast:* The handheld GPU's own multiplication: much less work in the heaviest shaders (the King's Camp with Lossless 2x, balanced: 27 -> 30 fps, its cap; uncapped without frame generation 37 -> 42). Not exact - where the game multiplies zero by infinity, a pixel can come out wrong. |
 | Texture filtering \* | The game's own · 4x · 8x · **16x** | *The game's own:* The game's own filtering: the ground blurs as it recedes.<br>*4x:* 4x anisotropic filtering.<br>*8x:* 8x anisotropic filtering.<br>*16x:* 16x anisotropic filtering: the receding ground stays sharp, at no measurable cost. |
 | Experimental | **Show** · Hide | A section: features still being tried, which may not work on every device. Show opens the three rows below. |
-| &nbsp;&nbsp;&nbsp;Vulkan driver \* | **System** · each package imported | *System:* The handheld's own Vulkan driver, the one the game is tested with.<br>*A package:* A Vulkan driver you imported (below) - Mesa's Turnip, or a Qualcomm driver taken from another device. **From the app's next start** (close the app and open it again): the GPU is set up as the app opens. If a start with it does not reach the game, the next start goes back to System by itself and says so; a package that cannot be loaded on the device is reported, and System is used. |
+| &nbsp;&nbsp;&nbsp;Vulkan driver \* | **System** · each package imported | *System:* The handheld's own Vulkan driver, the one the game is tested with.<br>*A package:* A Vulkan driver you imported (below) - Mesa's Turnip, or a Qualcomm driver. **From the app's next start** (close the app and open it again): the GPU is set up as the app opens. If a start with it does not reach the game, the next start goes back to System by itself and says so; a package that cannot be loaded on the device is reported, and System is used. |
 | &nbsp;&nbsp;&nbsp;Import a driver package | **Choose…** | Opens the file picker for a driver package: a .zip with a `meta.json` and the driver's libraries, as Adrenotools and the emulators that use it take (for Adreno GPUs). It is copied into the app's storage and chosen. In the launcher only. |
 | &nbsp;&nbsp;&nbsp;Remove the chosen driver | **Remove** | Deletes the package chosen in the Vulkan driver row from the app's storage, and chooses System. In the launcher only. |
 | Button prompts \* | **Xbox** · Nintendo · PlayStation | *Xbox:* A at the bottom, B on the right.<br>*Nintendo:* B at the bottom, A on the right.<br>*PlayStation:* ✕ at the bottom, ○ on the right. |
@@ -368,25 +368,50 @@ Some rows depend on the device or the moment:
 
 ### Imported Vulkan drivers (experimental)
 
-Visual → **Experimental** loads a Vulkan driver package in place of the handheld's own, as
-Android emulators do with Adrenotools - without root, for this app only. It is for Adreno
-GPUs, and for trying: the game is tested on the system's driver, and a driver from elsewhere
-can be slower, draw wrongly or fail to start. Your system's driver is never changed; choosing
-**System** (or Remove) puts everything back.
+Visual → **Experimental** runs the game on a Vulkan driver package in place of the
+handheld's own: the Adreno driver packages (`.zip`) made for AdrenoTools, as Android
+emulators use them - without root, for this app only. It is for trying:
+- The game is tested on the system's driver. Another driver can be faster, slower, draw
+  wrongly or fail to start.
+- Your system's driver is never changed, and choosing **System** puts everything back.
 
-On the AYN Thor (Adreno 740, Android 13), 6 drivers were measured at the King's Camp:
-- **As fast or faster:** every driver that draws the game correctly runs it as fast as the
-  system's driver or up to about 8% faster, without frame generation. That covers Turnip T30,
-  Balemuni Apex v2 ULTIMATE, StevenMXZ's v27.0.0-R2 and Qualcomm 840.
-- **Lossless 2x:** Qualcomm 840 is close to the system's driver. The Turnip builds are 6-19%
-  slower: their shader compiler handles a few of its shaders slowly.
-- **The first boot on a new driver** with Lossless 2x takes a few seconds longer: the app measures
-  which shaders that driver runs faster, once, and remembers.
-- **Drivers to avoid:**
-  - **K11MCH1's Turnip v26.0.0 R8** draws a black screen in this game.
-  - **Turnip T29 and Qualcomm 849** need Android 14.
+**Loading a driver package:**
+1. Put the driver package (`.zip`) somewhere on your handheld, for example in Download.
+2. In the launcher, open the **Visual** tab and set **Experimental** to **Show**.
+3. On **Import a driver package**, choose **Choose…** and pick the `.zip`. It is imported and
+   chosen under **Vulkan driver**.
+4. Close the app completely and open it again: a driver takes effect from the app's next
+   start.
 
-Every number is in [`docs/DRIVERS.md`](docs/DRIVERS.md).
+To go back, set **Vulkan driver** to **System** (from the next start too), or use **Remove
+the chosen driver**, which deletes the package and what the app kept for it.
+- **If something fails, the app goes back to System by itself and says why.** That covers a
+  package that cannot load on your Android version, and a start that crashes or hangs with it.
+- **The first start with Lossless 2x on a new driver takes a few seconds longer.** The app
+  measures which of the frame generator's shaders run faster on that driver, once, and
+  remembers.
+
+**Measured on the AYN Thor: Snapdragon 8 Gen 2 (Adreno 740), Android 13.**
+
+| Driver | No frame generation | Lossless 2x (game / shown) |
+|---|---|---|
+| System (Qualcomm v676.53, the handheld's own) | 41.7 fps | 31.1 / 62.3 fps |
+| Turnip v27.0.0-R2 (StevenMXZ) | 45.4 fps | 28.8 / 57.5 fps |
+| Turnip Apex v2 ULTIMATE (Balemuni) | 46.5 fps | 26.0 / 51.9 fps |
+| Turnip T30 (Mr_Purple_666) | 43.1 fps | 25.1 / 50.0 fps |
+| Qualcomm 840 | 41.5 fps | 29.9 / 59.8 fps |
+| Turnip v26.0.0 R8 (K11MCH1) | draws a black screen | - |
+| Qualcomm 849, Turnip T29 | do not load on Android 13 | - |
+
+- **The settings:** Ostagar's King's Camp; Rendering resolution 1280x720, Upscaling Bilinear,
+  FSR 3.1 off, Frame rate 120 (the game uncapped), Dynamic shadows and Corner vignette on,
+  Texture filtering 16x.
+- **The columns:** "game" is the game's own frames a second; "shown" counts the generated
+  frames too.
+- **Without frame generation,** every driver that draws correctly matched the system's driver
+  or beat it, and looked the same in screenshots.
+- **With Lossless 2x,** the handheld's own driver is still the fastest.
+- **Other devices** will differ. Every run is in [`docs/DRIVERS.md`](docs/DRIVERS.md).
 
 ---
 
