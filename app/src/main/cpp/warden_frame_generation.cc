@@ -57,6 +57,7 @@
 #include "warden_gpu.h"
 #include "warden_hudless.h"
 #include "warden_lsfg.h"
+#include "warden_vulkan_loader.h"  // PLAN 9.24: the driver's cache suffix
 
 // The loader's export as warden_vulkan_loader.cc defines it (PLAN 9.23): the loader the
 // game uses. The runtime's vulkan_api.h declares no prototypes.
@@ -669,6 +670,17 @@ bool FrameGeneration::MakeGenerator(uint32_t width, uint32_t height) {
   setup.fp16 = fp16_;
   setup.perf = perf_;
   setup.flow = half_flow_ ? 2.0f : 1.0f;
+  // PLAN 9.24: each group of lsfg-vk's passes in whichever precision this driver runs
+  // faster, measured the first time for each size and mode and remembered in the files
+  // folder (files/frame-generation-precision "16" keeps the 16-bit shaders, "measure"
+  // measures again); lsfg-vk's pipelines kept there too, a file for each driver.
+  const std::string precision = SettingWord("frame-generation-precision");
+  setup.calibrate = fp16_ && precision != "16";
+  setup.remeasure = precision == "measure";
+  setup.queue_family = family;
+  setup.timestamp_period_ns = timestamp_period_ns_;
+  setup.cache_dir = FilesDir();
+  setup.cache_suffix = warden_vulkan_cache_suffix();
   const auto start = std::chrono::steady_clock::now();
   std::string error;
   {
@@ -694,6 +706,8 @@ bool FrameGeneration::MakeGenerator(uint32_t width, uint32_t height) {
          width, height, count_, perf_ ? "performance" : "quality", setup.flow,
          generator_->fp16() ? 16 : 32,
          own_queue ? "its own queue" : "the game's queue (the driver has one)");
+  // PLAN 9.24: each group's shaders, with the calibration's GPU ms (16-bit/32-bit).
+  XELOGI("Frame generation: shaders by pass - {}", generator_->precision());
   return true;
 }
 

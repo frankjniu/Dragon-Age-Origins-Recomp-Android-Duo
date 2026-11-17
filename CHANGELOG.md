@@ -19,6 +19,13 @@
 ### Fixed
 
 - **FSR 3.1 now works on Mesa's Turnip drivers.** Before, it could not start on them.
+- **Lossless 2x frame generation starts in a moment.** It used to hold the game for about two
+  seconds at boot while its shaders were prepared. They are now kept between starts.
+- **Lossless 2x is faster on drivers that run some of its shaders slowly.** The first time a
+  driver is used, the app measures each part of the generator in 16-bit and 32-bit and keeps
+  the faster. That first boot takes a few seconds longer.
+  - On Qualcomm's 840 driver this brought the game from 27 to 30 frames a second with
+    Lossless 2x, close to the handheld's own driver.
 - **Turnip builds from before October 2026 no longer run the game at half speed.** The game
   waited for the GPU every time it checked on its work, on those drivers. It now leaves that
   waiting to a thread of its own: Turnip T30 went from 20 to 42 frames a second at Ostagar's

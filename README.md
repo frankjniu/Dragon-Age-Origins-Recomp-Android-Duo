@@ -378,7 +378,10 @@ On the AYN Thor (Adreno 740, Android 13), 6 drivers were measured at the King's 
 - **As fast or faster:** every driver that draws the game correctly runs it as fast as the
   system's driver or up to about 8% faster, without frame generation. That covers Turnip T30,
   Balemuni Apex v2 ULTIMATE, StevenMXZ's v27.0.0-R2 and Qualcomm 840.
-- **Lossless 2x is still slower on all of them.**
+- **Lossless 2x:** Qualcomm 840 is close to the system's driver. The Turnip builds are 6-19%
+  slower: their shader compiler handles a few of its shaders slowly.
+- **The first boot on a new driver** with Lossless 2x takes a few seconds longer: the app measures
+  which shaders that driver runs faster, once, and remembers.
 - **Drivers to avoid:**
   - **K11MCH1's Turnip v26.0.0 R8** draws a black screen in this game.
   - **Turnip T29 and Qualcomm 849** need Android 14.

@@ -1,4 +1,5 @@
 run 899 - driver Turnip Adreno Driver T30 (@Mr_Purple_666) (turnip-adreno-driver-t30-mr-purple-666), bilinear+lossless (fsr3 off, upscaling bilinear, frame generation lossless)
+resolutions: rendered at 1280x720, upscaled to 1920x1080 by Bilinear (presenter); frame generation at 1280x720
 settings: {"frame-rate": "120", "resolution": "1280x720", "shadows": "on", "vignette": "on", "shader-math": "exact", "anisotropic": "16", "vulkan-driver": "turnip-adreno-driver-t30-mr-purple-666", "fsr3": "off", "upscaling": "bilinear", "frame-generation": "lossless"}
 
 measure_ostagar.sh:

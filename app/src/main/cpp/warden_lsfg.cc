@@ -19,8 +19,11 @@
 #include "warden_lsfg.h"
 
 #include <array>
+#include <cstdio>
 #include <cstring>
+#include <memory>
 #include <exception>
+#include <filesystem>
 #include <fstream>
 #include <optional>
 #include <utility>
@@ -184,13 +187,18 @@ struct Base {
   Base(vk::Vulkan&& device, bool fp16,
        const std::unordered_map<uint32_t, std::vector<uint8_t>>& resources)
       : vk(std::move(device)), shaders(backend::buildShaderRegistry(vk, fp16, resources)) {}
+  // PLAN 9.24: shaders put together from two registries (the calibration's choice).
+  Base(vk::Vulkan&& device, ShaderRegistry&& registry)
+      : vk(std::move(device)), shaders(std::move(registry)) {}
   vk::Vulkan vk;
   ShaderRegistry shaders;
 };
 
 class GeneratorImpl final : public Generator {
  public:
-  GeneratorImpl(std::unique_ptr<Base> base, VkExtent2D extent, size_t count, float flow,
+  // The base shared: the calibration (PLAN 9.24) keeps a base's shaders after its trial
+  // generator is gone.
+  GeneratorImpl(std::shared_ptr<Base> base, VkExtent2D extent, size_t count, float flow,
                 bool perf);
 
   VkImage next_source() const override { return source(fidx_); }
@@ -206,6 +214,8 @@ class GeneratorImpl final : public Generator {
   uint64_t frames() const override { return fidx_; }
   bool Dump(const std::string& dir, std::string* error) override;
   bool fp16() const override { return base_->shaders.is_fp16; }
+  std::string precision() const override { return precision_; }
+  void set_precision(std::string text) { precision_ = std::move(text); }
   void TimeStages(VkQueryPool pool, uint32_t first) override {
     stage_pool_ = pool;
     stage_first_ = first;
@@ -226,13 +236,14 @@ class GeneratorImpl final : public Generator {
   VkQueryPool stage_pool_ = VK_NULL_HANDLE;
   uint32_t stage_first_ = 0;
   PFN_vkCmdWriteTimestamp write_timestamp_ = nullptr;
+  std::string precision_ = "16-bit";
 
   // Frame n's: lsfg-vk's mipmaps take source n % 2.
   VkImage source(uint64_t frame) const {
     return frame % 2 ? source_images_.second.handle() : source_images_.first.handle();
   }
 
-  std::unique_ptr<Base> base_;
+  std::shared_ptr<Base> base_;
   // From here on lsfg-vk's ContextImpl (lsfgvk.cpp): the images its own, not imported.
   std::pair<vk::Image, vk::Image> source_images_;
   std::vector<vk::Image> dest_images_;
@@ -263,7 +274,7 @@ std::vector<vk::Image> MakeDestImages(const vk::Vulkan& vk, VkExtent2D extent, s
   return images;
 }
 
-GeneratorImpl::GeneratorImpl(std::unique_ptr<Base> base, VkExtent2D extent, size_t count,
+GeneratorImpl::GeneratorImpl(std::shared_ptr<Base> base, VkExtent2D extent, size_t count,
                              float flow, bool perf)
     : base_(std::move(base)),
       source_images_(MakeImage(base_->vk, extent, VK_FORMAT_R8G8B8A8_UNORM),
@@ -521,6 +532,139 @@ bool GeneratorImpl::Dump(const std::string& dir, std::string* error) {
   return ok;
 }
 
+// PLAN 9.24: the calibration's groups of passes - the stages Generator::TimeStages times
+// (mipmaps, alpha, beta, the seven gamma/delta levels, generate), the gamma/delta levels
+// one group as they share their shaders.
+constexpr int kGroups = 5;
+constexpr const char* kGroupNames[kGroups] = {"mipmaps", "alpha", "beta", "gamma/delta",
+                                              "generate"};
+
+// The GPU ms of each group over `runs` generations - after one frame taken without a
+// generation and one generation not counted (the first use of each pipeline) - recorded
+// into command buffers of its own on the generator's queue (the caller holds it when it
+// is the game's) and waited for. False when something failed.
+bool TimeChain(GeneratorImpl& generator, const Base& base, const Setup& setup, int runs,
+               double group_ms[kGroups]) {
+  const VkDevice dev = base.vk.dev();
+  const auto proc = [&](const char* name) { return base.vk.fi().GetDeviceProcAddr(dev, name); };
+#define WARDEN_FN(name) const auto name = reinterpret_cast<PFN_##name>(proc(#name))
+  WARDEN_FN(vkCreateCommandPool);
+  WARDEN_FN(vkDestroyCommandPool);
+  WARDEN_FN(vkAllocateCommandBuffers);
+  WARDEN_FN(vkBeginCommandBuffer);
+  WARDEN_FN(vkEndCommandBuffer);
+  WARDEN_FN(vkCmdPipelineBarrier);
+  WARDEN_FN(vkCreateQueryPool);
+  WARDEN_FN(vkDestroyQueryPool);
+  WARDEN_FN(vkCmdResetQueryPool);
+  WARDEN_FN(vkGetQueryPoolResults);
+  WARDEN_FN(vkQueueSubmit);
+  WARDEN_FN(vkCreateFence);
+  WARDEN_FN(vkDestroyFence);
+  WARDEN_FN(vkWaitForFences);
+  WARDEN_FN(vkResetFences);
+#undef WARDEN_FN
+  if (!vkCreateCommandPool || !vkAllocateCommandBuffers || !vkCreateQueryPool ||
+      !vkGetQueryPoolResults || !vkQueueSubmit || !vkCreateFence) {
+    return false;
+  }
+  constexpr uint32_t kStamps = Generator::kStageStamps;
+  VkCommandPool pool = VK_NULL_HANDLE;
+  VkQueryPool queries = VK_NULL_HANDLE;
+  VkFence fence = VK_NULL_HANDLE;
+  VkCommandPoolCreateInfo pool_info = {VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO};
+  pool_info.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+  pool_info.queueFamilyIndex = setup.queue_family;
+  VkQueryPoolCreateInfo query_info = {VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO};
+  query_info.queryType = VK_QUERY_TYPE_TIMESTAMP;
+  query_info.queryCount = kStamps;
+  VkFenceCreateInfo fence_info = {VK_STRUCTURE_TYPE_FENCE_CREATE_INFO};
+  bool ok = vkCreateCommandPool(dev, &pool_info, nullptr, &pool) == VK_SUCCESS &&
+            vkCreateQueryPool(dev, &query_info, nullptr, &queries) == VK_SUCCESS &&
+            vkCreateFence(dev, &fence_info, nullptr, &fence) == VK_SUCCESS;
+  VkCommandBuffer command_buffer = VK_NULL_HANDLE;
+  if (ok) {
+    VkCommandBufferAllocateInfo allocate = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO};
+    allocate.commandPool = pool;
+    allocate.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocate.commandBufferCount = 1;
+    ok = vkAllocateCommandBuffers(dev, &allocate, &command_buffer) == VK_SUCCESS;
+  }
+  double sums[kStamps - 1] = {};
+  int timed = 0;
+  for (int i = 0; ok && i < 2 + runs; ++i) {
+    const bool counted = i >= 2;
+    VkCommandBufferBeginInfo begin = {VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO};
+    begin.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    ok = vkBeginCommandBuffer(command_buffer, &begin) == VK_SUCCESS;
+    if (!ok) {
+      break;
+    }
+    // Everything the last submission wrote seen by this one.
+    VkMemoryBarrier seen = {VK_STRUCTURE_TYPE_MEMORY_BARRIER};
+    seen.srcAccessMask = VK_ACCESS_MEMORY_WRITE_BIT;
+    seen.dstAccessMask = VK_ACCESS_MEMORY_READ_BIT | VK_ACCESS_MEMORY_WRITE_BIT;
+    vkCmdPipelineBarrier(command_buffer, VK_PIPELINE_STAGE_ALL_COMMANDS_BIT,
+                         VK_PIPELINE_STAGE_ALL_COMMANDS_BIT, 0, 1, &seen, 0, nullptr, 0,
+                         nullptr);
+    if (counted) {
+      vkCmdResetQueryPool(command_buffer, queries, 0, kStamps);
+      generator.TimeStages(queries, 0);
+    }
+    std::string error;
+    ok = generator.Record(command_buffer, i > 0, &error);
+    generator.TimeStages(VK_NULL_HANDLE, 0);
+    ok = ok && vkEndCommandBuffer(command_buffer) == VK_SUCCESS;
+    VkSubmitInfo submit = {VK_STRUCTURE_TYPE_SUBMIT_INFO};
+    submit.commandBufferCount = 1;
+    submit.pCommandBuffers = &command_buffer;
+    ok = ok && vkQueueSubmit(base.vk.queue(), 1, &submit, fence) == VK_SUCCESS &&
+         vkWaitForFences(dev, 1, &fence, VK_TRUE, UINT64_MAX) == VK_SUCCESS &&
+         vkResetFences(dev, 1, &fence) == VK_SUCCESS;
+    if (ok && counted) {
+      uint64_t stamps[kStamps * 2] = {};
+      if (vkGetQueryPoolResults(dev, queries, 0, kStamps, sizeof(stamps), stamps,
+                                2 * sizeof(uint64_t),
+                                VK_QUERY_RESULT_64_BIT | VK_QUERY_RESULT_WITH_AVAILABILITY_BIT) ==
+          VK_SUCCESS) {
+        bool whole = true;
+        for (uint32_t s = 0; s < kStamps; ++s) {
+          whole = whole && stamps[s * 2 + 1] && (!s || stamps[s * 2] >= stamps[s * 2 - 2]);
+        }
+        if (whole) {
+          for (uint32_t s = 0; s + 1 < kStamps; ++s) {
+            sums[s] += double(stamps[s * 2 + 2] - stamps[s * 2]) * setup.timestamp_period_ns /
+                       1.0e6;
+          }
+          ++timed;
+        }
+      }
+    }
+  }
+  if (fence) {
+    vkDestroyFence(dev, fence, nullptr);
+  }
+  if (queries) {
+    vkDestroyQueryPool(dev, queries, nullptr);
+  }
+  if (pool) {
+    vkDestroyCommandPool(dev, pool, nullptr);
+  }
+  if (!ok || !timed) {
+    return false;
+  }
+  // Stages: 0 mipmaps, 1 alpha, 2 beta, 3-9 the gamma/delta levels, 10 generate.
+  group_ms[0] = sums[0] / timed;
+  group_ms[1] = sums[1] / timed;
+  group_ms[2] = sums[2] / timed;
+  group_ms[3] = 0.0;
+  for (int s = 3; s <= 9; ++s) {
+    group_ms[3] += sums[s] / timed;
+  }
+  group_ms[4] = sums[10] / timed;
+  return true;
+}
+
 }  // namespace
 
 std::unique_ptr<Generator> Generator::Create(const Setup& setup, std::string* error) {
@@ -533,13 +677,156 @@ std::unique_ptr<Generator> Generator::Create(const Setup& setup, std::string* er
     }
     const std::unordered_map<uint32_t, std::vector<uint8_t>> resources =
         backend::extractResourcesFromDLL(setup.dll_path);
-    auto base = std::make_unique<Base>(
-        vk::Vulkan(setup.instance, setup.device, setup.physical_device, fi, df, false,
-                   std::nullopt, std::nullopt, setup.queue_index, setup.fp16),
-        setup.fp16, resources);
-    return std::make_unique<GeneratorImpl>(std::move(base),
-                                           VkExtent2D{setup.width, setup.height},
-                                           setup.count, setup.flow, setup.perf);
+    // PLAN 9.24: lsfg-vk's pipelines kept between starts, a file for each precision and
+    // driver - a driver ignores another's cache.
+    const auto cache_file = [&](bool fp16) -> std::optional<std::filesystem::path> {
+      if (setup.cache_dir.empty()) {
+        return std::nullopt;
+      }
+      return std::filesystem::path(setup.cache_dir) /
+             (std::string(fp16 ? "lsfg-pipelines16" : "lsfg-pipelines32") + setup.cache_suffix +
+              ".bin");
+    };
+    const auto device = [&](bool fp16) {
+      return vk::Vulkan(setup.instance, setup.device, setup.physical_device, fi, df, false,
+                        std::nullopt, cache_file(fp16), setup.queue_index, setup.fp16);
+    };
+    const auto make_base = [&](bool fp16) {
+      auto base = std::make_shared<Base>(device(fp16), fp16, resources);
+      base->vk.persistPipelineCache();
+      return base;
+    };
+    const VkExtent2D extent{setup.width, setup.height};
+    if (!setup.fp16 || !setup.calibrate) {
+      auto generator = std::make_unique<GeneratorImpl>(make_base(setup.fp16), extent,
+                                                       setup.count, setup.flow, setup.perf);
+      generator->set_precision(setup.fp16 ? "16-bit" : "32-bit");
+      return generator;
+    }
+    // PLAN 9.24: the choice remembered for this size, mode and Lossless.dll, one line each
+    // ("<key>|<five 0/1>|<the GPU ms>").
+    std::error_code ec;
+    char key[160];
+    std::snprintf(key, sizeof(key), "%ux%u %s count %u flow %.0f dll %llu", setup.width,
+                  setup.height, setup.perf ? "performance" : "quality", setup.count, setup.flow,
+                  static_cast<unsigned long long>(
+                      std::filesystem::file_size(setup.dll_path, ec)));
+    const std::string choices_path =
+        setup.cache_dir.empty()
+            ? std::string()
+            : setup.cache_dir + "/frame-generation-precision" + setup.cache_suffix + ".txt";
+    std::vector<std::string> remembered;
+    bool use32[kGroups] = {};
+    std::string choice;
+    bool known = false;
+    if (!choices_path.empty()) {
+      std::ifstream in(choices_path);
+      for (std::string line; std::getline(in, line);) {
+        const size_t bar = line.find('|');
+        if (bar != std::string::npos && line.compare(0, bar, key) == 0) {
+          const size_t bar2 = line.find('|', bar + 1);
+          const std::string bits = line.substr(bar + 1, bar2 - bar - 1);
+          if (!setup.remeasure && bits.size() == kGroups && bar2 != std::string::npos) {
+            for (int g = 0; g < kGroups; ++g) {
+              use32[g] = bits[g] == '1';
+            }
+            choice = line.substr(bar2 + 1) + " - measured before";
+            known = true;
+          }
+          continue;  // A line measured again replaces this one.
+        }
+        remembered.push_back(line);
+      }
+    }
+    std::shared_ptr<Base> base16;
+    std::shared_ptr<Base> base32;
+    if (!known) {
+      // The chain timed with each precision, on trial generators of the same size, then the
+      // faster shaders kept for each group - 32-bit only when it is at least 10% and 0.25 ms
+      // faster, so noise never trades the 16-bit shaders away. Measured beside the game's
+      // boot (the generator is made at the first guest output), once for each size and mode.
+      base16 = make_base(true);
+      base32 = make_base(false);
+      double ms16[kGroups] = {};
+      double ms32[kGroups] = {};
+      bool timed16 = false;
+      bool timed32 = false;
+      {
+        GeneratorImpl trial(base16, extent, setup.count, setup.flow, setup.perf);
+        timed16 = TimeChain(trial, *base16, setup, 3, ms16);
+      }
+      if (timed16) {
+        GeneratorImpl trial(base32, extent, setup.count, setup.flow, setup.perf);
+        timed32 = TimeChain(trial, *base32, setup, 3, ms32);
+      }
+      if (timed16 && timed32) {
+        std::string bits;
+        for (int g = 0; g < kGroups; ++g) {
+          // At least 10% and 0.25 ms faster: smaller gains measured beside the running game
+          // are noise (Turnip's mipmaps, 0.16 against 0.09 ms, ran the same in play).
+          use32[g] = ms32[g] < ms16[g] * 0.9 && ms16[g] - ms32[g] >= 0.25;
+          bits += use32[g] ? '1' : '0';
+          char part[96];
+          std::snprintf(part, sizeof(part), "%s%s %s (%.2f/%.2f ms)", g ? ", " : "",
+                        kGroupNames[g], use32[g] ? "32-bit" : "16-bit", ms16[g], ms32[g]);
+          choice += part;
+        }
+        if (!choices_path.empty()) {
+          remembered.push_back(std::string(key) + "|" + bits + "|" + choice);
+          std::ofstream out(choices_path, std::ios::trunc);
+          for (const std::string& line : remembered) {
+            out << line << '\n';
+          }
+        }
+      } else {
+        choice = "16-bit (the calibration failed)";
+      }
+    }
+    bool any32 = false;
+    for (bool b : use32) {
+      any32 = any32 || b;
+    }
+    if (!any32) {
+      auto generator = std::make_unique<GeneratorImpl>(base16 ? base16 : make_base(true),
+                                                       extent, setup.count, setup.flow,
+                                                       setup.perf);
+      generator->set_precision(choice);
+      return generator;
+    }
+    if (!base16) {
+      base16 = make_base(true);
+      base32 = make_base(false);
+    }
+    ShaderRegistry registry = std::move(base16->shaders);
+    ShaderRegistry& other = base32->shaders;
+    if (use32[0]) {
+      registry.mipmaps = std::move(other.mipmaps);
+    }
+    if (use32[1]) {
+      registry.quality.alpha = std::move(other.quality.alpha);
+      registry.performance.alpha = std::move(other.performance.alpha);
+    }
+    if (use32[2]) {
+      registry.quality.beta = std::move(other.quality.beta);
+      registry.performance.beta = std::move(other.performance.beta);
+    }
+    if (use32[3]) {
+      registry.quality.gamma = std::move(other.quality.gamma);
+      registry.quality.delta = std::move(other.quality.delta);
+      registry.performance.gamma = std::move(other.performance.gamma);
+      registry.performance.delta = std::move(other.performance.delta);
+    }
+    if (use32[4]) {
+      registry.generate = std::move(other.generate);
+      registry.generate_hdr = std::move(other.generate_hdr);
+    }
+    auto base = std::make_shared<Base>(device(true), std::move(registry));
+    base16.reset();
+    base32.reset();
+    auto generator = std::make_unique<GeneratorImpl>(std::move(base), extent, setup.count,
+                                                     setup.flow, setup.perf);
+    generator->set_precision(choice);
+    return generator;
   } catch (const std::exception& e) {
     *error = e.what();
     return nullptr;

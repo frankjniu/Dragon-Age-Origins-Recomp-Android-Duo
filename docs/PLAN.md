@@ -2757,12 +2757,23 @@ behind the owner's (CLAUDE.md).
             (heavy 16-bit math); 32-bit collapses.
           - `spirv-opt -O` takes off only 2-10% of their instructions: they are already
             optimized.
-        - **Open, the owner to choose:**
-          - **Precision chosen per pass**, measured at the generator's start, the faster kept
-            (`ShaderRegistry` groups taken from a 32-bit build). Qualcomm 840 would go from about
-            11.6 to 7.5 ms; nothing for Turnip.
-          - **Turnip's Lossless gap** is the driver's compiler. No app-side change to the
-            shaders found closes it.
+        - **Built: the precision chosen per pass** (the owner, 2026-11-17; `warden_lsfg.cc`).
+          - **How:** the first time for a driver, size and mode, the chain is timed with the
+            16-bit and the 32-bit shaders on trial generators. Each group (mipmaps, alpha, beta,
+            gamma/delta, generate) keeps 32-bit only where it is at least 10% and 0.25 ms
+            faster.
+          - **Kept between starts:** the choice in `files/frame-generation-precision<driver>.txt`,
+            and lsfg-vk's pipelines in `files/lsfg-pipelines16|32<driver>.bin` (before, they
+            were compiled at every start). Remove deletes them.
+          - **Switches:** `files/frame-generation-precision` set to `16` or to `measure`.
+          - **The results** (runs 920-930):
+            - Qualcomm 840 takes 32-bit beta: its generator 11.6 -> 8.2 ms, Lossless 2x 27.4
+              -> 29.9 game fps (System 31.1).
+            - System and StevenMXZ keep 16-bit.
+            - The first boot is longer by 3-7 s, once. Afterwards the generator is up in
+              16-45 ms, where it took about 2 s.
+        - **Left:** Turnip's Lossless gap (6-19% behind System) is its compiler on alpha and
+          the full-size gamma/delta. No app-side change to the shaders found closes it.
         - **R8 draws black (BUG-123):** the driver's own. Look at it only if the owner wants R8.
         - **The full matrix again:** not wanted (the owner, 2026-11-17). 720p, Bilinear,
           frame rate 120 instead, with and without Lossless 2x, on the five drivers that draw

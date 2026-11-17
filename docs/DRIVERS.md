@@ -119,9 +119,46 @@ The runs are 912-916, all 16-bit.
 **What the app could do:**
 - **Choose the precision per pass:** measure both at the generator's start and keep the faster.
   That would bring Qualcomm 840 from 11.6 to about 7.5 ms (System 6.8), and does nothing for
-  Turnip.
+  Turnip. **Built, below.**
 - **Turnip's gap is the driver's compiler.** No app-side change to the shaders found closes it
   (PLAN 9.24).
+
+### The precision chosen per pass (PLAN 9.24, built at the owner's choice)
+
+**How it works** (`warden_lsfg.cc`):
+1. The first time the generator is made for a driver, size and mode, the app builds lsfg-vk's
+   16-bit and 32-bit shaders.
+2. It times the whole chain with each on trial generators: one warm-up, three timed runs.
+3. For each group of passes (mipmaps, alpha, beta, gamma/delta, generate) it keeps the 32-bit
+   shaders only where they are at least 10% and 0.25 ms faster.
+
+**What is kept between starts:**
+- **The choice:** one line each in `files/frame-generation-precision<driver>.txt`, keyed by
+  size, mode, frames generated and the size of `Lossless.dll`, with the times measured.
+- **lsfg-vk's pipelines:** `files/lsfg-pipelines16<driver>.bin` and
+  `lsfg-pipelines32<driver>.bin`. Before, they were compiled at every start.
+- **Remove** in the launcher deletes a driver's files.
+- `files/frame-generation-precision` set to `16` keeps the 16-bit shaders; `measure` measures
+  again.
+
+**What each driver chose** (Lossless 2x, Bilinear, 720p, frame rate 120; runs 920-930):
+
+| Driver | Chosen | Generator GPU ms | Game fps | Frames shown | The generator up in |
+|---|---|---|---|---|---|
+| System | all 16-bit | 6.81-6.88 | 31.0-31.1 | 62.1-62.3 | 9.1 s measuring, then **29 ms** |
+| Qualcomm 840 | **beta 32-bit** (9.31 -> 5.49 ms timed) | **8.18-8.24** (11.6 before) | **29.8-29.9** (27.4) | **59.5-59.9** (54.8) | 4.6 s, then **45 ms** |
+| Turnip v27.0.0-R2 (StevenMXZ) | all 16-bit | 10.8-11.0 | 28.8-29.1 | 57.5-58.1 | 5.9 s, then **16 ms** |
+| Turnip T30, Balemuni | (run 921, 923, before the 0.25 ms floor: the tiny groups, no change in play) | 9.8, 15.6 | 25.1, 26.0 | 50.0, 51.9 | 5.7, 6.6 s |
+
+**The measurement waits.** The generator is made at the first guest output, during the
+game's boot (the intro logos), on the command processor's thread. That first boot is longer
+by 3-7 seconds, once for each driver, size and mode. Every later start is faster than before
+this change (about 2 s): the pipelines come from the cache.
+
+**Where Lossless 2x stands now:**
+- **Qualcomm 840:** within 4% of the system's driver (29.9 against 31.1 game fps).
+- **Turnip:** 6-19% behind System. The rest of the gap is Turnip's compiler on lsfg-vk's alpha
+  and full-size gamma/delta passes, where 32-bit is far slower still.
 
 ## The first matrix's summary (before the fence watch)
 
@@ -567,6 +604,27 @@ The first matrix (before the fence watch; R8 drew black), then the other runs by
 | 917 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 27.5 | 23.0 | 99 | 680 | 55.0 | test: lsfg-vk's passes timed, 32-bit shaders |
 | 918 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 23.2 | 21.1 | 99 | 680 | 46.4 | test: lsfg-vk's passes timed, 32-bit shaders |
 | 919 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | did not reach the camp | test: lsfg-vk's passes timed, 32-bit shaders |
+
+#### Runs noted "precision per pass (PLAN 9.24), passes timed"
+
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 920 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 31.0 | 26.0 | 99 | 680 | 62.1 | precision per pass (PLAN 9.24), passes timed |
+| 921 | Turnip T30 (Mr_Purple_666) | bilinear+lossless | PurpleVK-public Adreno (TM) 740 (git-62ac221a33)/unknown | 0x6802063 | 1280x720 | 1920x1080 | 25.1 | 22.3 | 99 | 680 | 50.0 | precision per pass (PLAN 9.24), passes timed |
+| 922 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 29.9 | 25.7 | 99 | 680 | 59.9 | precision per pass (PLAN 9.24), passes timed |
+| 923 | Turnip Balemuni Apex v2 ULTIMATE | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6802063 | 1280x720 | 1920x1080 | 26.0 | 22.5 | 99 | 680 | 51.9 | precision per pass (PLAN 9.24), passes timed |
+| 924 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 29.1 | 24.0 | 99 | 680 | 58.1 | precision per pass (PLAN 9.24), passes timed |
+
+#### Runs noted "precision per pass (PLAN 9.24): measured, then remembered"
+
+| Run | Driver | Combination | Device | Driver version | Rendered at | Upscaled to | Game fps | 1% low | GPU busy | GPU MHz | Shown fps | Note |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 925 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 31.0 | 26.3 | 99 | 680 | 62.1 | precision per pass (PLAN 9.24): measured, then remembered |
+| 926 | System (v676.53) | bilinear+lossless | Adreno (TM) 740 | 0x802A4035 | 1280x720 | 1920x1080 | 31.1 | 26.1 | 99 | 680 | 62.3 | precision per pass (PLAN 9.24): measured, then remembered |
+| 927 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 29.8 | 26.0 | 99 | 680 | 59.5 | precision per pass (PLAN 9.24): measured, then remembered |
+| 928 | Qualcomm Adreno 840 | bilinear+lossless | Adreno (TM) 740 | 0x80348000 | 1280x720 | 1920x1080 | 29.9 | 26.0 | 99 | 680 | 59.8 | precision per pass (PLAN 9.24): measured, then remembered |
+| 929 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 28.8 | 24.6 | 99 | 680 | 57.6 | precision per pass (PLAN 9.24): measured, then remembered |
+| 930 | Turnip v27.0.0-R2 (StevenMXZ) | bilinear+lossless | Turnip Adreno (TM) 740 | 0x6863063 | 1280x720 | 1920x1080 | 28.8 | 25.2 | 99 | 680 | 57.5 | precision per pass (PLAN 9.24): measured, then remembered |
 
 #### The warm checks' screenshots (the camp, Bilinear, 1280x720 to 1920x1080)
 

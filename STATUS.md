@@ -10,7 +10,7 @@ starts by re-deriving context that was already paid for.
 | **Version** | **0.2.2-alpha, "Open Alpha"** (`CHANGELOG.md`; published 2026-11-09, the tag `v0.2.2-alpha`, an update from the launcher: the standby battery with the lid shut. Before it 0.2.1-alpha, 2026-11-08: the on-screen controller's size and layout, the panel's tabs. Before that 0.2.0-alpha, 2026-11-04, a manual update - players installed by hand and chose Build again, as the GPU rest changes the game code's ABI), after the first public release, 0.1.0-alpha: the source, and an APK that holds none of the game (`gradle.properties`: `warden.version`, `warden.releaseName`; `docs/DECISIONS.md` D14) |
 | **Current phase** | **Phase 12 complete: a published APK, the game's code made on the device from the player's own discs.** Phases 0-4, 7, 8, 10, 11 and 12 complete. Phase 5 reached. Phase 6 reached by script - the hand playthrough to Ostagar is left, the alpha's players its testers. Phase 9 done but for what the owner deferred (9.15, 9.9) and 3.8's Adreno work. §2 has the board. |
 | **Overall state** | The whole game runs on the AYN Thor: the main campaign, Awakening and every DLC from the Ultimate Edition's disc 2, and all 118 areas the game's debug menus reach, loaded and profiled (`docs/AREAS.md`). With it: the companion deck on the second screen, button prompts for three controllers, up to 120 fps, FSR 3.1, two kinds of frame generation, HDR10, PC mods with an in-app converter, saves named on the keyboard with thumbnails, export, import and restore, and Debugging Mode's one-file bug reports. [`README.md`](README.md) is the user's manual. |
-| **Next action** | **PLAN 9.24 in progress: imported drivers as fast as the system's, the fix in our app** (sessions 47-48). **Done:** BUG-122, the fence watch: every driver that draws correctly is at or above the system's without frame generation (720p, Bilinear, uncapped: System 41.7, T30 43.1, Qualcomm 840 41.5, Balemuni 46.5, StevenMXZ 45.4; runs 902-906, screenshots alike). **Lossless 2x** is still slower on them. Timed pass by pass (`files/frame-generation-timing` set to `passes`), the gap is how each driver compiles a few of lsfg-vk's shaders: Qualcomm 840's beta pass (24× System's), Turnip's alpha and full-size gamma/delta (2.5-6×). **The owner to choose:** precision chosen per pass at the generator's start (840 11.6 -> about 7.5 ms, nothing for Turnip), or leave Lossless 2x on imported drivers as it is; Turnip's gap is its compiler (`docs/DRIVERS.md`, 'Lossless 2x pass by pass'). R8 draws black (BUG-123), the driver's own. The full matrix is not wanted. **State:** the debug APK with the pass timing is on the Thor, all pushed. 0.2.2-alpha is published; `CHANGELOG.md` Unreleased has PLAN 9.23 and BUG-122. `RESUMING.md` §5. |
+| **Next action** | **PLAN 9.24: imported drivers as fast as the system's, the fixes in our app** (sessions 47-48). **Done:** BUG-122, the fence watch: every driver that draws correctly is at or above the system's without frame generation (720p, uncapped: System 41.7, T30 43.1, Qualcomm 840 41.5, Balemuni 46.5, StevenMXZ 45.4). **Done:** lsfg-vk's precision chosen per pass, measured once a driver, size and mode and remembered, with lsfg-vk's pipelines cached. Qualcomm 840's Lossless 2x 27.4 -> 29.9 game fps (System 31.1), and the generator up in 16-45 ms instead of about 2 s. **Left:** Turnip's Lossless 2x is 6-19% behind System, its compiler on lsfg-vk's alpha and full-size gamma/delta - no app-side shader change found closes it (`docs/DRIVERS.md`). R8 draws black (BUG-123), the driver's own. **State:** the debug APK with these is on the Thor, all pushed. 0.2.2-alpha is published; `CHANGELOG.md` Unreleased has PLAN 9.23 and 9.24. Next: the owner's call on a release. `RESUMING.md` §5. |
 | **Blockers** | None |
 
 The authoritative task list is [`docs/PLAN.md`](docs/PLAN.md); each session's detail is
@@ -1879,8 +1879,18 @@ Newest first. One short entry per session: what changed, what's next.
   - The Turnips' alpha and full-size gamma/delta passes are 2.5-6× System's; 32-bit is far worse.
   - The shaders are already optimized: `spirv-opt -O` takes off only 2-10% of their instructions
     (the owner's `Lossless.dll`, on the computer only).
-- **Next, the owner's choice:** a per-pass precision chosen at the generator's start (Qualcomm 840
-  about 7.5 ms), or nothing for Lossless 2x. Turnip's gap is its compiler.
+- **The owner chose the per-pass precision; built** (`warden_lsfg.cc`):
+  - **How:** the chain is timed in 16-bit and 32-bit at the generator's first start for a driver,
+    size and mode. 32-bit is kept for a group only where it is at least 10% and 0.25 ms faster.
+  - **Kept:** the choice in `files/frame-generation-precision<driver>.txt`, and lsfg-vk's
+    pipelines cached in `files/lsfg-pipelines16|32<driver>.bin`.
+  - **Results** (runs 920-930):
+    - Qualcomm 840 takes 32-bit beta: its generator 11.6 -> 8.2 ms, Lossless 2x 27.4 -> 29.9
+      game fps.
+    - System and StevenMXZ keep 16-bit.
+    - The first boot is 3-7 s longer, once. Later the generator is up in 16-45 ms (it took
+      about 2 s).
+  - Remove deletes a driver's files.
 - **The Thor afterwards:**
   - The owner's options are back, the route is off, and the test switches are removed.
   - The pass-timing build is installed.

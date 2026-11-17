@@ -445,6 +445,10 @@ final class VulkanDrivers {
                 }
             }
         }
+        // PLAN 9.24: frame generation's pipelines and its precision choice for the driver.
+        new File(dir, "lsfg-pipelines16-" + id + ".bin").delete();
+        new File(dir, "lsfg-pipelines32-" + id + ".bin").delete();
+        new File(dir, "frame-generation-precision-" + id + ".txt").delete();
         choose(dir, SYSTEM);
         refresh(dir);
         note = "Removed " + name + ". The system's driver is chosen"

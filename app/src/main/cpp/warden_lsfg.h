@@ -33,6 +33,21 @@ struct Setup {
   // performance mode.
   float flow = 1.0f;
   bool perf = false;
+  // PLAN 9.24: with fp16, time the whole chain with the 16-bit and the 32-bit shaders at
+  // the start and keep, for each group of passes, the faster - a driver's compiler can be
+  // many times slower on one of them (docs/DRIVERS.md, "Lossless 2x pass by pass"). The
+  // queue's family (for the timing's own command pool) and the device's timestamp period.
+  bool calibrate = false;
+  uint32_t queue_family = 0;
+  double timestamp_period_ns = 1.0;
+  // Where the choice is remembered (frame-generation-precision<suffix>.txt, one line a
+  // size, mode and Lossless.dll - measured once each) and lsfg-vk's pipelines kept
+  // (lsfg-pipelines16<suffix>.bin, lsfg-pipelines32<suffix>.bin): the app's files folder,
+  // the suffix the Vulkan driver's (warden_vulkan_cache_suffix). Empty: nothing kept.
+  // `remeasure` measures again even when a choice is remembered.
+  std::string cache_dir;
+  std::string cache_suffix;
+  bool remeasure = false;
 };
 
 // A frame generator: two source images it alternates between and `count` images it
@@ -75,6 +90,9 @@ class Generator {
   // passes only). VK_NULL_HANDLE writes none.
   static constexpr uint32_t kStageStamps = 12;
   virtual void TimeStages(VkQueryPool pool, uint32_t first) = 0;
+  // PLAN 9.24: which shaders each group of passes uses, and why (the calibration's GPU ms),
+  // for the log - "16-bit" alone when nothing was measured.
+  virtual std::string precision() const = 0;
 };
 
 }  // namespace warden::lsfg

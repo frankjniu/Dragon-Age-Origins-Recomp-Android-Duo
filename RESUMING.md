@@ -539,12 +539,11 @@ downloaded to a temporary folder, never into the repository: get them again from
 `docs/DRIVERS.md` names, and check them against its SHA-256s. BUG-122 is fixed: the fence watch made every correctly drawing driver as fast as the
 system's or faster without frame generation. Next, in order:
 
-1. **Lossless 2x on imported drivers: the owner's choice** (session 48, `docs/DRIVERS.md` "Lossless 2x
-   pass by pass").
-   - Timed pass by pass, the gap is each driver's compiler on a few of lsfg-vk's shaders.
-   - Choosing the precision per pass at the generator's start would help Qualcomm 840 (11.6 to
-     about 7.5 ms). Nothing found helps Turnip.
-   - Ask before building it.
+1. **Lossless 2x on imported drivers.**
+   - **Done (session 48):** the precision chosen per pass, measured once a driver and remembered,
+     with lsfg-vk's pipelines cached. Qualcomm 840 is within 4% of System now.
+   - **Left:** Turnip's 6-19% (its compiler; `docs/DRIVERS.md`, "Lossless 2x pass by pass").
+     Nothing app-side found.
 2. **The full matrix:** not wanted (the owner, 2026-11-17). Run 720p, Bilinear, frame rate 120
    instead (`--combos bilinear+off,bilinear+lossless --shots`).
 3. **BUG-123 (R8 draws black)** only if the owner wants R8.

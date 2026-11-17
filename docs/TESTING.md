@@ -1523,6 +1523,17 @@ option files are put back from what was saved before (session 47:
     never into the repository (resource 49 + id, +49 for 32-bit, +23 for performance mode;
     `shader_registry.cpp`), and disassemble it with the NDK's `spirv-dis`
     (`shader-tools/windows-x86_64`).
+- **lsfg-vk's precision per pass** (PLAN 9.24):
+  - At its first start for a driver, size and mode the generator times its chain in 16-bit and
+    32-bit, and keeps 32-bit for a group of passes only where it is at least 10% and 0.25 ms
+    faster.
+  - The log says `Frame generation: shaders by pass - mipmaps 16-bit (16-bit ms/32-bit ms),
+    ...`, with `- measured before` when the choice came from
+    `files/frame-generation-precision<driver>.txt`.
+  - `files/frame-generation-precision` set to `measure` measures again; `16` keeps the 16-bit
+    shaders.
+  - lsfg-vk's pipelines are cached in `files/lsfg-pipelines16|32<driver>.bin`. Delete them,
+    and the text file, to time a first start.
 - **Whether the picture is drawn:** `files/guest-output-<tick>.png` (the game's own frames at
   10-150 s) shows it as well as the main screen does. An all-zero capture means the driver
   drew nothing (BUG-123, Turnip v26.0.0 R8).
