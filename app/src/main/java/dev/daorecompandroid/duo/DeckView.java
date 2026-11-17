@@ -757,16 +757,29 @@ final class DeckView extends LinearLayout {
             health.set("Health", number(values.get(prefix + "Attributes.7.Current")),
                     number(values.get(prefix + "Attributes.7.Total")), HEALTH);
             boolean mana = "1".equals(values.get(prefix + "Stats.ClassHasMana"));
-            energy.set(mana ? "Mana" : "Stamina",
-                    number(values.get(prefix + "Attributes.8.Current")),
-                    number(values.get(prefix + "Attributes.8.Total")), mana ? MANA : STAMINA);
+            double energyNow = number(values.get(prefix + "Attributes.8.Current"));
+            double energyMax = energyPool(values, prefix);
+            energy.set(mana ? "Mana" : "Stamina", energyNow, energyMax, mana ? MANA : STAMINA);
             if (ring != null) {
                 ring.set(title, fraction(values.get(prefix + "Attributes.7.Current"),
                         values.get(prefix + "Attributes.7.Total")),
-                        fraction(values.get(prefix + "Attributes.8.Current"),
-                                values.get(prefix + "Attributes.8.Total")), mana, selected);
+                        energyMax > 0 ? (float) Math.max(0, Math.min(1, energyNow / energyMax))
+                                : 0f, mana, selected);
             }
         }
+    }
+
+    /**
+     * BUG-125: the mana or stamina pool the HUD measures the bar against. A sustained
+     * ability's upkeep (Powerful Swings and the like) is a negative .Attributes.8.Modifier,
+     * already taken off .Total - the HUD observes the modifier too (run 948) and shows the
+     * reserved part empty, so the full pool is the total less a negative modifier. A positive
+     * modifier (an item's bonus) is part of the pool already and changes nothing.
+     */
+    private static double energyPool(Map<String, String> values, String prefix) {
+        double total = number(values.get(prefix + "Attributes.8.Total"));
+        double modifier = number(values.get(prefix + "Attributes.8.Modifier"));
+        return modifier < 0 ? total - modifier : total;
     }
 
     private static float fraction(String current, String total) {

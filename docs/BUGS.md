@@ -83,6 +83,7 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-058](#bug-058) | upstream (Xenia) | low | **FIXED** | Xenia's timer queue and log writer spin-wait: about 10% of one core each. Now they nap while the game is held or not yet started (the launcher); in play they spin as before |
 | [BUG-059](#bug-059) | upstream (Xenia) / our runtime | low | **FIXED** | With no Vulkan instance the boot went on, and crashed in the command processor's constructor |
 | [BUG-079](#bug-079) | our runtime | medium | **FIXED** | The guest output captures, a debugging aid, ran in every session: a 4 MB PNG of the screen every minute of play, never removed (about 240 MB an hour in the app's files directory), each with a GPU readback and a PNG encode |
+| [BUG-125](#bug-125) | our app (`DeckView.java`) | low | **FIXED** (session 48; the owner to confirm in play) | The deck's stamina or mana bar showed full while a sustained ability (Powerful Swings) reserved part of the pool: the deck ignored `.Attributes.8.Modifier`, which the HUD observes |
 | [BUG-124](#bug-124) | our runtime (`warden_deck.cc`, `DeckView.java`) | medium | **FIXED** (session 48) | On the second screen's Party tab the faces were dark, sepia and contrasty, the clothes cut away: the portrait's bytes are A R G B and were read as R G B A - the alpha as red, the blue as the mask. The face was also drawn larger than the HUD's; now framed as the HUD frames it |
 | [BUG-123](#bug-123) | an imported driver (Mesa Turnip v26.0.0 R8) | medium | **OPEN** (the driver's; not worked around) | On K11MCH1's Turnip v26.0.0 R8 (Mesa 26.0.0-devel git-5ac41be677) the game draws nothing: every frame black from the first menu, at 76 frames a second once BUG-122 was fixed. Its matrix numbers measured a black screen |
 | [BUG-122](#bug-122) | our runtime (Xenia's completion timeline) / Turnip on KGSL before Mesa e984ef29 | high | **FIXED** (session 47, PLAN 9.24) | On Turnip builds before 2026-10-08 the game ran at about half the system driver's speed with the GPU part idle: Xenia's fence status checks waited for the GPU. The fences are now watched on their own thread |
@@ -3034,6 +3035,27 @@ The game code's ABI is unchanged (no override was added): no Build again.
 
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
+
+## BUG-125
+**The deck's stamina and mana ignored sustained abilities**
+our app (`DeckView.java`, the Party tab) · severity low · **FIXED** session 48 (the owner to confirm in play)
+
+**What it looks like** (the owner, 2026-11-17):
+- With a sustained ability on (Powerful Swings), the HUD's stamina arc shows part of the pool
+  empty.
+- The deck's bar and arc showed it full.
+
+**Cause.** The HUD's portrait observes three tokens for the pool: `Party.Members.N.Attributes.8.Current`,
+`.Total` and `.Modifier` (run 948's `files/deck-trace`). The deck read only Current against
+Total. A sustained ability's upkeep is a negative modifier, already taken off the total, so
+Current reaches Total and the deck's bar fills.
+
+**Fixed.** The deck measures against the pool without the reserve: the total less a negative
+modifier. A positive modifier (an item's bonus) is part of the pool and changes nothing. The
+bar's numbers read "current / that pool".
+
+**Not seen yet with a sustained ability running.** The test save's warrior has none: its
+modifier is 0, and the deck is unchanged there (run 949). The owner's own save is the test.
 
 ## BUG-124
 **The deck's party faces had the wrong colours**
