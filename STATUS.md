@@ -1891,6 +1891,14 @@ Newest first. One short entry per session: what changed, what's next.
     - The first boot is 3-7 s longer, once. Later the generator is up in 16-45 ms (it took
       about 2 s).
   - Remove deletes a driver's files.
+- **BUG-124 fixed (the owner's report):** the deck's Party faces were sepia and dark, the clothes
+  cut away.
+  - The portrait bytes are A R G B; the deck read R G B A.
+  - Found with a raw dump (`files/deck-dump-portraits`, run 944); the fix was checked against
+    the HUD (run 945).
+  - In `CHANGELOG.md` Unreleased: the 0.2.3-alpha on the owner's Thor does not have it.
+  - Runs 942-943 sat at the main menu, the route off after `gpu_profile.sh`; the owner saw the
+    menu's cutscene loop.
 - **0.2.3-alpha built for the owner's Thor, not published** (the owner's ask):
   - The version and its changelog at adbf2d6.
   - The release APK passes `tools/release.py` (76.1 MB, SHA-256 `b5f68859…`).

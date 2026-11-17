@@ -83,6 +83,7 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-058](#bug-058) | upstream (Xenia) | low | **FIXED** | Xenia's timer queue and log writer spin-wait: about 10% of one core each. Now they nap while the game is held or not yet started (the launcher); in play they spin as before |
 | [BUG-059](#bug-059) | upstream (Xenia) / our runtime | low | **FIXED** | With no Vulkan instance the boot went on, and crashed in the command processor's constructor |
 | [BUG-079](#bug-079) | our runtime | medium | **FIXED** | The guest output captures, a debugging aid, ran in every session: a 4 MB PNG of the screen every minute of play, never removed (about 240 MB an hour in the app's files directory), each with a GPU readback and a PNG encode |
+| [BUG-124](#bug-124) | our runtime (`warden_deck.cc`) | medium | **FIXED** (session 48) | On the second screen's Party tab the faces were dark, sepia and contrasty, the clothes cut away: the portrait's bytes are A R G B and were read as R G B A - the alpha as red, the blue as the mask |
 | [BUG-123](#bug-123) | an imported driver (Mesa Turnip v26.0.0 R8) | medium | **OPEN** (the driver's; not worked around) | On K11MCH1's Turnip v26.0.0 R8 (Mesa 26.0.0-devel git-5ac41be677) the game draws nothing: every frame black from the first menu, at 76 frames a second once BUG-122 was fixed. Its matrix numbers measured a black screen |
 | [BUG-122](#bug-122) | our runtime (Xenia's completion timeline) / Turnip on KGSL before Mesa e984ef29 | high | **FIXED** (session 47, PLAN 9.24) | On Turnip builds before 2026-10-08 the game ran at about half the system driver's speed with the GPU part idle: Xenia's fence status checks waited for the GPU. The fences are now watched on their own thread |
 | [BUG-121](#bug-121) | our tools (`driver_matrix.py`) | low | **FIXED** | The driver matrix's rows were written with more columns than its CSV's header (a newer version appending to an older one's file): read back, four columns ran past the header and the note and the FSR 3.1 and frame generation states were lost |
@@ -3033,6 +3034,35 @@ The game code's ABI is unchanged (no override was added): no Build again.
 
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
+
+## BUG-124
+**The deck's party faces had the wrong colours**
+our runtime (`app/src/main/cpp/warden_deck.cc`) · severity medium · **FIXED** session 48
+
+**What it looked like** (the owner, 2026-11-17; runs 939, 940):
+- On the second screen's Party tab each face was darker than the HUD's, sepia-brown and
+  harsh, "as if shown without the game's post-processing".
+- The clothes were missing: head and neck only, where the HUD shows the shoulders.
+
+**Cause.**
+- **The byte order:** the HUD's portrait renders (BUG-052, PLAN 8.9) hold A R G B: the first
+  byte is the head's mask, 255 or 0.
+- **The deck read them as R G B A.** The alpha became the red channel (255 across the whole
+  head), and the blue was taken for the mask. Clothes have little blue, so they were cut away,
+  and the premultiply by that "mask" darkened everything into sepia.
+- **Shown by the raw dump** (run 944, `files/deck-dump-portraits`): read as A R G B it is the
+  HUD's picture exactly, the same framing and colours.
+- **Run 546** had read the bytes as B G R A ("the first faces came out blue") and taken
+  R G B A for the fix. That too has the alpha first wrong.
+
+**Fixed.** The bytes are read as A R G B, and the game's display ramp (the swap's,
+`gamma_ramp_256_entry_table`) is applied as on the main screen. Run 945 shows the HUD's face:
+the pale skin, the brown tunic with its trim. An attempt with the 360's gamma curve
+(runs 940-943) was a wrong turn, made before the dump.
+
+**Test switch:** `files/deck-dump-portraits` writes each portrait render as read back
+(`files/portrait-<address>.rgba`, 160x160 untiled, as stored) and the ramp
+(`files/portrait-ramp.bin`).
 
 ## BUG-123
 **Turnip v26.0.0 R8 draws every frame black**

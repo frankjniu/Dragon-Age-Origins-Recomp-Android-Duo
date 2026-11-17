@@ -1534,6 +1534,10 @@ option files are put back from what was saved before (session 47:
     shaders.
   - lsfg-vk's pipelines are cached in `files/lsfg-pipelines16|32<driver>.bin`. Delete them,
     and the text file, to time a first start.
+- **The deck's faces** (BUG-124): `files/deck-dump-portraits` writes each portrait render as
+  read back to `files/portrait-<address>.rgba` (160x160, untiled, the bytes as stored, A R G B),
+  with the game's ramp to `files/portrait-ramp.bin`. Compare it with `guest-output-<tick>.png`'s
+  HUD. Turn the route on before each camp boot: `tools/gpu_profile.sh` turns it off at its end.
 - **Whether the picture is drawn:** `files/guest-output-<tick>.png` (the game's own frames at
   10-150 s) shows it as well as the main screen does. An all-zero capture means the driver
   drew nothing (BUG-123, Turnip v26.0.0 R8).

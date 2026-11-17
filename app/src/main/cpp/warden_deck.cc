@@ -595,9 +595,46 @@ bool WantsPortraits() {
   return g_last_pull.load(std::memory_order_relaxed) != 0;
 }
 
-void NotePortrait(uint32_t address, const uint8_t* data, uint32_t length) {
+void NotePortrait(uint32_t address, const uint8_t* data, uint32_t length,
+                  const uint32_t* ramp) {
   if (!data || length < kPortraitBytes) {
     return;
+  }
+  // BUG-124, a test switch: files/deck-dump-portraits writes each render as read back -
+  // the whole 160x160, untiled, the bytes as stored (A R G B) - and the game's ramp, to compare with
+  // the HUD's (files/portrait-<address>.rgba, files/portrait-ramp.bin).
+  if (const char* dir = std::getenv("WARDEN_FILES_DIR")) {
+    const std::string base(dir);
+    if (FILE* probe = std::fopen((base + "/deck-dump-portraits").c_str(), "r")) {
+      std::fclose(probe);
+      char name[64];
+      std::snprintf(name, sizeof(name), "/portrait-%08X.rgba", address);
+      if (FILE* out = std::fopen((base + name).c_str(), "wb")) {
+        for (uint32_t y = 0; y < uint32_t(kPortraitPitch); ++y) {
+          for (uint32_t x = 0; x < uint32_t(kPortraitPitch); ++x) {
+            std::fwrite(data + TiledOffset(x, y, kPortraitPitch), 1, 4, out);
+          }
+        }
+        std::fclose(out);
+      }
+      if (ramp) {
+        if (FILE* out = std::fopen((base + "/portrait-ramp.bin").c_str(), "wb")) {
+          std::fwrite(ramp, sizeof(uint32_t), 256, out);
+          std::fclose(out);
+        }
+      }
+    }
+  }
+  // BUG-124: the game's display ramp, as the swap applies it to the front buffer the HUD
+  // shows the portrait in - per channel, 8 bits in, 10 out, back to 8: red bits 20-29,
+  // green 10-19, blue 0-9 (DC_LUT_30_COLOR).
+  uint8_t ramped[3][256];
+  for (int i = 0; i < 256; ++i) {
+    const uint32_t word = ramp ? ramp[i] : 0;
+    const uint32_t channel[3] = {(word >> 20) & 0x3FF, (word >> 10) & 0x3FF, word & 0x3FF};
+    for (int c = 0; c < 3; ++c) {
+      ramped[c][i] = ramp ? uint8_t((channel[c] * 255 + 511) / 1023) : uint8_t(i);
+    }
   }
   PendingPortrait face;
   face.address = address;
@@ -606,16 +643,18 @@ void NotePortrait(uint32_t address, const uint8_t* data, uint32_t length) {
   uint32_t covered = 0;
   for (uint32_t y = 0; y < uint32_t(kPortraitSide); ++y) {
     for (uint32_t x = 0; x < uint32_t(kPortraitSide); ++x) {
-      // The portraits' bytes are R G B A (unlike the front buffer's B G R A: run 546's
-      // first faces came out blue).
+      // BUG-124: the portraits' bytes are A R G B (run 944's dump: the first byte the
+      // head's mask, 255 or 0; read as R G B A the faces came out sepia, the alpha as red
+      // and the blue taken for the mask, which cut the brown clothes away; read as
+      // B G R A, run 546's came out blue).
       const uint8_t* texel = data + TiledOffset(x, y, kPortraitPitch);
       uint8_t* out = face.rgba.data() + (size_t(y) * kPortraitSide + x) * 4;
-      out[0] = texel[0];
-      out[1] = texel[1];
-      out[2] = texel[2];
-      out[3] = texel[3];
-      lit += (texel[0] | texel[1] | texel[2]) != 0;
-      covered += texel[3] != 0;
+      out[0] = ramped[0][texel[1]];
+      out[1] = ramped[1][texel[2]];
+      out[2] = ramped[2][texel[3]];
+      out[3] = texel[0];
+      lit += (texel[1] | texel[2] | texel[3]) != 0;
+      covered += texel[0] != 0;
     }
   }
   // The alpha is the head's mask when it covers part of the picture and not all of it

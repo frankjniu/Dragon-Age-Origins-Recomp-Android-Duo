@@ -65,7 +65,11 @@ bool ApplyQuickslot(uint16_t& buttons, uint8_t& right_trigger);
 // The deck's faces: the HUD's party portraits, read back from the GPU's resolves while
 // the deck pulls (the Vulkan backend calls the first two; see warden_deck.cc).
 bool WantsPortraits();
-void NotePortrait(uint32_t address, const uint8_t* data, uint32_t length);
+// `ramp`: the game's 256-entry display gamma ramp (Xenos DC_LUT_30_COLOR words, 10 bits a
+// channel; the command processor's), applied as the swap applies it to the front buffer -
+// or nullptr (BUG-124).
+void NotePortrait(uint32_t address, const uint8_t* data, uint32_t length,
+                  const uint32_t* ramp);
 // A party member's portrait made, by its name ("portrait_gen00fl_alistair2"), from the
 // game's own portrait builder (warden_game.cc): its first draw is the next new address.
 void NotePortraitMade(const std::string& name);
