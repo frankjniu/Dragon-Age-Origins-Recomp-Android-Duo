@@ -5,7 +5,8 @@
 ### Fixed
 
 - **The faces on the second screen's Party tab have their real colours.** They were dark and
-  sepia, with the clothes cut away; they now look as they do in the game's own HUD.
+  sepia, with the clothes cut away; they now look as they do in the game's own HUD, framed
+  the same way: the head and shoulders at the HUD's size, where they were zoomed in before.
 
 ## 0.2.3-alpha - "Open Alpha"
 

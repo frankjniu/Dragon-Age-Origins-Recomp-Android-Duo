@@ -783,8 +783,17 @@ final class DeckView extends LinearLayout {
      * until it has.
      */
     private final class PortraitRing extends View {
-        /** The face's circle, a fraction of the ring's size: inside the gold ring. */
-        private static final float FACE_RADIUS = 0.42f;
+        /**
+         * The face as the HUD places it in its ring (BUG-124, runs 944-946 - the HUD's
+         * portrait matched in the main screen and the deck's): the picture 0.83 of the red
+         * arc's height (the HUD's 106-110 px against its arc's 130), so its half-size 0.316
+         * of this view's size; a little above the middle; seen through a circle 5% wider
+         * than it - the shoulders show, the corners do not. Before: the picture filled a
+         * 0.42 circle, the face a quarter larger than the HUD's.
+         */
+        private static final float FACE_RADIUS = 0.316f;
+        private static final float FACE_CLIP_RADIUS = 0.332f;
+        private static final float FACE_RISE = 0.014f;
         private final Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
         private final Paint letter = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final android.graphics.RectF box = new android.graphics.RectF();
@@ -831,14 +840,15 @@ final class DeckView extends LinearLayout {
             if (face != null) {
                 // Inside the ring, as the HUD shows it.
                 float radius = size * FACE_RADIUS;
+                float faceY = box.centerY() - size * FACE_RISE;
                 inner.reset();
-                inner.addCircle(box.centerX(), box.centerY(), radius,
+                inner.addCircle(box.centerX(), box.centerY(), size * FACE_CLIP_RADIUS,
                         android.graphics.Path.Direction.CW);
                 canvas.save();
                 canvas.clipPath(inner);
                 canvas.drawBitmap(face, null, new android.graphics.RectF(
-                        box.centerX() - radius, box.centerY() - radius,
-                        box.centerX() + radius, box.centerY() + radius), paint);
+                        box.centerX() - radius, faceY - radius,
+                        box.centerX() + radius, faceY + radius), paint);
                 canvas.restore();
             } else {
                 letter.setTextSize(size * 0.42f);

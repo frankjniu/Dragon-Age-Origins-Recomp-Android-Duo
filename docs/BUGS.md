@@ -83,7 +83,7 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-058](#bug-058) | upstream (Xenia) | low | **FIXED** | Xenia's timer queue and log writer spin-wait: about 10% of one core each. Now they nap while the game is held or not yet started (the launcher); in play they spin as before |
 | [BUG-059](#bug-059) | upstream (Xenia) / our runtime | low | **FIXED** | With no Vulkan instance the boot went on, and crashed in the command processor's constructor |
 | [BUG-079](#bug-079) | our runtime | medium | **FIXED** | The guest output captures, a debugging aid, ran in every session: a 4 MB PNG of the screen every minute of play, never removed (about 240 MB an hour in the app's files directory), each with a GPU readback and a PNG encode |
-| [BUG-124](#bug-124) | our runtime (`warden_deck.cc`) | medium | **FIXED** (session 48) | On the second screen's Party tab the faces were dark, sepia and contrasty, the clothes cut away: the portrait's bytes are A R G B and were read as R G B A - the alpha as red, the blue as the mask |
+| [BUG-124](#bug-124) | our runtime (`warden_deck.cc`, `DeckView.java`) | medium | **FIXED** (session 48) | On the second screen's Party tab the faces were dark, sepia and contrasty, the clothes cut away: the portrait's bytes are A R G B and were read as R G B A - the alpha as red, the blue as the mask. The face was also drawn larger than the HUD's; now framed as the HUD frames it |
 | [BUG-123](#bug-123) | an imported driver (Mesa Turnip v26.0.0 R8) | medium | **OPEN** (the driver's; not worked around) | On K11MCH1's Turnip v26.0.0 R8 (Mesa 26.0.0-devel git-5ac41be677) the game draws nothing: every frame black from the first menu, at 76 frames a second once BUG-122 was fixed. Its matrix numbers measured a black screen |
 | [BUG-122](#bug-122) | our runtime (Xenia's completion timeline) / Turnip on KGSL before Mesa e984ef29 | high | **FIXED** (session 47, PLAN 9.24) | On Turnip builds before 2026-10-08 the game ran at about half the system driver's speed with the GPU part idle: Xenia's fence status checks waited for the GPU. The fences are now watched on their own thread |
 | [BUG-121](#bug-121) | our tools (`driver_matrix.py`) | low | **FIXED** | The driver matrix's rows were written with more columns than its CSV's header (a newer version appending to an older one's file): read back, four columns ran past the header and the note and the FSR 3.1 and frame generation states were lost |
@@ -3059,6 +3059,17 @@ our runtime (`app/src/main/cpp/warden_deck.cc`) · severity medium · **FIXED** 
 `gamma_ramp_256_entry_table`) is applied as on the main screen. Run 945 shows the HUD's face:
 the pale skin, the brown tunic with its trim. An attempt with the 360's gamma curve
 (runs 940-943) was a wrong turn, made before the dump.
+
+**The framing too** (the owner, the same day; runs 946-947, `DeckView.java`'s `PortraitRing`):
+- **Before:** the deck stretched the picture to fill a circle of 0.42 of its ring, so the face
+  was about a quarter larger than the HUD's and the shoulders were cut.
+- **The HUD, measured:**
+  - The picture's size is 0.83 of the red health arc's height: 106-110 px against 130 on the
+    main screen, found by matching the raw portrait against both screens.
+  - It sits a little above the ring's middle.
+  - It is seen through a circle 5% wider than itself.
+- **Now on the deck:** half-size 0.316 of the ring, the clip 0.332, raised 0.014. Run 947: the
+  head and the tunic's trim are framed as on the HUD.
 
 **Test switch:** `files/deck-dump-portraits` writes each portrait render as read back
 (`files/portrait-<address>.rgba`, 160x160 untiled, as stored) and the ramp

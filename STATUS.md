@@ -1896,6 +1896,9 @@ Newest first. One short entry per session: what changed, what's next.
   - The portrait bytes are A R G B; the deck read R G B A.
   - Found with a raw dump (`files/deck-dump-portraits`, run 944); the fix was checked against
     the HUD (run 945).
+  - Then the framing (the owner): the deck drew the face about a quarter larger than the HUD.
+    It now matches the HUD's size and position, measured by matching the portrait on both
+    screens (run 947).
   - In `CHANGELOG.md` Unreleased: the 0.2.3-alpha on the owner's Thor does not have it.
   - Runs 942-943 sat at the main menu, the route off after `gpu_profile.sh`; the owner saw the
     menu's cutscene loop.
