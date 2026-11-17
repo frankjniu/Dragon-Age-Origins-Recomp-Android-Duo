@@ -1225,7 +1225,7 @@ on by default where there is a second display): the log says `deck: display 4
 (Screen-2), DeckActivity in its own process`, then (tag `WardenDeck`) `deck: on display
 4, 1240x1025, in its own process`, `deck: connected to the game`, `deck: the game's
 display focused again` (BUG-078). Its screen: `adb exec-out "screencap -d
-4630946482288158084 -p" > deck.png` (the physical display id, from `dumpsys
+<physical id> -p" > deck.png` (the physical display id, from `dumpsys
 SurfaceFlinger --display-id`; `-d 4` gives an empty file). A tab: `adb shell input -d 4
 tap X Y` (the rail across the top, about 40 px down). Focus: `dumpsys window | grep
 mTopFocusedDisplayId` must say 0 with the deck up - the controller's keys go to the

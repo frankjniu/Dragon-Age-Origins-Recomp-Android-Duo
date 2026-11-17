@@ -23,5 +23,7 @@ sleep 0.5
 dump now
 sleep 1
 dump later
-adb exec-out screencap -d 4630946441858561667 -p > "build/qs-$LABEL.png"
+# The main screen's physical display id is the device's own: looked up (HWC display 0).
+MAIN_DISPLAY=$(adb shell dumpsys SurfaceFlinger --display-id | grep 'HWC display 0' | sed -E 's/^Display ([0-9]+).*/\1/')
+adb exec-out screencap -d "$MAIN_DISPLAY" -p > "build/qs-$LABEL.png"
 echo "== $LABEL ($MASK, rt $RT)"; paste "build/qs-$LABEL-now.txt" "build/qs-$LABEL-later.txt" | head -40

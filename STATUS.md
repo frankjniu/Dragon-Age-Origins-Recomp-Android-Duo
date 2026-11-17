@@ -1516,7 +1516,7 @@ landscape use, with `rotation 1`:
 | | Display 0 (main) | Display 4 (deck) |
 |---|---|---|
 | Landscape resolution | **1920 × 1080** | **1240 × 1080** |
-| Physical display ID | `4630946441858561667` | `4630946482288158084` |
+| Physical display ID | the device's own (`dumpsys SurfaceFlinger --display-id`, HWC display 0) | the device's own (HWC display 3) |
 | Hardware port | 131 | 132 |
 | Layer stack | 0 | 4 |
 | Refresh | 60 / 120 Hz | 60 / 120 Hz |
@@ -1808,7 +1808,7 @@ JDK, platform-tools, cmdline-tools.
 - **Git Bash path mangling.** The NDK toolchain and `adb` are native Windows binaries
   and cannot read MSYS `/c/...` paths — convert with `cygpath -w`. Also set
   `MSYS2_ARG_CONV_EXCL='*'` so MSYS stops rewriting `adb shell` arguments.
-- **`screencap -d` wants the PHYSICAL display id** (e.g. `4630946482288158084`), not
+- **`screencap -d` wants the PHYSICAL display id** (`dumpsys SurfaceFlinger --display-id` lists it: HWC display 0 is the main screen, 3 the second), not
   the logical id (`4`). `tools/deploy.sh` resolves it by hardware port.
 - **Screenshots of a sleeping panel come back empty.** `deploy.sh shot` wakes the
   device first.

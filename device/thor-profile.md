@@ -58,7 +58,7 @@ carry `FLAG_PRESENTATION`, so both approaches are worth testing (open question Q
 | | |
 |---|---|
 | Name | `Built-in Screen` |
-| Unique ID | `local:4630946441858561667` (port 131) |
+| Unique ID | `local:<physical id>` (port 131; the id is the device's own) |
 | Native panel | 1080 × 1920 portrait |
 | **In landscape use** | **1920 × 1080** |
 | Refresh rates | 60.000 Hz, **120.000 Hz** (currently 120) |
@@ -75,7 +75,7 @@ carry `FLAG_PRESENTATION`, so both approaches are worth testing (open question Q
 | | |
 |---|---|
 | Name | `Screen-2` |
-| Unique ID | `local:4630946482288158084` (port 132) |
+| Unique ID | `local:<physical id>` (port 132) |
 | Native panel | 1080 × 1240 portrait |
 | **In landscape use** | **1240 × 1080** |
 | Refresh rates | 60.000 Hz, **120.000 Hz** (currently 120) |

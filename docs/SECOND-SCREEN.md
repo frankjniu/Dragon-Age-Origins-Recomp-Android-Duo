@@ -23,7 +23,7 @@ Measured from the device, not assumed. See [`../device/thor-profile.md`](../devi
 
 | | |
 |---|---|
-| Display ID | **4** (`Screen-2`, unique ID `local:4630946482288158084`) |
+| Display ID | **4** (`Screen-2`, unique ID `local:<physical id>`, the device's own) |
 | Resolution in landscape | **1240 × 1080** |
 | **Logical size** | **≈ 538 × 468 dp** at 369 dpi |
 | Refresh | 60 / 120 Hz |

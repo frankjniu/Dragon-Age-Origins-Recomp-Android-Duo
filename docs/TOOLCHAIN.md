@@ -89,7 +89,7 @@ Each of these cost real time to discover; don't rediscover them.
 - **Git Bash path mangling.** The NDK toolchain and `adb` are native Windows binaries
   and cannot read MSYS `/c/...` paths — convert with `cygpath -w`. Also export
   `MSYS2_ARG_CONV_EXCL='*'` so MSYS stops rewriting `adb shell` arguments.
-- **`screencap -d` wants the PHYSICAL display id** (e.g. `4630946482288158084`), not
+- **`screencap -d` wants the PHYSICAL display id** (`dumpsys SurfaceFlinger --display-id` lists it: HWC display 0 is the main screen, 3 the second), not
   the logical id (`4`) that `dumpsys display` and `am start --display` use.
   `tools/deploy.sh` resolves it by hardware port (131 = main, 132 = deck).
 - **A sleeping panel screenshots empty.** Wake the device first.
