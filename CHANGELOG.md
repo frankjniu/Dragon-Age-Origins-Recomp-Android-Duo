@@ -54,10 +54,6 @@ the chosen driver**, which deletes the package and what the app kept for it.
 - **Lossless 2x adapts to the driver.** For each part of the frame generator, the app keeps
   whichever of its 16-bit or 32-bit shaders that driver runs faster: on Qualcomm's 840 driver
   the game went from 27 to 30 frames a second with Lossless 2x.
-- **Older Turnip drivers no longer run the game at half speed.** Builds from before October
-  2026 made the game wait for the GPU each time it checked on its work. That waiting now
-  happens on a thread of its own: Turnip T30 went from 20 to 42 frames a second at the King's
-  Camp.
 
 ### Fixed
 
