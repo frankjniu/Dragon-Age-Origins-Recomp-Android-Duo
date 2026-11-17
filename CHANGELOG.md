@@ -2,40 +2,71 @@
 
 ## 0.2.3-alpha - "Open Alpha"
 
-### Added
+### New: other Vulkan drivers (experimental)
 
-- **Other Vulkan drivers, as an experiment (issue #4).** Options → Visual → **Experimental**
-  is a section closed by default. In it you can import an Adreno driver package (the `.zip`
-  files Android emulators use with AdrenoTools), choose it, or remove it. The handheld's own
-  driver is never changed, and System puts everything back.
-  - A driver that cannot load on your Android, or a start that crashes or hangs with it, goes
-    back to System by itself and says so.
-  - On the AYN Thor every Turnip and Qualcomm driver that draws correctly runs the game as
-    fast as the handheld's own driver or faster (up to about 8% faster). With Lossless 2x frame
-    generation, Qualcomm's 840 driver is close to the handheld's own, and the Turnip builds are
-    6-19% slower. `docs/DRIVERS.md` has every result.
-  - K11MCH1's Turnip v26.0.0 R8 draws a black screen in this game.
+You can now run the game on a Vulkan driver package other than your handheld's own: the
+Adreno driver packages (`.zip`) made for AdrenoTools, as Android emulators use. This is an
+experiment, closed away by default (issue #4).
+- The handheld's own driver is never changed, and choosing **System** puts everything back.
+- The game is tested on the system's driver. Another driver can be faster, slower, draw
+  wrongly or not start.
+
+**Loading a driver package:**
+1. Put the driver package (`.zip`) somewhere on your handheld, for example in Download.
+2. In the launcher, open the **Visual** tab and set **Experimental** to **Show**.
+3. On **Import a driver package**, choose **Choose…** and pick the `.zip`. It is imported and
+   chosen under **Vulkan driver**.
+4. Close the app completely and open it again: a driver takes effect from the app's next
+   start.
+
+To go back, set **Vulkan driver** to **System** (from the next start too), or use **Remove
+the chosen driver**, which deletes the package and what the app kept for it.
+- **If something fails, the app goes back to System by itself and says why.** That covers a
+  package that cannot load on your Android version, and a start that crashes or hangs with it.
+- **The first start with Lossless 2x on a new driver takes a few seconds longer.** The app
+  measures which of the frame generator's shaders run faster on that driver, once, and
+  remembers.
+
+**Measured on the AYN Thor: Snapdragon 8 Gen 2 (Adreno 740), Android 13.**
+
+| Driver | No frame generation | Lossless 2x (game / shown) |
+|---|---|---|
+| System (Qualcomm v676.53, the handheld's own) | 41.7 fps | 31.1 / 62.3 fps |
+| Turnip v27.0.0-R2 (StevenMXZ) | 45.4 fps | 28.8 / 57.5 fps |
+| Turnip Apex v2 ULTIMATE (Balemuni) | 46.5 fps | 26.0 / 51.9 fps |
+| Turnip T30 (Mr_Purple_666) | 43.1 fps | 25.1 / 50.0 fps |
+| Qualcomm 840 | 41.5 fps | 29.9 / 59.8 fps |
+| Turnip v26.0.0 R8 (K11MCH1) | draws a black screen | - |
+| Qualcomm 849, Turnip T29 | do not load on Android 13 | - |
+
+- **The settings:** Ostagar's King's Camp; Rendering resolution 1280x720, Upscaling Bilinear,
+  FSR 3.1 off, Frame rate 120 (the game uncapped), Dynamic shadows and Corner vignette on,
+  Texture filtering 16x.
+- **The columns:** "game" is the game's own frames a second; "shown" counts the generated
+  frames too.
+- **Every driver that draws correctly** looked the same as the system's driver in screenshots.
+- **Other devices** will differ. Every run is in `docs/DRIVERS.md`.
+
+### Faster
+
+- **Frame generation starts at once.** Lossless 2x's shaders are kept between starts; it used
+  to hold the game for about two seconds at boot to prepare them.
+- **Lossless 2x adapts to the driver.** For each part of the frame generator, the app keeps
+  whichever of its 16-bit or 32-bit shaders that driver runs faster: on Qualcomm's 840 driver
+  the game went from 27 to 30 frames a second with Lossless 2x.
+- **Older Turnip drivers no longer run the game at half speed.** Builds from before October
+  2026 made the game wait for the GPU each time it checked on its work. That waiting now
+  happens on a thread of its own: Turnip T30 went from 20 to 42 frames a second at the King's
+  Camp.
 
 ### Fixed
 
-- **The faces on the second screen's Party tab have their real colours.** They were dark and
-  sepia, with the clothes cut away; they now look as they do in the game's own HUD, framed
-  the same way: the head and shoulders at the HUD's size, where they were zoomed in before.
+- **The second screen's party faces have their real colours and framing.** They were dark and
+  sepia, zoomed in, with the clothes cut away; they now look as they do in the game's own HUD.
 - **The second screen's stamina and mana count sustained abilities.** With one on (Powerful
   Swings, for instance) the bar shows the reserved part empty, as the HUD does, where it showed
   full.
-- **FSR 3.1 now works on Mesa's Turnip drivers.** Before, it could not start on them.
-- **Lossless 2x frame generation starts in a moment.** It used to hold the game for about two
-  seconds at boot while its shaders were prepared. They are now kept between starts.
-- **Lossless 2x is faster on drivers that run some of its shaders slowly.** The first time a
-  driver is used, the app measures each part of the generator in 16-bit and 32-bit and keeps
-  the faster. That first boot takes a few seconds longer.
-  - On Qualcomm's 840 driver this brought the game from 27 to 30 frames a second with
-    Lossless 2x, close to the handheld's own driver.
-- **Turnip builds from before October 2026 no longer run the game at half speed.** The game
-  waited for the GPU every time it checked on its work, on those drivers. It now leaves that
-  waiting to a thread of its own: Turnip T30 went from 20 to 42 frames a second at Ostagar's
-  King's Camp.
+- **FSR 3.1 works on Mesa's Turnip drivers.** Before, it could not start on them.
 
 ### Installing
 
