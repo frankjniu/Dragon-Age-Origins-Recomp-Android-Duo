@@ -1,6 +1,6 @@
 # Changelog
 
-## Unreleased
+## 0.2.3-alpha - "Open Alpha"
 
 ### Added
 
@@ -10,10 +10,10 @@
   driver is never changed, and System puts everything back.
   - A driver that cannot load on your Android, or a start that crashes or hangs with it, goes
     back to System by itself and says so.
-  - On the AYN Thor every Turnip and Qualcomm driver that draws correctly now runs the game
-    as fast as the handheld's own driver or faster (up to about 8% faster), except with
-    Lossless 2x frame generation, which is still slower on them. `docs/DRIVERS.md` has every
-    result.
+  - On the AYN Thor every Turnip and Qualcomm driver that draws correctly runs the game as
+    fast as the handheld's own driver or faster (up to about 8% faster). With Lossless 2x frame
+    generation, Qualcomm's 840 driver is close to the handheld's own, and the Turnip builds are
+    6-19% slower. `docs/DRIVERS.md` has every result.
   - K11MCH1's Turnip v26.0.0 R8 draws a black screen in this game.
 
 ### Fixed
@@ -30,6 +30,13 @@
   waited for the GPU every time it checked on its work, on those drivers. It now leaves that
   waiting to a thread of its own: Turnip T30 went from 20 to 42 frames a second at Ostagar's
   King's Camp.
+
+### Installing
+
+- **From 0.2.0-alpha to 0.2.2-alpha:** the launcher installs this update under **Launch Dragon
+  Age**. No Build again is needed. Your saves, game data and settings stay.
+- **From 0.1.9-alpha or earlier:** the launcher installs it too, and then shows **Build again**.
+  Choose it once (about eight minutes).
 
 ## 0.2.2-alpha - "Open Alpha"
 
