@@ -188,6 +188,15 @@ GPL-3.0-or-later like what it adapts (its header says so).
 | Ported | `DrawExtentEstimator::EstimateRectangleCoverage` (the rectangle a draw overwrites, from its vertex shader run on the CPU), without its constant depth, and the rules of its `gpu_skip_overwritten_transfers` (`RenderTargetCache::WardenOverwrittenRectangle`, stricter on the stencil and the window offset): edits in `tools/assemble_runtime.py` that carry the copyright notice. Its text is in the app's licences (`tools/gather_licences.py` keeps it, as the SDK is not fetched) |
 | Reimplemented | the idea, not the code: Eco shading (its `gpu_eco_shading_rate`, `app/src/main/cpp/warden_eco_shading.cc`) |
 
+## Other Xenia-derived renderers (PLAN 9.27)
+
+- **Xenia Edge** (https://github.com/has207/xenia-edge, a fork of xenia-canary, BSD 3-Clause
+  as Xenia): its `[GPU] Avoid duplicate texture loads` (40cee11ab, 2026-10-13) is ported as an
+  edit in `tools/assemble_runtime.py` (BUG-127). Xenia's licence, already in the app's
+  licences, covers it.
+- **Xendroid+** (https://github.com/phforner0/Xendroid-Plus, AGPL-3.0): read for its
+  measurements and ideas only; none of its code is in this project.
+
 ## The FidelityFX SDK (FSR 3.1, PLAN 9.4)
 
 | | |

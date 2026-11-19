@@ -3286,6 +3286,119 @@ EDITS = [
      "    dynamic_states[dynamic_state.dynamicStateCount++] =\n"
      "        VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR;\n"
      "  }\n"),
+    # PLAN 9.27 (from Xenia Edge, 40cee11ab, BSD like Xenia): a texture bound through two
+    # fetch constants is queued for loading once - the batch checks every texture's state
+    # first and then loads each entry, so a doubled entry was loaded twice.
+    (TC_C, "9.27: the reload counter's headers",
+     "#include \"xenia/base/clock.h\"\n",
+     "#include <algorithm>  // DAO/Warden (PLAN 9.27): the reload measurement\n"
+     "#include <chrono>\n"
+     "#include <cstdlib>\n"
+     "#include <cstring>\n"
+     "#include <vector>\n"
+     "\n"
+     "#include \"xenia/base/clock.h\"\n"),
+    (TC_C, "9.27: a texture queued for loading once",
+     "  uint32_t num_textures_to_load = 0;\n",
+     "  uint32_t num_textures_to_load = 0;\n"
+     "  // DAO/Warden (PLAN 9.27, Xenia Edge's): textures bound to several fetch constants\n"
+     "  // are loaded once.\n"
+     "  auto queue_texture_to_load = [&](Texture* texture) {\n"
+     "    for (uint32_t i = 0; i < num_textures_to_load; ++i) {\n"
+     "      if (textures_to_load[i] == texture) {\n"
+     "        return;\n"
+     "      }\n"
+     "    }\n"
+     "    textures_to_load[num_textures_to_load++] = texture;\n"
+     "  };\n"),
+    (TC_C, "9.27: the unsigned texture queued once",
+     "      textures_to_load[num_textures_to_load++] = binding.texture;\n",
+     "      queue_texture_to_load(binding.texture);  // DAO/Warden (PLAN 9.27)\n"),
+    (TC_C, "9.27: the signed texture queued once",
+     "      textures_to_load[num_textures_to_load++] = binding.texture_signed;\n",
+     "      queue_texture_to_load(binding.texture_signed);  // DAO/Warden (PLAN 9.27)\n"),
+    # PLAN 9.27, a measurement (files/hack-skip-reloads): a texture's loads after its first
+    # skipped - it keeps its old content (the picture is wrong) - to see what resolving
+    # straight into textures could save at most.
+    (TC_C, "9.27: the reload-skipping measurement",
+     "void TextureCache::LoadTexturesData(Texture** textures, uint32_t n_textures) {\n",
+     "// DAO/Warden (PLAN 9.27, files/hack-skip-reloads): true for a texture loaded before,\n"
+     "// whose load is then skipped. A measurement only - the texture keeps old content.\n"
+     "// \"log\" skips nothing and every 10 s logs the most reloaded textures.\n"
+     "static bool DaoSkipReload(const void* texture, uint32_t address, uint32_t format,\n"
+     "                          uint32_t width, uint32_t height) {\n"
+     "  static const char* mode = std::getenv(\"DAO_HACK_SKIP_RELOADS\");\n"
+     "  if (!mode) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  static const bool log_only = std::strcmp(mode, \"log\") == 0;\n"
+     "  struct Seen {\n"
+     "    const void* texture;\n"
+     "    uint32_t address, format, width, height;\n"
+     "    uint64_t reloads;\n"
+     "  };\n"
+     "  static std::vector<Seen> loaded;\n"
+     "  static uint64_t skipped = 0;\n"
+     "  static auto last_log = std::chrono::steady_clock::now();\n"
+     "  Seen* found = nullptr;\n"
+     "  for (Seen& seen : loaded) {\n"
+     "    if (seen.texture == texture) {\n"
+     "      found = &seen;\n"
+     "      break;\n"
+     "    }\n"
+     "  }\n"
+     "  if (!found) {\n"
+     "    loaded.push_back({texture, address, format, width, height, 0});\n"
+     "    return false;\n"
+     "  }\n"
+     "  ++found->reloads;\n"
+     "  // \"fmtN\": only reloads of guest texture format N are skipped.\n"
+     "  if (std::strncmp(mode, \"fmt\", 3) == 0 &&\n"
+     "      found->format != uint32_t(std::strtoul(mode + 3, nullptr, 10))) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  if (log_only) {\n"
+     "    auto now = std::chrono::steady_clock::now();\n"
+     "    if (now - last_log >= std::chrono::seconds(10)) {\n"
+     "      last_log = now;\n"
+     "      std::vector<Seen> top(loaded);\n"
+     "      std::sort(top.begin(), top.end(),\n"
+     "                [](const Seen& a, const Seen& b) { return a.reloads > b.reloads; });\n"
+     "      for (size_t i = 0; i < top.size() && i < 12 && top[i].reloads; ++i) {\n"
+     "        XELOGI(\"GPU: reloads in 10 s: @{:08X} fmt {} {}x{}: {}\", top[i].address,\n"
+     "               top[i].format, top[i].width, top[i].height, top[i].reloads);\n"
+     "      }\n"
+     "      for (Seen& seen : loaded) {\n"
+     "        seen.reloads = 0;\n"
+     "      }\n"
+     "    }\n"
+     "    return false;\n"
+     "  }\n"
+     "  if (!(++skipped & 1023)) {\n"
+     "    XELOGI(\"GPU: {} texture reloads skipped (files/hack-skip-reloads)\", skipped);\n"
+     "  }\n"
+     "  return true;\n"
+     "}\n"
+     "\n"
+     "void TextureCache::LoadTexturesData(Texture** textures, uint32_t n_textures) {\n"),
+    (TC_C, "9.27: reloads skipped in a batch (the measurement)",
+     "    // Actually load the texture data.\n"
+     "    if (!LoadTextureDataFromResidentMemoryImpl(\n",
+     "    // Actually load the texture data.\n"
+     "    if (!DaoSkipReload(&texture, texture.key().base_page << 12,  // DAO/Warden (9.27)\n"
+     "                       uint32_t(texture.key().format), texture.key().GetWidth(),\n"
+     "                       texture.key().GetHeight()) &&\n"
+     "        !LoadTextureDataFromResidentMemoryImpl(\n"),
+    (TC_C, "9.27: a reload skipped (the measurement)",
+     "  // Actually load the texture data.\n"
+     "  if (!LoadTextureDataFromResidentMemoryImpl(texture, base_outdated,\n"
+     "                                             mips_outdated)) {\n",
+     "  // Actually load the texture data.\n"
+     "  if (!DaoSkipReload(&texture, texture_key.base_page << 12,  // DAO/Warden (9.27)\n"
+     "                     uint32_t(texture_key.format), texture_key.GetWidth(),\n"
+     "                     texture_key.GetHeight()) &&\n"
+     "      !LoadTextureDataFromResidentMemoryImpl(texture, base_outdated,\n"
+     "                                             mips_outdated)) {\n"),
     # PLAN 9.26 (from the DS2 recomp's renderer, gpu_skip_overwritten_transfers): the
     # transfer cut-out - a draw that overwrites a whole rectangle of every render target it
     # uses doesn't need the EDRAM ownership transfers there; the transfers are trimmed to

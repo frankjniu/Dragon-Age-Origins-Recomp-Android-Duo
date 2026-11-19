@@ -2837,6 +2837,40 @@ behind the owner's (CLAUDE.md).
       - **Not built:** the port's constant depth as clears and its MSAA shadow-atlas clears
         (Dark Souls II's own case).
       - **Found on the way: BUG-126,** a stripped patch left stale objects (the assembler).
+- [x] 9.27 **Ideas from other Xenia-derived Vulkan renderers (the owner asked, 2026-11-19;
+      session 49, runs 1004-1022). Every base measurement with FSR 3.1 and frame generation
+      off (the owner).**
+      - Read: Xenia Edge (has207/xenia-edge, 545 GPU commits since our Canary pin), its
+        edge-linux fork, Xendroid+ (an Adreno-tuned Android port of Edge, AGPL-3.0, its A/B
+        write-ups) and the ReXGlue recomps.
+      - **Already ours, or measured before:** 2D fetches with the host's LOD (3.8), relaxed
+        vertex maths (Shader math Fast covers every stage), the transfer cut-out (9.26), the
+        stencil of a depth transfer in one draw (`VK_EXT_shader_stencil_export`), each pass's
+        render area narrowed to what it drew (runs 252-255: nothing on Qualcomm's driver,
+        nothing on Turnip for Xendroid+). Xendroid+'s 13.6 ms in Gears of War 3 was its own
+        rounding toward zero, which we never had.
+      - **Kept: a texture queued for loading once** (Xenia Edge's 40cee11ab, BUG-127). No
+        change at the camp, where nothing reloading is bound twice.
+      - **Measured: what the camp's texture reloads cost.** A traced frame (run 1007) and a
+        counter (`files/hack-skip-reloads`, `log`, run 1013): about 11 reloads a frame - ten
+        of them textures of resolved memory (k_8_8_8_8 1280x720 three times, 640x360 twice
+        each, the front buffer, a 792x1586 k_24_8 depth), and two DXT5 the CPU rewrites.
+        Skipping every reload after a texture's first (the picture freezes): 45.4 -> 49.5
+        fps (runs 1008-1012); by format, with the 8888 ones below written straight: depth
+        +2%, DXT5 +1.5%, 8888 +2.7% (runs 1019-1022).
+      - **Built, measured and removed: resolves straight into textures** (Xendroid+'s
+        `direct_host_resolve_to_texture`, DAORecomp's D3D12 `WriteResolvedTextures` done
+        with a blit). A plain 8888 resolve blitted its area into the textures that were up
+        to date until it, created as BGRA so the blit gives the resolve's red / blue swap
+        (every DAO resolve swaps). It replaced seven reloads a frame with the picture
+        identical, and gained nothing: 45.1, 45.0, 45.5 fps against 45.2, 45.5 (runs
+        1009-1019). The blit costs what the untiling did.
+      - **Not built: loading textures straight into the image** (Xendroid+'s
+        `vulkan_texture_load_to_image`). It removes only the buffer copy of a reload, which
+        the measurements above bound at a percent or two, and needs storage usage, which on
+        Adreno can cost the texture its compression.
+      - **The CPU-side ideas** (descriptor sets reused, the viewport cached, constants not
+        sent again) cannot raise the camp's rate: the GPU is 99% busy.
 
 ## Phase 10 — Polish
 

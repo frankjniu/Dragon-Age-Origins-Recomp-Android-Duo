@@ -1560,6 +1560,18 @@ whose content changed since the last assembly with the current time, and gives a
 its earlier time back. It prints `changed since last time`. A tree assembled before this fix
 needs the removed edits' files touched once, or the build keeps objects compiled against them.
 
+**What texture reloads cost** (PLAN 9.27): `files/hack-skip-reloads`, read at the start.
+- **`log`** skips nothing, and every 10 s logs the 12 most reloaded textures (`GPU: reloads in
+  10 s: @address fmt N WxH: count`) - which textures the game rewrites, by resolves or the CPU.
+- **Any other word** skips every reload of a texture after its first: the texture keeps its
+  first content, so the picture is wrong (at the camp it freezes on the loading screen's art),
+  but the frame rate shows what removing the reloads would gain at most.
+- **`fmtN`** skips only the reloads of guest texture format N (6 k_8_8_8_8, 20 DXT4/5, 22
+  k_24_8).
+- A traced frame logs only the reloads made one at a time (`FT tex ... loaded`), not those made
+  in a batch: count with `log`.
+- Measure with FSR 3.1 and frame generation off (the owner, PLAN 9.27).
+
 ### PC mods and the converter (Phase 10)
 
 - **The layers (10.12):** a mod folder holding a copy of a game file (a patch .tlk, an

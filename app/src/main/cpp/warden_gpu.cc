@@ -764,7 +764,7 @@ bool Start(xe::Memory& memory, xe::ui::WindowedAppContext* app_context,
                            "no-integer-scale", "no-mul-zero", "no-transfers",
                            "block-render-load", "gpu-loss", "memexport-readback",
                            "no-resolve-direct", "async-pipelines", "pipeline-stats",
-                           "precreate-pipelines", "fetch-raw"}) {
+                           "precreate-pipelines", "fetch-raw", "skip-reloads"}) {
     if (std::filesystem::exists(std::filesystem::path(capture_dir) / (std::string("hack-") + hack))) {
       std::string name = std::string("DAO_HACK_") + hack;
       for (char& c : name) c = c == '-' ? '_' : char(toupper(c));
@@ -779,7 +779,8 @@ bool Start(xe::Memory& memory, xe::ui::WindowedAppContext* app_context,
       XELOGW("GPU: experiment {} is on", name);
       if (strcmp(hack, "ps-red") == 0 || strcmp(hack, "vs-probe") == 0 ||
           strcmp(hack, "skip-vs") == 0 || strcmp(hack, "ps-paramgen") == 0 ||
-          strcmp(hack, "no-float-controls") == 0) {
+          strcmp(hack, "no-float-controls") == 0 || strcmp(hack, "skip-reloads") == 0) {
+        // skip-reloads (PLAN 9.27): "log" counts each texture's reloads without skipping.
         // The file's first word becomes the variable's value (BUG-045). For the first
         // four, shader ucode hashes (hex, as the FT lines print them; up to 8, comma
         // separated). ps-red: that pixel shader's colour outputs become solid red.

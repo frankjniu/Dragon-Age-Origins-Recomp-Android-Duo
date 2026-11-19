@@ -10,7 +10,7 @@ starts by re-deriving context that was already paid for.
 | **Version** | **0.2.4-alpha, "Open Alpha" - published 2026-11-19** (the tag `v0.2.4-alpha` at c49fd3e, a pre-release, its notes the changelog's section; session 49: Eco shading and the transfer cut-out, PLAN 9.26; the game code's ABI unchanged; the APK built at c49fd3e, `build/releases/0.2.4-alpha/dao-recomp-android-0.2.4-alpha.apk`, SHA-256 `725d21dc…`, 76.2 MB, `tools/release.py` clean). Published before it: **0.2.3-alpha, 2026-11-17** (`CHANGELOG.md`; the tag `v0.2.3-alpha` at f4f65a9, a pre-release, its notes the changelog's section, the APK `dao-recomp-android-0.2.3-alpha.apk`, SHA-256 `7ff2535a…`, 76.1 MB, `tools/release.py` clean; an update from the launcher, the game code's ABI unchanged: the imported Vulkan drivers (experimental), lsfg-vk's precision per pass and its pipelines cached, the fence watch, FSR 3.1 on Turnip, the deck's faces and sustained abilities). Before it 0.2.2-alpha (2026-11-09): the standby battery with the lid shut. Earlier versions: `CHANGELOG.md`. |
 | **Current phase** | **Phase 12 complete: a published APK, the game's code made on the device from the player's own discs.** Phases 0-4, 7, 8, 10, 11 and 12 complete. Phase 5 reached. Phase 6 reached by script - the hand playthrough to Ostagar is left, the alpha's players its testers. Phase 9 done but for what the owner deferred (9.15, 9.9) and 3.8's Adreno work. §2 has the board. |
 | **Overall state** | The whole game runs on the AYN Thor: the main campaign, Awakening and every DLC from the Ultimate Edition's disc 2, and all 118 areas the game's debug menus reach, loaded and profiled (`docs/AREAS.md`). With it: the companion deck on the second screen, button prompts for three controllers, up to 120 fps, FSR 3.1, two kinds of frame generation, HDR10, PC mods with an in-app converter, saves named on the keyboard with thumbnails, export, import and restore, and Debugging Mode's one-file bug reports. [`README.md`](README.md) is the user's manual. |
-| **Next action** | **0.2.4-alpha published** (2026-11-19; the owner's go). Next: what the alpha's players report (Debugging Mode's reports, `docs/TESTING.md`); the open bugs (BUG-123, R8 draws black, is the driver's own); PLAN 9.24's leftover, Turnip's Lossless 2x gap (its compiler). `RESUMING.md` §5. |
+| **Next action** | **0.2.4-alpha published** (2026-11-19; the owner's go); PLAN 9.27 (other Xenia renderers' ideas) measured, one small fix kept. Next: what the alpha's players report (Debugging Mode's reports, `docs/TESTING.md`); the open bugs (BUG-123, R8 draws black, is the driver's own); PLAN 9.24's leftover, Turnip's Lossless 2x gap (its compiler). `RESUMING.md` §5. |
 | **Blockers** | None |
 
 The authoritative task list is [`docs/PLAN.md`](docs/PLAN.md); each session's detail is
@@ -1868,6 +1868,17 @@ Then continue from **Next action** at the top of this file.
 Newest first. One short entry per session: what changed, what's next.
 
 ### 2026-11-19 (session 49) - Ideas from the Dark Souls II recomp's renderer (PLAN 9.26)
+
+- **Then PLAN 9.27, ideas from other Xenia-derived renderers** (Xenia Edge, its edge-linux fork,
+  Xendroid+), every base measurement with FSR 3.1 and frame generation off (the owner).
+  - Most were ours already or measured before (implicit LOD, relaxed maths, the cut-out, the
+    render area). Kept: Edge's duplicate texture load fix (BUG-127; no change at the camp).
+  - The camp reloads ~11 textures a frame (`files/hack-skip-reloads log`); skipping them all
+    gives 45.4 -> 49.5 fps with a frozen picture, by format 1.5-2.7% each.
+  - Resolves straight into textures (blits, BGRA images for DAO's red / blue swap) worked, the
+    picture identical, and gained nothing (runs 1009-1019): removed. Loading straight into the
+    image not built (a percent or two at most, storage usage on Adreno).
+  - The Thor back on the owner's settings at the end.
 
 - **The owner asked** what the DS2 recomp's Xenia-derived renderer (github.com/Lazaer-YZY/ds2-sotfs-recomp)
   has for ours, and chose four of its changes to build; nothing committed until their say-so.

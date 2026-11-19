@@ -84,6 +84,8 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-059](#bug-059) | upstream (Xenia) / our runtime | low | **FIXED** | With no Vulkan instance the boot went on, and crashed in the command processor's constructor |
 | [BUG-079](#bug-079) | our runtime | medium | **FIXED** | The guest output captures, a debugging aid, ran in every session: a 4 MB PNG of the screen every minute of play, never removed (about 240 MB an hour in the app's files directory), each with a GPU readback and a PNG encode |
 | [BUG-125](#bug-125) | our app (`DeckView.java`) | low | **FIXED** (session 48; the owner to confirm in play) | The deck's stamina or mana bar showed full while a sustained ability (Powerful Swings) reserved part of the pool: the deck ignored `.Attributes.8.Modifier`, which the HUD observes |
+| [BUG-126](#bug-126) | our tooling (`tools/assemble_runtime.py`) | medium (development builds) | **FIXED** (session 49) | After a renderer patch was taken out, the game aborted at boot (a stack canary in the SPIR-V translator): reverted files kept their old times and the build kept objects compiled against the patch |
+| [BUG-127](#bug-127) | upstream Xenia (`texture_cache.cc`) | low | **FIXED** (session 49, Xenia Edge's change) | A texture bound through two fetch constants was loaded twice in a batch |
 | [BUG-124](#bug-124) | our runtime (`warden_deck.cc`, `DeckView.java`) | medium | **FIXED** (session 48) | On the second screen's Party tab the faces were dark, sepia and contrasty, the clothes cut away: the portrait's bytes are A R G B and were read as R G B A - the alpha as red, the blue as the mask. The face was also drawn larger than the HUD's; now framed as the HUD frames it |
 | [BUG-123](#bug-123) | an imported driver (Mesa Turnip v26.0.0 R8) | medium | **OPEN** (the driver's; not worked around) | On K11MCH1's Turnip v26.0.0 R8 (Mesa 26.0.0-devel git-5ac41be677) the game draws nothing: every frame black from the first menu, at 76 frames a second once BUG-122 was fixed. Its matrix numbers measured a black screen |
 | [BUG-122](#bug-122) | our runtime (Xenia's completion timeline) / Turnip on KGSL before Mesa e984ef29 | high | **FIXED** (session 47, PLAN 9.24) | On Turnip builds before 2026-10-08 the game ran at about half the system driver's speed with the GPU part idle: Xenia's fence status checks waited for the GPU. The fences are now watched on their own thread |
@@ -3035,6 +3037,20 @@ The game code's ABI is unchanged (no override was added): no Build again.
 
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
+
+## BUG-127
+**A texture bound through two fetch constants was loaded twice**
+upstream Xenia (`texture_cache.cc`) · severity low · **FIXED** session 49 (Xenia Edge's 40cee11ab, ported)
+
+**Cause.** `RequestTextures` queues each fetch constant's texture for `LoadTexturesData`, which
+checks every queued texture's state first and then loads each entry. A texture two fetch
+constants share was queued twice, found outdated twice and loaded twice.
+
+**What it causes:** a second untiling pass and copy for such a texture, whenever it is out of
+date. Not seen at the King's Camp, where the textures that reload each frame are bound once
+(runs 1013, 1018); loading screens can have it.
+
+**Fixed.** A texture is queued once (an assembler edit, PLAN 9.27).
 
 ## BUG-126
 **A patch taken out of the renderer left stale objects, and the game aborted at boot**
