@@ -3036,6 +3036,33 @@ The game code's ABI is unchanged (no override was added): no Build again.
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
 
+## BUG-126
+**A patch taken out of the renderer left stale objects, and the game aborted at boot**
+our tooling (`tools/assemble_runtime.py`) · severity medium (development builds only) · **FIXED** session 49
+
+**What it looks like:**
+- PLAN 9.26's patches for early submission and structured jumps were taken out.
+- The next debug build aborted every boot on the "GPU Commands" thread: `stack corruption
+  detected (-fstack-protector)` in `SpirvShaderTranslator::CreateDepthOnlyFragmentShader`,
+  called from `VulkanPipelineCache::Initialize`. This happened with Eco shading off.
+
+**Cause.**
+- The assembler rebuilds `build/runtime-tree` from pristine copies using `shutil.copy2`,
+  which keeps each file's original time.
+- A file a removed edit used to change (`shader.h`, the SPIR-V translator, the command
+  processor) came back pristine, with a time older than the objects compiled from its
+  edited form. Ninja saw nothing newer and did not recompile what includes it.
+- Some translation units kept the old class layout and others had the new one, and a
+  stack canary caught the difference.
+
+**Fixed.**
+- The assembler records each file's content and time before it rebuilds the tree.
+- Afterwards, a file with the same content gets its earlier time back, so nothing is
+  rebuilt for nothing. Any other file is stamped with the current time.
+- It prints "changed since last time".
+- Builds made before the fix need a one-time touch of the files the removed edits had
+  changed.
+
 ## BUG-125
 **The deck's stamina and mana ignored sustained abilities**
 our app (`DeckView.java`, the Party tab) · severity low · **FIXED** session 48 (the owner to confirm in play)

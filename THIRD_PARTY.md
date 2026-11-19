@@ -178,6 +178,16 @@ not compiled: `app/src/main/cpp/warden_lsfg.cc` takes its place - its context ad
 run on the game's own device and record into the game's command stream - and is
 GPL-3.0-or-later like what it adapts (its header says so).
 
+## The Dark Souls II recomp's renderer (PLAN 9.26)
+
+| | |
+|---|---|
+| Source | https://github.com/Lazaer-YZY/ds2-sotfs-recomp (its `sdk`, the ReXGlue SDK) |
+| Pin | `08196a2ead63d8f465352a8a2ab3408243c0f2b8` (2026-11-19) - read, not fetched by the bootstrap |
+| Licence | BSD 3-Clause (`sdk/LICENSE`: Copyright (c) 2026 Tom Clay, portions Copyright (c) 2022 Ben Vanik and Xenia project contributors) |
+| Ported | `DrawExtentEstimator::EstimateRectangleCoverage` (the rectangle a draw overwrites, from its vertex shader run on the CPU), without its constant depth, and the rules of its `gpu_skip_overwritten_transfers` (`RenderTargetCache::WardenOverwrittenRectangle`, stricter on the stencil and the window offset): edits in `tools/assemble_runtime.py` that carry the copyright notice. Its text is in the app's licences (`tools/gather_licences.py` keeps it, as the SDK is not fetched) |
+| Reimplemented | the idea, not the code: Eco shading (its `gpu_eco_shading_rate`, `app/src/main/cpp/warden_eco_shading.cc`) |
+
 ## The FidelityFX SDK (FSR 3.1, PLAN 9.4)
 
 | | |

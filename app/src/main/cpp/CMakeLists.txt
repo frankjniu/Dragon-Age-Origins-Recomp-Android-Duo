@@ -581,6 +581,8 @@ add_library(warden SHARED
     warden_extract.cc
     warden_vulkan_loader.cc
     warden_fence_watch.cc
+    warden_eco_shading.cc
+    warden_transfer_cutout.cc
     dao_frame_pacer_android.cc)
 # PLAN 9.23: the hooks built with the app (the driver loader finds them in its library folder).
 add_dependencies(warden hook_impl main_hook)

@@ -1542,6 +1542,24 @@ option files are put back from what was saved before (session 47:
   10-150 s) shows it as well as the main screen does. An all-zero capture means the driver
   drew nothing (BUG-123, Turnip v26.0.0 R8).
 
+**Eco shading and the transfer cut-out** (PLAN 9.26): both are read at the start.
+- **Eco shading:** `files/eco-shading` holds `2x1` (Light) or `2x2` (Strong); anything else, or
+  no file, is off. The log says `GPU: eco shading ...` and whether the device has the pipeline
+  shading rate (`available` or `not available`).
+- **The transfer cut-out** is on without a file; `files/transfer-cutout` set to `off` turns it
+  off for an A/B run. The log says `GPU: transfer cut-out on` at the start, details the first
+  six cut-outs (`0,0 1280x720 (targets 2): 1 transfers left out, 0 trimmed`; targets are bits,
+  1 depth and 2 the first colour target) and every 20 s counts the draws, the transfers left
+  out and those trimmed. At the King's Camp: about 580 draws a second.
+- **An A/B run:** `driver_matrix.py --shots` with the switch files written before each run and
+  removed after (session 49's runs 965-985). Compare crops of the screenshots, not only the
+  numbers: characters' idle poses differ between runs, a stale or black area does not.
+
+**After a renderer patch is removed** (BUG-126): `tools/assemble_runtime.py` stamps each file
+whose content changed since the last assembly with the current time, and gives an unchanged one
+its earlier time back. It prints `changed since last time`. A tree assembled before this fix
+needs the removed edits' files touched once, or the build keeps objects compiled against them.
+
 ### PC mods and the converter (Phase 10)
 
 - **The layers (10.12):** a mod folder holding a copy of a game file (a patch .tlk, an

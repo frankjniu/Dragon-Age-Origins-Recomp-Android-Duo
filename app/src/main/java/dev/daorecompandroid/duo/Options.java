@@ -334,6 +334,23 @@ final class Options {
                             + " exact - where the game multiplies zero by infinity, a pixel can"
                             + " come out wrong.",
                 }),
+        // PLAN 9.26: the 3D scene shaded once a 2x1 or 2x2 block of pixels (Vulkan's
+        // fragment shading rate; warden_eco_shading.cc), from the next start; the HUD, text
+        // and post-processing stay sharp. An idea of the Dark Souls II recomp's.
+        new Option("eco-shading", "Eco shading", "off", false,
+                new String[] {"off", "2x1", "2x2"},
+                new String[] {"Off", "Light", "Strong"},
+                new String[] {
+                    "Every pixel of the scene shaded on its own.",
+                    "The 3D scene shaded once for each two pixels side by side: about 5%"
+                            + " more frames a second on the Thor, the picture all but the same."
+                            + " The HUD, text and foliage's edges stay sharp. Needs a GPU"
+                            + " driver with variable-rate shading; without it, nothing changes.",
+                    "The 3D scene shaded once for each block of four pixels: about 7% more"
+                            + " frames a second on the Thor, fine textures softer. The HUD,"
+                            + " text and foliage's edges stay sharp. Needs a GPU driver with"
+                            + " variable-rate shading; without it, nothing changes.",
+                }),
         // PLAN 9.6: anisotropic filtering for every mipmapped texture (warden_gpu.cc),
         // 16x unless chosen otherwise: free at the King's Camp, and the ground stays sharp.
         new Option("anisotropic", "Texture filtering", "16", false,
@@ -649,6 +666,7 @@ final class Options {
             case "post-processing":
             case "vignette":
             case "shader-math":
+            case "eco-shading":
             case "anisotropic":
             case "experimental":
             case "vulkan-driver":

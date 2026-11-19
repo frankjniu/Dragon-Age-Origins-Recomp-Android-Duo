@@ -1,5 +1,51 @@
 # Changelog
 
+## 0.2.4-alpha - "Open Alpha"
+
+### Faster
+
+- **About 6% more frames a second, with nothing to set.** The renderer copies less between its
+  render targets: when a draw is about to cover an area completely, the old picture there is no
+  longer copied in first. The picture is unchanged.
+  - At the King's Camp with Lossless 2x, the game went from 31.5 to 33.4 frames a second
+    (63.0 to 66.8 shown).
+  - With FSR 3.1 Balanced and Lossless 2x, it went from 22.6 to 23.3.
+
+### New: Eco shading
+
+**Options -> Visual -> Eco shading** trades a little sharpness in the 3D scene for speed: the
+scene's colours are worked out once for each two pixels (**Light**) or each block of four
+(**Strong**). It is off by default and takes effect from the next start.
+- **The HUD, text and the edges of leaves and grass stay sharp.** So do shadows and the
+  post-processing.
+- **Light** looks all but the same as off. **Strong** softens fine textures such as stone
+  and cloth.
+- **It needs a GPU driver with variable-rate shading.** The Thor's own driver has it. On a
+  driver without it, the option changes nothing.
+
+**Measured on the AYN Thor: Snapdragon 8 Gen 2 (Adreno 740), Android 13**, the system's driver,
+with Lossless 2x:
+
+| Eco shading | FSR 3.1 off (game / shown) | FSR 3.1 Balanced (game / shown) |
+|---|---|---|
+| Off | 31.6 / 63.2 fps | 23.3 / 46.6 fps |
+| Light | 33.3 / 66.5 fps (+5%) | 23.9 / 47.7 fps (+3%) |
+| Strong | 33.9 / 67.8 fps (+7%) | 24.2 / 48.4 fps (+4%) |
+
+- **The settings:** Ostagar's King's Camp; Rendering resolution 1280x720, Upscaling Bilinear,
+  Frame rate 120 (the game uncapped), Dynamic shadows and Corner vignette on, Texture
+  filtering 16x.
+- **The columns:** "game" is the game's own frames a second; "shown" counts the generated
+  frames too. The FSR 3.1 off column was measured before this release's faster copies, the
+  Balanced one with them.
+
+### Installing
+
+- **From 0.2.0-alpha to 0.2.3-alpha:** the launcher installs this update under **Launch Dragon
+  Age**. No Build again is needed. Your saves, game data and settings stay.
+- **From 0.1.9-alpha or earlier:** the launcher installs it too, and then shows **Build again**.
+  Choose it once (about eight minutes).
+
 ## 0.2.3-alpha - "Open Alpha"
 
 ### New: other Vulkan drivers (experimental)

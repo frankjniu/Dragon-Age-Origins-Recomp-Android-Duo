@@ -26,6 +26,41 @@ TP = ROOT / "third_party"
 XTP = TP / "xenia-canary" / "third_party"
 OUT = ROOT / "app" / "src" / "main" / "assets" / "licences"
 
+# The DS2 recomp's SDK licence (sdk/LICENSE at commit 08196a2e), for the code PLAN 9.26
+# ported from it.
+DS2_SDK_LICENCE = """Copyright (c) 2026, Tom Clay <tomc@tctechstuff.com>
+
+Portions of this software are derived from the Xenia project:
+Copyright (c) 2022, Ben Vanik and Xenia project contributors
+https://xenia.jp
+
+All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are met:
+
+1. Redistributions of source code must retain the above copyright notice, this
+   list of conditions and the following disclaimer.
+
+2. Redistributions in binary form must reproduce the above copyright notice,
+   this list of conditions and the following disclaimer in the documentation
+   and/or other materials provided with the distribution.
+
+3. Neither the name of the copyright holder nor the names of its
+   contributors may be used to endorse or promote products derived from
+   this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE LIABLE
+FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL
+DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR
+SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY,
+OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE."""
+
 # (file name, name, licence, used for, version, source, licence text: path or
 # ("header", path) for a licence in a source file's opening comment, or None and a
 # note in the last field)
@@ -119,6 +154,14 @@ COMPONENTS = [
      "loading a Vulkan driver package you import (Options -> Visual -> Experimental)",
      "commit 8fae8ce2", "https://github.com/bylaws/libadrenotools",
      TP / "libadrenotools" / "LICENSE"),
+    # PLAN 9.26: the transfer cut-out's rectangle estimate, ported from the DS2 recomp's SDK
+    # (not fetched: its licence text is kept here).
+    ("ds2-sotfs-recomp", "ReXGlue SDK (the Dark Souls II: Scholar of the First Sin recomp)",
+     "BSD 3-Clause",
+     "the rectangle a draw overwrites, for leaving out render target copies "
+     "(DrawExtentEstimator::EstimateRectangleCoverage)",
+     "commit 08196a2e", "https://github.com/Lazaer-YZY/ds2-sotfs-recomp",
+     None, DS2_SDK_LICENCE),
     # PLAN 12.6: what the app makes the game's code with on the device.
     ("llvm", "LLVM (clang, lld, compiler-rt's builtins, libunwind)",
      "Apache-2.0 WITH LLVM-exception",

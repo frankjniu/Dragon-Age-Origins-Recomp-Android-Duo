@@ -37,9 +37,12 @@ Usage:
   python tools/assemble_runtime.py --clean
 """
 import argparse
+import hashlib
+import os
 import re
 import shutil
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -3191,6 +3194,628 @@ EDITS = [
      "}  // namespace vulkan\n"
      "}  // namespace ui\n"
      "}  // namespace xe\n"),
+    # PLAN 9.26 (from the DS2 recomp's renderer, gpu_eco_shading_rate): Options -> Eco
+    # shading - the 3D scene shaded once a 2x1 or 2x2 block of pixels, the rate set per draw
+    # (the device's side further down, with VK_KHR_pipeline_executable_properties's).
+    # The same port's early submission and structured forward jumps were built and
+    # measured too (runs 951-964): no gain here, removed.
+    (VCP_H, "9.26: Eco shading's rate tracked",
+     "  bool CanEndSubmissionImmediately() const;\n",
+     "  bool CanEndSubmissionImmediately() const;\n"
+     "  // DAO/Warden (PLAN 9.26): Eco shading's rate set in the command buffer (width |\n"
+     "  // height << 4), UINT32_MAX when not known - at its start, after an external\n"
+     "  // pipeline (which resets it).\n"
+     "  uint32_t warden_eco_rate_set_ = UINT32_MAX;\n"),
+    (VCP_C, "9.26: Eco shading's functions declared",
+     "#include \"xenia/gpu/xenos_zpd_report.h\"\n",
+     "#include \"xenia/gpu/xenos_zpd_report.h\"\n"
+     "\n"
+     "// DAO/Warden (PLAN 9.26): app/src/main/cpp/warden_eco_shading.cc.\n"
+     "extern \"C\" uint32_t warden_eco_rate();\n"
+     "extern \"C\" bool warden_eco_dynamic();\n"
+     "extern \"C\" void warden_eco_set_rate(void* data, VkCommandBuffer command_buffer);\n"),
+    (VCP_C, "9.26: Eco shading's rate not known in a new command buffer",
+     "    dynamic_viewport_update_needed_ = true;\n"
+     "    dynamic_scissor_update_needed_ = true;\n",
+     "    dynamic_viewport_update_needed_ = true;\n"
+     "    dynamic_scissor_update_needed_ = true;\n"
+     "    warden_eco_rate_set_ = UINT32_MAX;  // DAO/Warden (PLAN 9.26)\n"),
+    (VCP_C, "9.26: Eco shading's rate reset by an external pipeline",
+     "    VkPipeline pipeline, bool keep_dynamic_depth_bias,\n"
+     "    bool keep_dynamic_blend_constants, bool keep_dynamic_stencil_mask_ref) {\n",
+     "    VkPipeline pipeline, bool keep_dynamic_depth_bias,\n"
+     "    bool keep_dynamic_blend_constants, bool keep_dynamic_stencil_mask_ref) {\n"
+     "  // DAO/Warden (PLAN 9.26): a pipeline without the dynamic shading rate sets its own.\n"
+     "  warden_eco_rate_set_ = UINT32_MAX;\n"),
+    (VCP_C, "9.26: Eco shading's rate for each draw",
+     "  UpdateDynamicState(viewport_info, primitive_polygonal,\n"
+     "                     normalized_depth_control, draw_resolution_scale_x,\n"
+     "                     draw_resolution_scale_y, apply_host_depth_polygon_offset,\n"
+     "                     window_offset_tiles != 0);\n",
+     "  UpdateDynamicState(viewport_info, primitive_polygonal,\n"
+     "                     normalized_depth_control, draw_resolution_scale_x,\n"
+     "                     draw_resolution_scale_y, apply_host_depth_polygon_offset,\n"
+     "                     window_offset_tiles != 0);\n"
+     "  // DAO/Warden (PLAN 9.26): Eco shading - coarse shading for the 3D scene only:\n"
+     "  // depth-tested draws with a pixel shader that does not write depth, into a full-size\n"
+     "  // (at least 900 pixels wide) single-sampled target. Shadow maps, half-size effects,\n"
+     "  // the post-processing, the HUD and text keep one invocation a pixel; coverage and\n"
+     "  // depth stay per pixel everywhere (the DS2 recomp's gpu_eco_shading_rate).\n"
+     "  // Not draws that can discard pixels - an alpha test, alpha to coverage, a kill: the\n"
+     "  // keep-or-discard choice would be made once a block, and foliage's edges go blocky\n"
+     "  // (run 957).\n"
+     "  if (warden_eco_dynamic()) {\n"
+     "    uint32_t warden_rate = 0x11;\n"
+     "    auto warden_colorcontrol = regs.Get<reg::RB_COLORCONTROL>();\n"
+     "    const bool warden_discards =\n"
+     "        (warden_colorcontrol.alpha_test_enable &&\n"
+     "         warden_colorcontrol.alpha_func != xenos::CompareFunction::kAlways) ||\n"
+     "        warden_colorcontrol.alpha_to_mask_enable ||\n"
+     "        (pixel_shader && pixel_shader->kills_pixels());\n"
+     "    if (normalized_depth_control.z_enable && pixel_shader &&\n"
+     "        !pixel_shader->writes_depth() && !warden_discards) {\n"
+     "      auto rb_surface_info = regs.Get<reg::RB_SURFACE_INFO>();\n"
+     "      if (rb_surface_info.msaa_samples == xenos::MsaaSamples::k1X &&\n"
+     "          rb_surface_info.surface_pitch >= 900) {\n"
+     "        warden_rate = warden_eco_rate();\n"
+     "      }\n"
+     "    }\n"
+     "    if (warden_rate != warden_eco_rate_set_) {\n"
+     "      deferred_command_buffer_.CmdWardenCallback(\n"
+     "          warden_eco_set_rate, reinterpret_cast<void*>(uintptr_t(warden_rate)));\n"
+     "      warden_eco_rate_set_ = warden_rate;\n"
+     "    }\n"
+     "  }\n"),
+    (VPC_C, "9.26: Eco shading's switch declared",
+     "#include \"xenia/gpu/vulkan/vulkan_pipeline_cache.h\"\n",
+     "#include \"xenia/gpu/vulkan/vulkan_pipeline_cache.h\"\n"
+     "\n"
+     "// DAO/Warden (PLAN 9.26): app/src/main/cpp/warden_eco_shading.cc.\n"
+     "extern \"C\" bool warden_eco_dynamic();\n"),
+    (VPC_C, "9.26: Eco shading's dynamic state counted",
+     "  std::array<VkDynamicState, 7> dynamic_states;\n",
+     "  std::array<VkDynamicState, 8> dynamic_states;  // DAO/Warden (PLAN 9.26): 7 + 1\n"),
+    (VPC_C, "9.26: the shading rate as dynamic state with Eco shading",
+     "        VK_DYNAMIC_STATE_STENCIL_REFERENCE;\n"
+     "  }\n",
+     "        VK_DYNAMIC_STATE_STENCIL_REFERENCE;\n"
+     "  }\n"
+     "  // DAO/Warden (PLAN 9.26): with Eco shading on and able, the shading rate is set per\n"
+     "  // draw (vulkan_command_processor.cc).\n"
+     "  if (warden_eco_dynamic()) {\n"
+     "    dynamic_states[dynamic_state.dynamicStateCount++] =\n"
+     "        VK_DYNAMIC_STATE_FRAGMENT_SHADING_RATE_KHR;\n"
+     "  }\n"),
+    # PLAN 9.26 (from the DS2 recomp's renderer, gpu_skip_overwritten_transfers): the
+    # transfer cut-out - a draw that overwrites a whole rectangle of every render target it
+    # uses doesn't need the EDRAM ownership transfers there; the transfers are trimmed to
+    # outside it, or left out. The rectangle from the vertex shader run on the CPU (the
+    # draw extent estimator's EstimateRectangleCoverage, ported from the DS2 port).
+    # files/transfer-cutout "off" turns it off (app/src/main/cpp/warden_transfer_cutout.cc).
+    ("xenia/gpu/draw_extent_estimator.h", "9.26: the rectangle coverage estimate declared",
+     "  uint32_t EstimateMaxY(bool try_to_estimate_vertex_max_y,\n"
+     "                        const Shader& vertex_shader,\n"
+     "                        bool window_offset_in_edram);\n",
+     "  uint32_t EstimateMaxY(bool try_to_estimate_vertex_max_y,\n"
+     "                        const Shader& vertex_shader,\n"
+     "                        bool window_offset_in_edram);\n"
+     "  // DAO/Warden (PLAN 9.26, from the DS2 recomp's renderer): for a draw of a single\n"
+     "  // axis-aligned rectangle (a 1-rectangle rectangle list, a 1-quad quad list, or a\n"
+     "  // 4-vertex triangle strip or fan), runs the vertex shader on the CPU and returns the\n"
+     "  // pixels the rectangle covers fully (right and bottom exclusive, the viewport's\n"
+     "  // clipping applied, not the scissor). A single triangle is accepted too if it\n"
+     "  // contains the whole bounds rectangle (usually the scissor), which is returned then.\n"
+     "  // Not with the window offset in the EDRAM bases.\n"
+     "  bool EstimateRectangleCoverage(const Shader& vertex_shader, int32_t bounds_left,\n"
+     "                                 int32_t bounds_top, int32_t bounds_right,\n"
+     "                                 int32_t bounds_bottom, int32_t& left_out,\n"
+     "                                 int32_t& top_out, int32_t& right_out,\n"
+     "                                 int32_t& bottom_out);\n"),
+    ("xenia/gpu/draw_extent_estimator.h", "9.26: the position's x and z kept",
+     "      position_y_.reset();\n",
+     "      position_x_.reset();  // DAO/Warden (PLAN 9.26)\n"
+     "      position_y_.reset();\n"
+     "      position_z_.reset();  // DAO/Warden (PLAN 9.26)\n"),
+    ("xenia/gpu/draw_extent_estimator.h", "9.26: the position's x and z read",
+     "    const std::optional<float>& position_y() const { return position_y_; }\n",
+     "    const std::optional<float>& position_y() const { return position_y_; }\n"
+     "    // DAO/Warden (PLAN 9.26).\n"
+     "    const std::optional<float>& position_x() const { return position_x_; }\n"
+     "    const std::optional<float>& position_z() const { return position_z_; }\n"),
+    ("xenia/gpu/draw_extent_estimator.h", "9.26: the position's x and z stored",
+     "    std::optional<float> position_y_;\n",
+     "    std::optional<float> position_y_;\n"
+     "    std::optional<float> position_x_;  // DAO/Warden (PLAN 9.26)\n"
+     "    std::optional<float> position_z_;  // DAO/Warden (PLAN 9.26)\n"),
+    ("xenia/gpu/draw_extent_estimator.cc", "9.26: the rectangle coverage estimate's maths",
+     "#include <cfloat>\n",
+     "#include <cfloat>\n"
+     "#include <cmath>  // DAO/Warden (PLAN 9.26)\n"),
+    ("xenia/gpu/draw_extent_estimator.cc", "9.26: the position's x and z exported",
+     "    if (value_mask & 0b0010) {\n"
+     "      position_y_ = value[1];\n"
+     "    }\n",
+     "    if (value_mask & 0b0010) {\n"
+     "      position_y_ = value[1];\n"
+     "    }\n"
+     "    // DAO/Warden (PLAN 9.26): x and z for EstimateRectangleCoverage.\n"
+     "    if (value_mask & 0b0001) {\n"
+     "      position_x_ = value[0];\n"
+     "    }\n"
+     "    if (value_mask & 0b0100) {\n"
+     "      position_z_ = value[2];\n"
+     "    }\n"),
+    ("xenia/gpu/draw_extent_estimator.cc", "9.26: the rectangle coverage estimate",
+     "}  // namespace gpu\n"
+     "}  // namespace xe\n",
+     "// DAO/Warden (PLAN 9.26): ported from the Dark Souls II: Scholar of the First Sin\n"
+     "// recomp's renderer (github.com/Lazaer-YZY/ds2-sotfs-recomp at 08196a2e, the ReXGlue\n"
+     "// SDK's DrawExtentEstimator::EstimateRectangleCoverage), without its constant depth.\n"
+     "// Copyright (c) 2026, Tom Clay <tomc@tctechstuff.com>; portions Copyright (c) 2022,\n"
+     "// Ben Vanik and Xenia project contributors. All rights reserved. BSD 3-Clause - the\n"
+     "// licence's text: app/src/main/assets/licences/ds2-sotfs-recomp.txt.\n"
+     "bool DrawExtentEstimator::EstimateRectangleCoverage(\n"
+     "    const Shader& vertex_shader, int32_t bounds_left, int32_t bounds_top,\n"
+     "    int32_t bounds_right, int32_t bounds_bottom, int32_t& left_out,\n"
+     "    int32_t& top_out, int32_t& right_out, int32_t& bottom_out) {\n"
+     "  const RegisterFile& regs = register_file_;\n"
+     "  auto vgt_draw_initiator = regs.Get<reg::VGT_DRAW_INITIATOR>();\n"
+     "  uint32_t vertex_count;\n"
+     "  bool is_triangle = false;\n"
+     "  switch (vgt_draw_initiator.prim_type) {\n"
+     "    case xenos::PrimitiveType::kTriangleList:\n"
+     "      vertex_count = 3;\n"
+     "      is_triangle = true;\n"
+     "      break;\n"
+     "    case xenos::PrimitiveType::kRectangleList:\n"
+     "      vertex_count = 3;\n"
+     "      break;\n"
+     "    case xenos::PrimitiveType::kQuadList:\n"
+     "    case xenos::PrimitiveType::kTriangleFan:\n"
+     "    case xenos::PrimitiveType::kTriangleStrip:\n"
+     "      vertex_count = 4;\n"
+     "      break;\n"
+     "    default:\n"
+     "      return false;\n"
+     "  }\n"
+     "  if (vgt_draw_initiator.num_indices != vertex_count ||\n"
+     "      (vgt_draw_initiator.source_select != xenos::SourceSelect::kDMA &&\n"
+     "       vgt_draw_initiator.source_select != xenos::SourceSelect::kAutoIndex) ||\n"
+     "      xenos::IsMajorModeExplicit(vgt_draw_initiator.major_mode,\n"
+     "                                 vgt_draw_initiator.prim_type) ||\n"
+     "      !ShaderInterpreter::CanInterpretShader(vertex_shader)) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  auto pa_cl_vte_cntl = regs.Get<reg::PA_CL_VTE_CNTL>();\n"
+     "  auto pa_su_sc_mode_cntl = regs.Get<reg::PA_SU_SC_MODE_CNTL>();\n"
+     "  auto pa_cl_clip_cntl = regs.Get<reg::PA_CL_CLIP_CNTL>();\n"
+     "  bool clipped = !pa_cl_clip_cntl.clip_disable;\n"
+     "  auto vgt_dma_size = regs.Get<reg::VGT_DMA_SIZE>();\n"
+     "  const void* index_buffer = nullptr;\n"
+     "  xenos::Endian index_endian = vgt_dma_size.swap_mode;\n"
+     "  bool index_32 = vgt_draw_initiator.index_size == xenos::IndexFormat::kInt32;\n"
+     "  if (vgt_draw_initiator.source_select == xenos::SourceSelect::kDMA) {\n"
+     "    if (vgt_dma_size.num_words < vertex_count) {\n"
+     "      return false;\n"
+     "    }\n"
+     "    uint32_t index_buffer_base = regs[XE_GPU_REG_VGT_DMA_BASE];\n"
+     "    if (!index_32) {\n"
+     "      if (index_endian == xenos::Endian::k8in32) {\n"
+     "        index_endian = xenos::Endian::k8in16;\n"
+     "      } else if (index_endian == xenos::Endian::k16in32) {\n"
+     "        index_endian = xenos::Endian::kNone;\n"
+     "      }\n"
+     "      index_buffer_base &= ~uint32_t(1);\n"
+     "    } else {\n"
+     "      index_buffer_base &= ~uint32_t(3);\n"
+     "    }\n"
+     "    if (trace_writer_) {\n"
+     "      trace_writer_->WriteMemoryRead(index_buffer_base,\n"
+     "                                     (index_32 ? 4 : 2) * vertex_count);\n"
+     "    }\n"
+     "    index_buffer = memory_.TranslatePhysical(index_buffer_base);\n"
+     "  }\n"
+     "  uint32_t index_offset = regs.Get<reg::VGT_INDX_OFFSET>().indx_offset;\n"
+     "  uint32_t min_index = regs.Get<reg::VGT_MIN_VTX_INDX>().min_indx;\n"
+     "  uint32_t max_index = regs.Get<reg::VGT_MAX_VTX_INDX>().max_indx;\n"
+     "  float x_scale = pa_cl_vte_cntl.vport_x_scale_ena\n"
+     "                      ? regs.Get<float>(XE_GPU_REG_PA_CL_VPORT_XSCALE)\n"
+     "                      : 1.0f;\n"
+     "  float x_offset = pa_cl_vte_cntl.vport_x_offset_ena\n"
+     "                       ? regs.Get<float>(XE_GPU_REG_PA_CL_VPORT_XOFFSET)\n"
+     "                       : 0.0f;\n"
+     "  float y_scale = pa_cl_vte_cntl.vport_y_scale_ena\n"
+     "                      ? regs.Get<float>(XE_GPU_REG_PA_CL_VPORT_YSCALE)\n"
+     "                      : 1.0f;\n"
+     "  float y_offset = pa_cl_vte_cntl.vport_y_offset_ena\n"
+     "                       ? regs.Get<float>(XE_GPU_REG_PA_CL_VPORT_YOFFSET)\n"
+     "                       : 0.0f;\n"
+     "  // To pixel-center-at-0.5 coordinates.\n"
+     "  float center_offset = regs.Get<reg::PA_SU_VTX_CNTL>().pix_center ==\n"
+     "                                xenos::PixelCenter::kD3DZero\n"
+     "                            ? 0.5f\n"
+     "                            : 0.0f;\n"
+     "  float window_x = 0.0f, window_y = 0.0f;\n"
+     "  if (pa_su_sc_mode_cntl.vtx_window_offset_enable) {\n"
+     "    auto pa_sc_window_offset = regs.Get<reg::PA_SC_WINDOW_OFFSET>();\n"
+     "    window_x = float(pa_sc_window_offset.window_x_offset);\n"
+     "    window_y = float(pa_sc_window_offset.window_y_offset);\n"
+     "  }\n"
+     "  float xs[4], ys[4];\n"
+     "  shader_interpreter_.SetShader(vertex_shader);\n"
+     "  PositionYExportSink sink;\n"
+     "  shader_interpreter_.SetExportSink(&sink);\n"
+     "  bool valid = true;\n"
+     "  for (uint32_t i = 0; i < vertex_count; ++i) {\n"
+     "    uint32_t vertex_index = i;\n"
+     "    if (index_buffer) {\n"
+     "      vertex_index = index_32 ? static_cast<const uint32_t*>(index_buffer)[i]\n"
+     "                              : static_cast<const uint16_t*>(index_buffer)[i];\n"
+     "      vertex_index = xenos::GpuSwap(vertex_index, index_endian) & 0xFFFFFF;\n"
+     "    }\n"
+     "    vertex_index = std::min(\n"
+     "        max_index, std::max(min_index, (vertex_index + index_offset) & 0xFFFFFF));\n"
+     "    sink.Reset();\n"
+     "    shader_interpreter_.temp_registers()[0] = float(vertex_index);\n"
+     "    shader_interpreter_.Execute();\n"
+     "    if (sink.vertex_kill().has_value() &&\n"
+     "        (sink.vertex_kill().value() & ~(UINT32_C(1) << 31))) {\n"
+     "      valid = false;\n"
+     "      break;\n"
+     "    }\n"
+     "    if (!sink.position_x().has_value() || !sink.position_y().has_value()) {\n"
+     "      valid = false;\n"
+     "      break;\n"
+     "    }\n"
+     "    float x = sink.position_x().value(), y = sink.position_y().value();\n"
+     "    if (!pa_cl_vte_cntl.vtx_xy_fmt || clipped) {\n"
+     "      if (!sink.position_w().has_value() ||\n"
+     "          !(sink.position_w().value() > 0.0f)) {\n"
+     "        valid = false;\n"
+     "        break;\n"
+     "      }\n"
+     "    }\n"
+     "    if (clipped) {\n"
+     "      // The whole rectangle must be inside the near and far planes (otherwise\n"
+     "      // it's clipped by depth, not only to the viewport).\n"
+     "      if (!sink.position_z().has_value()) {\n"
+     "        valid = false;\n"
+     "        break;\n"
+     "      }\n"
+     "      float z = sink.position_z().value(), w = sink.position_w().value();\n"
+     "      if (!(z <= w && z >= (pa_cl_clip_cntl.dx_clip_space_def ? 0.0f : -w))) {\n"
+     "        valid = false;\n"
+     "        break;\n"
+     "      }\n"
+     "    }\n"
+     "    if (!pa_cl_vte_cntl.vtx_xy_fmt) {\n"
+     "      x /= sink.position_w().value();\n"
+     "      y /= sink.position_w().value();\n"
+     "    }\n"
+     "    xs[i] = x * x_scale + x_offset + center_offset + window_x;\n"
+     "    ys[i] = y * y_scale + y_offset + center_offset + window_y;\n"
+     "    if (!std::isfinite(xs[i]) || !std::isfinite(ys[i])) {\n"
+     "      valid = false;\n"
+     "      break;\n"
+     "    }\n"
+     "  }\n"
+     "  shader_interpreter_.SetExportSink(nullptr);\n"
+     "  if (!valid) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  if (is_triangle) {\n"
+     "    // The triangle must contain the centers of the corner pixels of the bounds\n"
+     "    // (limited to the viewport for clipped draws).\n"
+     "    float bx0 = float(bounds_left), by0 = float(bounds_top);\n"
+     "    float bx1 = float(bounds_right), by1 = float(bounds_bottom);\n"
+     "    if (clipped) {\n"
+     "      bx0 = std::max(bx0, x_offset - std::abs(x_scale) + center_offset + window_x);\n"
+     "      bx1 = std::min(bx1, x_offset + std::abs(x_scale) + center_offset + window_x);\n"
+     "      by0 = std::max(by0, y_offset - std::abs(y_scale) + center_offset + window_y);\n"
+     "      by1 = std::min(by1, y_offset + std::abs(y_scale) + center_offset + window_y);\n"
+     "    }\n"
+     "    int32_t left = int32_t(std::ceil(bx0)), top = int32_t(std::ceil(by0));\n"
+     "    int32_t right = int32_t(std::floor(bx1)), bottom = int32_t(std::floor(by1));\n"
+     "    if (right <= left || bottom <= top) {\n"
+     "      return false;\n"
+     "    }\n"
+     "    float area =\n"
+     "        (xs[1] - xs[0]) * (ys[2] - ys[0]) - (ys[1] - ys[0]) * (xs[2] - xs[0]);\n"
+     "    if (area == 0.0f) {\n"
+     "      return false;\n"
+     "    }\n"
+     "    float corner_xs[4] = {left + 0.5f, right - 0.5f, left + 0.5f, right - 0.5f};\n"
+     "    float corner_ys[4] = {top + 0.5f, top + 0.5f, bottom - 0.5f, bottom - 0.5f};\n"
+     "    for (uint32_t c = 0; c < 4; ++c) {\n"
+     "      for (uint32_t e = 0; e < 3; ++e) {\n"
+     "        uint32_t a = e, b = (e + 1) % 3;\n"
+     "        float edge = (xs[b] - xs[a]) * (corner_ys[c] - ys[a]) -\n"
+     "                     (ys[b] - ys[a]) * (corner_xs[c] - xs[a]);\n"
+     "        if (area > 0.0f ? edge < 0.0f : edge > 0.0f) {\n"
+     "          return false;\n"
+     "        }\n"
+     "      }\n"
+     "    }\n"
+     "    left_out = left;\n"
+     "    top_out = top;\n"
+     "    right_out = right;\n"
+     "    bottom_out = bottom;\n"
+     "    return true;\n"
+     "  }\n"
+     "  // The vertex opposite to v0 (for the bowtie check below).\n"
+     "  uint32_t opposite_of_0 =\n"
+     "      (vgt_draw_initiator.prim_type == xenos::PrimitiveType::kQuadList ||\n"
+     "       vgt_draw_initiator.prim_type == xenos::PrimitiveType::kTriangleFan)\n"
+     "          ? 2\n"
+     "          : 3;\n"
+     "  if (vertex_count == 3) {\n"
+     "    // Rectangle list: the longest edge is the diagonal, the fourth corner is its\n"
+     "    // endpoints minus the right-angle corner (as Xenia expands them).\n"
+     "    float d01 = (xs[1] - xs[0]) * (xs[1] - xs[0]) + (ys[1] - ys[0]) * (ys[1] - ys[0]);\n"
+     "    float d02 = (xs[2] - xs[0]) * (xs[2] - xs[0]) + (ys[2] - ys[0]) * (ys[2] - ys[0]);\n"
+     "    float d12 = (xs[2] - xs[1]) * (xs[2] - xs[1]) + (ys[2] - ys[1]) * (ys[2] - ys[1]);\n"
+     "    uint32_t corner = (d12 >= d01 && d12 >= d02) ? 0 : (d02 >= d01 ? 1 : 2);\n"
+     "    uint32_t a = corner == 0 ? 1 : 0, b = corner == 2 ? 1 : 2;\n"
+     "    xs[3] = xs[a] + xs[b] - xs[corner];\n"
+     "    ys[3] = ys[a] + ys[b] - ys[corner];\n"
+     "    // The derived corner is opposite to the right-angle one by construction.\n"
+     "    opposite_of_0 = UINT32_MAX;\n"
+     "  }\n"
+     "  float x0 = std::min(std::min(xs[0], xs[1]), std::min(xs[2], xs[3]));\n"
+     "  float x1 = std::max(std::max(xs[0], xs[1]), std::max(xs[2], xs[3]));\n"
+     "  float y0 = std::min(std::min(ys[0], ys[1]), std::min(ys[2], ys[3]));\n"
+     "  float y1 = std::max(std::max(ys[0], ys[1]), std::max(ys[2], ys[3]));\n"
+     "  // Every vertex must be a distinct corner of the bounding box (an axis-aligned\n"
+     "  // rectangle).\n"
+     "  uint32_t corners = 0;\n"
+     "  for (uint32_t i = 0; i < 4; ++i) {\n"
+     "    bool at_x0 = xs[i] == x0, at_x1 = xs[i] == x1;\n"
+     "    bool at_y0 = ys[i] == y0, at_y1 = ys[i] == y1;\n"
+     "    if (at_x0 == at_x1 || at_y0 == at_y1) {\n"
+     "      return false;\n"
+     "    }\n"
+     "    corners |= uint32_t(1) << (uint32_t(at_x1) | (uint32_t(at_y1) << 1));\n"
+     "  }\n"
+     "  if (corners != 0b1111) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  // The two triangles must not form a bowtie: the vertex opposite to v0 is v3 for\n"
+     "  // triangle strips (derived for rectangle lists), v2 for quad lists and fans.\n"
+     "  if (opposite_of_0 != UINT32_MAX &&\n"
+     "      (xs[opposite_of_0] == xs[0] || ys[opposite_of_0] == ys[0])) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  if (clipped) {\n"
+     "    // Clipped to the viewport (the guard band only avoids clipping the primitive,\n"
+     "    // it's still rasterized only within the viewport).\n"
+     "    x0 = std::max(x0, x_offset - std::abs(x_scale) + center_offset + window_x);\n"
+     "    x1 = std::min(x1, x_offset + std::abs(x_scale) + center_offset + window_x);\n"
+     "    y0 = std::max(y0, y_offset - std::abs(y_scale) + center_offset + window_y);\n"
+     "    y1 = std::min(y1, y_offset + std::abs(y_scale) + center_offset + window_y);\n"
+     "  }\n"
+     "  // Pixel i is covered if its center i + 0.5 is in [x0, x1).\n"
+     "  left_out = int32_t(std::ceil(x0 - 0.5f));\n"
+     "  right_out = int32_t(std::ceil(x1 - 0.5f));\n"
+     "  top_out = int32_t(std::ceil(y0 - 0.5f));\n"
+     "  bottom_out = int32_t(std::ceil(y1 - 0.5f));\n"
+     "  return right_out > left_out && bottom_out > top_out;\n"
+     "}\n"
+     "\n"
+     "}  // namespace gpu\n"
+     "}  // namespace xe\n"),
+    ("xenia/gpu/render_target_cache.h", "9.26: the draw's pixel shader for the transfer cut-out",
+     "  virtual bool Update(bool is_rasterization_done,\n",
+     "  // DAO/Warden (PLAN 9.26): the next update's pixel shader (nullptr if none runs), for\n"
+     "  // the transfer cut-out; no cut-out until that update makes one.\n"
+     "  void WardenSetUpdatePixelShader(const Shader* pixel_shader) {\n"
+     "    warden_update_pixel_shader_ = pixel_shader;\n"
+     "    warden_transfer_cutout_valid_ = false;\n"
+     "  }\n"
+     "\n"
+     "  virtual bool Update(bool is_rasterization_done,\n"),
+    ("xenia/gpu/render_target_cache.h", "9.26: the transfer cut-out kept",
+     "  const std::vector<Transfer>* last_update_transfers() const {\n",
+     "  // DAO/Warden (PLAN 9.26): the rectangle the last update's draw overwrites in every\n"
+     "  // render target it uses, the transfers trimmed to outside it - nullptr if none.\n"
+     "  const Transfer::Rectangle* warden_transfer_cutout() const {\n"
+     "    return warden_transfer_cutout_valid_ ? &warden_transfer_cutout_ : nullptr;\n"
+     "  }\n"
+     "  bool WardenOverwrittenRectangle(reg::RB_DEPTHCONTROL normalized_depth_control,\n"
+     "                                  uint32_t normalized_color_mask,\n"
+     "                                  const Shader& vertex_shader,\n"
+     "                                  uint32_t depth_and_color_rts_used_bits,\n"
+     "                                  xenos::MsaaSamples msaa_samples);\n"
+     "  const Shader* warden_update_pixel_shader_ = nullptr;\n"
+     "  Transfer::Rectangle warden_transfer_cutout_ = {};\n"
+     "  bool warden_transfer_cutout_valid_ = false;\n"
+     "\n"
+     "  const std::vector<Transfer>* last_update_transfers() const {\n"),
+    (RTC_C, "9.26: the transfer cut-out's switch and counter declared",
+     "#include \"xenia/gpu/render_target_cache.h\"\n",
+     "#include \"xenia/gpu/render_target_cache.h\"\n"
+     "\n"
+     "// DAO/Warden (PLAN 9.26): app/src/main/cpp/warden_transfer_cutout.cc.\n"
+     "extern \"C\" bool warden_transfer_cutout_on();\n"
+     "extern \"C\" void warden_transfer_cutout_note(uint32_t dropped, uint32_t kept,\n"
+     "                                            uint32_t x, uint32_t y, uint32_t width,\n"
+     "                                            uint32_t height, uint32_t targets);\n"),
+    (RTC_C, "9.26: the transfers a draw overwrites left out",
+     "  if (interlock_barrier_only) {\n"
+     "    // No copying transfers or render target bindings - only needed the barrier.\n",
+     "  // DAO/Warden (PLAN 9.26, the DS2 recomp's gpu_skip_overwritten_transfers): a draw\n"
+     "  // that overwrites a whole rectangle of every render target it uses doesn't need the\n"
+     "  // old contents there - its transfers are trimmed to outside the rectangle\n"
+     "  // (PerformTransfersAndResolveClears), or left out when they lie inside it. Looked\n"
+     "  // for only when there are transfers, and not with a window offset.\n"
+     "  if (!interlock_barrier_only && !window_offset_tiles &&\n"
+     "      !regs[XE_GPU_REG_PA_SC_WINDOW_OFFSET] && warden_transfer_cutout_on()) {\n"
+     "    bool warden_any_transfers = false;\n"
+     "    for (uint32_t i = 0; i < 1 + xenos::kMaxColorRenderTargets; ++i) {\n"
+     "      if ((depth_and_color_rts_used_bits & (uint32_t(1) << i)) &&\n"
+     "          !last_update_transfers_[i].empty()) {\n"
+     "        warden_any_transfers = true;\n"
+     "      }\n"
+     "    }\n"
+     "    if (warden_any_transfers &&\n"
+     "        WardenOverwrittenRectangle(normalized_depth_control,\n"
+     "                                   normalized_color_mask, vertex_shader,\n"
+     "                                   depth_and_color_rts_used_bits, msaa_samples)) {\n"
+     "      uint32_t warden_dropped = 0, warden_kept = 0;\n"
+     "      for (uint32_t i = 0; i < 1 + xenos::kMaxColorRenderTargets; ++i) {\n"
+     "        if (!(depth_and_color_rts_used_bits & (uint32_t(1) << i))) {\n"
+     "          continue;\n"
+     "        }\n"
+     "        std::vector<Transfer>& warden_transfers = last_update_transfers_[i];\n"
+     "        size_t warden_count = 0;\n"
+     "        for (size_t j = 0; j < warden_transfers.size(); ++j) {\n"
+     "          if (warden_transfers[j].GetRectangles(rt_keys[i], nullptr,\n"
+     "                                                &warden_transfer_cutout_)) {\n"
+     "            warden_transfers[warden_count++] = warden_transfers[j];\n"
+     "          }\n"
+     "        }\n"
+     "        warden_dropped += uint32_t(warden_transfers.size() - warden_count);\n"
+     "        warden_kept += uint32_t(warden_count);\n"
+     "        warden_transfers.erase(warden_transfers.begin() + warden_count,\n"
+     "                               warden_transfers.end());\n"
+     "      }\n"
+     "      warden_transfer_cutout_valid_ = true;\n"
+     "      warden_transfer_cutout_note(\n"
+     "          warden_dropped, warden_kept, warden_transfer_cutout_.x_pixels,\n"
+     "          warden_transfer_cutout_.y_pixels, warden_transfer_cutout_.width_pixels,\n"
+     "          warden_transfer_cutout_.height_pixels, depth_and_color_rts_used_bits);\n"
+     "    }\n"
+     "  }\n"
+     "\n"
+     "  if (interlock_barrier_only) {\n"
+     "    // No copying transfers or render target bindings - only needed the barrier.\n"),
+    (RTC_C, "9.26: whether a draw overwrites a whole rectangle",
+     "}  // namespace gpu\n"
+     "}  // namespace xe\n",
+     "// DAO/Warden (PLAN 9.26, after the DS2 recomp's gpu_skip_overwritten_transfers): the\n"
+     "// rectangle a draw overwrites completely in every render target it uses, into\n"
+     "// warden_transfer_cutout_. Depth written with ALWAYS and the stencil replaced on both\n"
+     "// faces (stricter than the DS2 port's default, which lets the old stencil go), each\n"
+     "// colour target written whole without blending, nothing discarded, no culling, solid\n"
+     "// fill, and one rectangle - or a triangle over the scissor - by the vertex shader run\n"
+     "// on the CPU. Adapted from the ReXGlue SDK's RenderTargetCache::Update: Copyright (c)\n"
+     "// 2026, Tom Clay <tomc@tctechstuff.com>; portions Copyright (c) 2022, Ben Vanik and\n"
+     "// Xenia project contributors. All rights reserved. BSD 3-Clause - the licence's text:\n"
+     "// app/src/main/assets/licences/ds2-sotfs-recomp.txt.\n"
+     "bool RenderTargetCache::WardenOverwrittenRectangle(\n"
+     "    reg::RB_DEPTHCONTROL normalized_depth_control, uint32_t normalized_color_mask,\n"
+     "    const Shader& vertex_shader, uint32_t depth_and_color_rts_used_bits,\n"
+     "    xenos::MsaaSamples msaa_samples) {\n"
+     "  const RegisterFile& regs = register_file();\n"
+     "  if (!depth_and_color_rts_used_bits) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  if (depth_and_color_rts_used_bits & 0b1) {\n"
+     "    if (!normalized_depth_control.z_enable ||\n"
+     "        !normalized_depth_control.z_write_enable ||\n"
+     "        normalized_depth_control.zfunc != xenos::CompareFunction::kAlways ||\n"
+     "        !normalized_depth_control.stencil_enable) {\n"
+     "      return false;\n"
+     "    }\n"
+     "    auto stencil_overwritten = [&](xenos::CompareFunction func,\n"
+     "                                   xenos::StencilOp zpass, Register ref_mask_reg) {\n"
+     "      return func == xenos::CompareFunction::kAlways &&\n"
+     "             zpass == xenos::StencilOp::kReplace &&\n"
+     "             regs.Get<reg::RB_STENCILREFMASK>(ref_mask_reg).stencilwritemask == 0xFF;\n"
+     "    };\n"
+     "    if (!stencil_overwritten(normalized_depth_control.stencilfunc,\n"
+     "                             normalized_depth_control.stencilzpass,\n"
+     "                             XE_GPU_REG_RB_STENCILREFMASK) ||\n"
+     "        (normalized_depth_control.backface_enable &&\n"
+     "         !stencil_overwritten(normalized_depth_control.stencilfunc_bf,\n"
+     "                              normalized_depth_control.stencilzpass_bf,\n"
+     "                              XE_GPU_REG_RB_STENCILREFMASK_BF))) {\n"
+     "      return false;\n"
+     "    }\n"
+     "  }\n"
+     "  const Shader* pixel_shader = warden_update_pixel_shader_;\n"
+     "  uint32_t color_used = depth_and_color_rts_used_bits >> 1;\n"
+     "  if (color_used && !pixel_shader) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  for (uint32_t i = 0; i < xenos::kMaxColorRenderTargets; ++i) {\n"
+     "    if (!(color_used & (uint32_t(1) << i))) {\n"
+     "      continue;\n"
+     "    }\n"
+     "    auto blend = regs.Get<reg::RB_BLENDCONTROL>(\n"
+     "        reg::RB_BLENDCONTROL::rt_register_indices[i]);\n"
+     "    if (((normalized_color_mask >> (i * 4)) & 0b1111) != 0b1111 ||\n"
+     "        blend.color_srcblend != xenos::BlendFactor::kOne ||\n"
+     "        blend.color_destblend != xenos::BlendFactor::kZero ||\n"
+     "        blend.color_comb_fcn != xenos::BlendOp::kAdd ||\n"
+     "        blend.alpha_srcblend != xenos::BlendFactor::kOne ||\n"
+     "        blend.alpha_destblend != xenos::BlendFactor::kZero ||\n"
+     "        blend.alpha_comb_fcn != xenos::BlendOp::kAdd) {\n"
+     "      return false;\n"
+     "    }\n"
+     "  }\n"
+     "  // The alpha test and alpha to coverage act on the pixel shader's alpha: with no\n"
+     "  // pixel shader nothing is tested.\n"
+     "  auto rb_colorcontrol = regs.Get<reg::RB_COLORCONTROL>();\n"
+     "  if (pixel_shader &&\n"
+     "      ((rb_colorcontrol.alpha_test_enable &&\n"
+     "        rb_colorcontrol.alpha_func != xenos::CompareFunction::kAlways) ||\n"
+     "       rb_colorcontrol.alpha_to_mask_enable || pixel_shader->kills_pixels())) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  if (msaa_samples != xenos::MsaaSamples::k1X &&\n"
+     "      (regs[XE_GPU_REG_PA_SC_AA_MASK] & 0xFFFF) != 0xFFFF) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  // Face culling may drop the rectangle (its winding isn't checked), and a polygon\n"
+     "  // mode other than solid fill doesn't cover it.\n"
+     "  auto pa_su_sc_mode_cntl = regs.Get<reg::PA_SU_SC_MODE_CNTL>();\n"
+     "  if (pa_su_sc_mode_cntl.cull_front || pa_su_sc_mode_cntl.cull_back ||\n"
+     "      pa_su_sc_mode_cntl.poly_mode != xenos::PolygonModeEnable::kDisabled) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  draw_util::Scissor scissor;\n"
+     "  draw_util::GetScissor(regs, scissor, true, false);\n"
+     "  int32_t scissor_left = int32_t(scissor.offset[0]);\n"
+     "  int32_t scissor_top = int32_t(scissor.offset[1]);\n"
+     "  int32_t scissor_right = int32_t(scissor.offset[0] + scissor.extent[0]);\n"
+     "  int32_t scissor_bottom = int32_t(scissor.offset[1] + scissor.extent[1]);\n"
+     "  int32_t left, top, right, bottom;\n"
+     "  if (!draw_extent_estimator_.EstimateRectangleCoverage(\n"
+     "          vertex_shader, scissor_left, scissor_top, scissor_right, scissor_bottom,\n"
+     "          left, top, right, bottom)) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  left = std::max(left, scissor_left);\n"
+     "  top = std::max(top, scissor_top);\n"
+     "  right = std::min(right, scissor_right);\n"
+     "  bottom = std::min(bottom, scissor_bottom);\n"
+     "  if (right <= left || bottom <= top) {\n"
+     "    return false;\n"
+     "  }\n"
+     "  warden_transfer_cutout_.x_pixels = uint32_t(left);\n"
+     "  warden_transfer_cutout_.y_pixels = uint32_t(top);\n"
+     "  warden_transfer_cutout_.width_pixels = uint32_t(right - left);\n"
+     "  warden_transfer_cutout_.height_pixels = uint32_t(bottom - top);\n"
+     "  return true;\n"
+     "}\n"
+     "\n"
+     "}  // namespace gpu\n"
+     "}  // namespace xe\n"),
+    (VRTC_C, "9.26: the transfers drawn outside the cut-out",
+     "      PerformTransfersAndResolveClears(1 + xenos::kMaxColorRenderTargets,\n"
+     "                                       depth_and_color_render_targets,\n"
+     "                                       last_update_transfers());\n",
+     "      // DAO/Warden (PLAN 9.26): outside the rectangle the draw overwrites.\n"
+     "      PerformTransfersAndResolveClears(1 + xenos::kMaxColorRenderTargets,\n"
+     "                                       depth_and_color_render_targets,\n"
+     "                                       last_update_transfers(), nullptr,\n"
+     "                                       warden_transfer_cutout());\n"),
+    (VCP_C, "9.26: the draw's pixel shader for the transfer cut-out",
+     "  // Set up the render targets - this may perform dispatches and draws.\n",
+     "  // DAO/Warden (PLAN 9.26): the pixel shader, for the transfer cut-out.\n"
+     "  render_target_cache_->WardenSetUpdatePixelShader(pixel_shader);\n"
+     "\n"
+     "  // Set up the render targets - this may perform dispatches and draws.\n"),
     # BUG-112: the pipeline barriers and render passes executed, counted for the GPU
     # status line - what a driver that drains the GPU at each barrier (Mesa's Turnip) pays per
     # frame, which Xenia's EDRAM emulation makes many of.
@@ -4041,6 +4666,78 @@ EDITS = [
      "        features_KHR_pipeline_executable_properties.supported\n"
      "            .pipelineExecutableInfo;\n"
      "  }\n"),
+    # PLAN 9.26 (from the DS2 recomp's renderer, gpu_eco_shading_rate): Options -> Eco
+    # shading - VK_KHR_fragment_shading_rate's pipeline rate, requested and enabled only
+    # when the option is on at the start (warden_eco_shading.cc), so the device is as
+    # before with it off.
+    (VKD_H, "9.26: VK_KHR_fragment_shading_rate's flag",
+     "    bool ext_EXT_conditional_rendering = false;  // #82\n",
+     "    bool ext_EXT_conditional_rendering = false;  // #82\n"
+     "    // DAO/Warden (PLAN 9.26): Eco shading's coarse shading of the 3D scene.\n"
+     "    bool ext_KHR_fragment_shading_rate = false;  // #227\n"),
+    (VKD_C, "9.26: Eco shading's functions declared",
+     "#include <vector>\n",
+     "#include <vector>\n"
+     "\n"
+     "// DAO/Warden (PLAN 9.26): app/src/main/cpp/warden_eco_shading.cc.\n"
+     "extern \"C\" uint32_t warden_eco_rate();\n"
+     "extern \"C\" void warden_eco_device(VkDevice device, PFN_vkGetDeviceProcAddr get_proc,\n"
+     "                                  bool pipeline_rate);\n"),
+    (VKD_C, "9.26: VK_KHR_fragment_shading_rate requested with Eco shading on",
+     "      XE_UI_VULKAN_LOCAL_EXTENSION(EXT_custom_border_color)\n",
+     "      XE_UI_VULKAN_LOCAL_EXTENSION(EXT_custom_border_color)\n"
+     "      // #227. DAO/Warden (PLAN 9.26): only with Eco shading on.\n"
+     "      if (warden_eco_rate()) {\n"
+     "        XE_UI_VULKAN_STRUCT_EXTENSION(KHR_fragment_shading_rate)\n"
+     "      }\n"),
+    (VKD_C, "9.26: VK_KHR_fragment_shading_rate's features",
+     "      features_EXT_conditional_rendering;\n",
+     "      features_EXT_conditional_rendering;\n"
+     "  VulkanFeatures<VkPhysicalDeviceFragmentShadingRateFeaturesKHR,\n"
+     "                 VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_FRAGMENT_SHADING_RATE_FEATURES_KHR>\n"
+     "      features_KHR_fragment_shading_rate;\n"),
+    (VKD_C, "9.26: VK_KHR_fragment_shading_rate's features linked",
+     "      features_EXT_conditional_rendering.Link(supported_features_2,\n"
+     "                                              device_create_info);\n"
+     "    }\n",
+     "      features_EXT_conditional_rendering.Link(supported_features_2,\n"
+     "                                              device_create_info);\n"
+     "    }\n"
+     "    if (device->extensions_.ext_KHR_fragment_shading_rate) {\n"
+     "      features_KHR_fragment_shading_rate.Link(supported_features_2,\n"
+     "                                              device_create_info);\n"
+     "    }\n"),
+    (VKD_C, "9.26: the pipeline shading rate enabled",
+     "      XE_UI_VULKAN_FEATURE_2(features_EXT_conditional_rendering,\n"
+     "                             conditionalRendering)\n"
+     "    }\n"
+     "  }\n",
+     "      XE_UI_VULKAN_FEATURE_2(features_EXT_conditional_rendering,\n"
+     "                             conditionalRendering)\n"
+     "    }\n"
+     "  }\n"
+     "  // DAO/Warden (PLAN 9.26): the per-pipeline (dynamic) rate only - no attachment or\n"
+     "  // primitive rates.\n"
+     "  if (device->extensions_.ext_KHR_fragment_shading_rate) {\n"
+     "    features_KHR_fragment_shading_rate.enabled.pipelineFragmentShadingRate =\n"
+     "        features_KHR_fragment_shading_rate.supported.pipelineFragmentShadingRate;\n"
+     "  }\n"),
+    (VKD_C, "9.26: Eco shading told the device",
+     "  if (!functions_loaded) {\n"
+     "    XELOGE(\"Failed to get all Vulkan device function pointers for '{}'\",\n"
+     "           properties.deviceName);\n"
+     "    return nullptr;\n"
+     "  }\n",
+     "  if (!functions_loaded) {\n"
+     "    XELOGE(\"Failed to get all Vulkan device function pointers for '{}'\",\n"
+     "           properties.deviceName);\n"
+     "    return nullptr;\n"
+     "  }\n"
+     "  // DAO/Warden (PLAN 9.26): whether Eco shading can set the shading rate.\n"
+     "  warden_eco_device(\n"
+     "      device->device_, ifn.vkGetDeviceProcAddr,\n"
+     "      device->extensions_.ext_KHR_fragment_shading_rate &&\n"
+     "          features_KHR_fragment_shading_rate.enabled.pipelineFragmentShadingRate);\n"),
     (VPC_C, "3.7: the driver's pipeline statistics (declarations)",
      "#include \"xenia/gpu/vulkan/vulkan_pipeline_cache.h\"\n",
      "#include \"xenia/gpu/vulkan/vulkan_pipeline_cache.h\"\n"
@@ -6068,6 +6765,18 @@ def main():
         print("all edits apply cleanly; nothing written (--check)")
         return 0
 
+    # The last assembly's files, by content and time, so the build sees exactly what
+    # changed: copy2 keeps a pristine file's old time, and a file an edit no longer
+    # touches would otherwise come back older than the objects built from its edited
+    # form and not be recompiled (BUG-126 - a stripped patch's header left half the
+    # build with the old class layout).
+    previous = {}
+    if OUT.is_dir():
+        for p in OUT.rglob("*"):
+            if p.is_file():
+                previous[p.relative_to(OUT).as_posix()] = (
+                    hashlib.sha1(p.read_bytes()).digest(), p.stat().st_mtime_ns)
+
     # Base layer: DAORecomp's subset, verbatim.
     if OUT.parent.is_dir():
         shutil.rmtree(OUT.parent)
@@ -6095,6 +6804,20 @@ def main():
             return 1
         dst.write_text(text.replace(find, repl, 1), encoding="utf-8", newline="\n")
         applied += 1
+
+    # Each file as old as its content: unchanged since the last assembly keeps that
+    # assembly's time (no needless rebuild), anything else is stamped now.
+    now = time.time_ns()
+    touched = 0
+    for p in OUT.rglob("*"):
+        if not p.is_file():
+            continue
+        old = previous.get(p.relative_to(OUT).as_posix())
+        if old and old[0] == hashlib.sha1(p.read_bytes()).digest():
+            os.utime(p, ns=(old[1], old[1]))
+        elif previous:
+            os.utime(p, ns=(now, now))
+            touched += 1
 
     # Some of Xenia's shaders include FidelityFX by a path relative to the repository
     # root ("../../../../third_party/FidelityFX-FSR/..."), which the compiler resolves
@@ -6126,6 +6849,7 @@ def main():
     print(f"  grafted (new)              {added}")
     print(f"  grafted (overwrote)        {replaced}")
     print(f"  edits applied              {applied}")
+    print(f"  changed since last time    {touched if previous else 'all (first assembly)'}")
     print(f"  output                     {OUT.relative_to(ROOT)}")
     total = sum(1 for p in OUT.rglob("*") if p.is_file())
     print(f"  total files                {total}")

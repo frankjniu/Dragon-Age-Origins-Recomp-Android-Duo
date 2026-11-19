@@ -26,5 +26,6 @@ tinysha1.txt	TinySHA1	ISC-style (in its source)	checking files' SHA-1
 7zip.txt	7-Zip's C decoder (LZMA SDK)	public domain	unpacking .7z mods
 libarchive.txt	libarchive	BSD 2-Clause	unpacking .rar mods (RAR 4 and RAR 5)
 libadrenotools.txt	libadrenotools (with liblinkernsbypass)	BSD 2-Clause	loading a Vulkan driver package you import (Options -> Visual -> Experimental)
+ds2-sotfs-recomp.txt	ReXGlue SDK (the Dark Souls II: Scholar of the First Sin recomp)	BSD 3-Clause	the rectangle a draw overwrites, for leaving out render target copies (DrawExtentEstimator::EstimateRectangleCoverage)
 llvm.txt	LLVM (clang, lld, compiler-rt's builtins, libunwind)	Apache-2.0 WITH LLVM-exception	the compiler the app makes the game's code with on this device, from your disc
 android-ndk.txt	Android NDK (bionic's headers and link stubs, libc++'s headers)	Apache-2.0, BSD and others, as its NOTICE says	the C and C++ headers and libraries the game's code is compiled against on this device

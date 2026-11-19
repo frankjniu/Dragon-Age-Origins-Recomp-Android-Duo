@@ -2794,6 +2794,43 @@ behind the owner's (CLAUDE.md).
         - the UI pass writing the presenter's image directly;
         - the paint timed.
       - **The owner chose to leave it.**
+- [x] 9.26 **Ideas from the Dark Souls II: Scholar of the First Sin recomp's renderer (the
+      owner asked, 2026-11-19; session 49, runs 951-985).**
+      - Its renderer is Xenia-derived, like ours (github.com/Lazaer-YZY/ds2-sotfs-recomp,
+        `THIRD_PARTY.md`). The owner chose four of its changes to build; all were measured on
+        the Thor at the King's Camp, the system driver, twice each after a warm-up.
+      - **Removed, no gain:** submitting the command buffer earlier, and structured forward
+        jumps in the shader translator (runs 951-964; System 41.8-42.0 either way).
+      - **Kept: Eco shading,** Options -> Visual (`files/eco-shading`: off, `2x1` Light,
+        `2x2` Strong; from the next start; off by default).
+        - The 3D scene is shaded once a 2x1 or 2x2 block of pixels through
+          `VK_KHR_fragment_shading_rate`'s per-draw rate (`warden_eco_shading.cc`; the rate set
+          per draw in `vulkan_command_processor.cc`).
+        - Only depth-tested draws into full-size (900+ wide) single-sampled targets whose
+          pixel shader writes no depth and cannot discard. Shadow maps, half-size effects,
+          post-processing, the HUD, text and alpha-tested foliage keep one shader invocation
+          a pixel. Foliage went blocky before discarding draws were left out (run 957).
+        - Without the device's pipeline shading rate, the app logs it and nothing changes.
+        - **Lossless 2x (runs 965-971):** off 31.6 fps (63.2 shown), Light 33.3 (66.5, +5.4%),
+          Strong 33.9 (67.8, +7.4%). Light looks the same; Strong softens fine textures.
+      - **Kept: the transfer cut-out,** always on (`files/transfer-cutout` "off" turns it off).
+        - A draw that overwrites a whole rectangle of every render target it uses needs no
+          ownership transfer there: its transfers are trimmed to outside it, or left out.
+        - The rectangle comes from the vertex shader run on the CPU (the draw extent
+          estimator's `EstimateRectangleCoverage`, ported with its BSD notice).
+        - The rules: depth written with ALWAYS and the stencil replaced, colours written
+          whole without blending, nothing discarded, no culling. Not with the window offset.
+          Stricter than the DS2 port's default, which lets the old stencil go.
+        - At the camp about 17 draws a frame (full-screen colour passes, depth clears),
+          their transfers left out.
+        - **Lossless 2x (runs 972-976):** off 31.5 fps (63.0 shown), on 33.4 (66.8, +6.0%);
+          the picture identical.
+      - **With FSR 3.1 Balanced and Lossless 2x (runs 977-985):** both off 22.6 fps, the
+        cut-out 23.3 (+2.9%), with Eco Light 23.9 (+5.5%), with Eco Strong 24.2 (+7.1%). Eco
+        applies at FSR's 1120x630, and adds no smearing to FSR's.
+      - **Not built:** the port's constant depth as clears and its MSAA shadow-atlas clears
+        (Dark Souls II's own case).
+      - **Found on the way: BUG-126,** a stripped patch left stale objects (the assembler).
 
 ## Phase 10 — Polish
 
