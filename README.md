@@ -318,6 +318,7 @@ setting's description in the panel matches the table.
 | Post-processing | **On** · Off | *On:* The game's own.<br>*Off:* Faster, but darker and flatter. |
 | Corner vignette | **On** · Off | *On:* The game's own: the corners of the picture darkened in play.<br>*Off:* The corners as bright as the rest of the picture. Takes effect at once. |
 | Shader math \* | **Exact** · Fast | *Exact:* The Xbox 360's own arithmetic: zero times anything is zero.<br>*Fast:* The handheld GPU's own multiplication: much less work in the heaviest shaders (the King's Camp with Lossless 2x, balanced: 27 -> 30 fps, its cap; uncapped without frame generation 37 -> 42). Not exact - where the game multiplies zero by infinity, a pixel can come out wrong. |
+| Eco shading \* | **Off** · Light · Strong | *Off:* Every pixel of the scene shaded on its own.<br>*Light:* The 3D scene shaded once for each two pixels side by side: about 5% more frames a second on the Thor, the picture all but the same.<br>*Strong:* Once for each block of four pixels: about 7% more, fine textures softer.<br>The HUD, text and foliage's edges stay sharp in both. Needs a GPU driver with variable-rate shading (the Thor's own has it); without it, nothing changes. |
 | Texture filtering \* | The game's own · 4x · 8x · **16x** | *The game's own:* The game's own filtering: the ground blurs as it recedes.<br>*4x:* 4x anisotropic filtering.<br>*8x:* 8x anisotropic filtering.<br>*16x:* 16x anisotropic filtering: the receding ground stays sharp, at no measurable cost. |
 | Experimental | **Show** · Hide | A section: features still being tried, which may not work on every device. Show opens the three rows below. |
 | &nbsp;&nbsp;&nbsp;Vulkan driver \* | **System** · each package imported | *System:* The handheld's own Vulkan driver, the one the game is tested with.<br>*A package:* A Vulkan driver you imported (below) - Mesa's Turnip, or a Qualcomm driver. **From the app's next start** (close the app and open it again): the GPU is set up as the app opens. If a start with it does not reach the game, the next start goes back to System by itself and says so; a package that cannot be loaded on the device is reported, and System is used. |
@@ -704,12 +705,13 @@ licence text, and [`THIRD_PARTY.md`](THIRD_PARTY.md) has the same with the pinne
 | [Xenia](https://github.com/xenia-canary/xenia-canary) | The Xenos GPU frontend and Vulkan backend, kernel parts | BSD 3-Clause |
 | [SIMD Everywhere](https://github.com/simd-everywhere/simde) | The 360's vector instructions on ARM | MIT |
 | [lsfg-vk](https://github.com/PancakeTAS/lsfg-vk) | Frame generation with Lossless Scaling's shaders (from your own `Lossless.dll`) | GPL-3.0 |
+| [Dark Souls II: Scholar of the First Sin recomp](https://github.com/Lazaer-YZY/ds2-sotfs-recomp) (its ReXGlue SDK) | Leaving out render target copies a draw overwrites; the idea of Eco shading | BSD 3-Clause |
 | [AMD FidelityFX SDK](https://github.com/GPUOpen-LibrariesAndSDKs/FidelityFX-SDK) | FSR 3.1 upscaling and frame generation | MIT |
 | [FFmpeg](https://github.com/has207/FFmpeg) | The game's XMA audio | LGPL-2.1 |
 | [libarchive](https://github.com/libarchive/libarchive), [7-Zip's C decoder](https://github.com/ip7z/7zip) | .rar and .7z mod imports | BSD 2-Clause, public domain |
 | [LLVM](https://github.com/llvm/llvm-project) | clang and lld, which make the game's program on the device | Apache-2.0 WITH LLVM-exception |
 
-…and the rest of the 28 in [`THIRD_PARTY.md`](THIRD_PARTY.md).
+…and the rest of the 29 in [`THIRD_PARTY.md`](THIRD_PARTY.md).
 
 Dragon Age: Origins © Electronic Arts. Lossless Scaling, AMD FidelityFX and FSR belong to
 their owners. This project is not affiliated with any of them.
