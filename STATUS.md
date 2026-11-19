@@ -1883,6 +1883,9 @@ Newest first. One short entry per session: what changed, what's next.
     picture identical.
 - **With FSR 3.1 Balanced** (runs 977-985): both off 22.6, the cut-out 23.3, with Eco Light 23.9,
   with Eco Strong 24.2 (+7.1%). No crashes, no smearing beyond FSR's own.
+- **Frame generation off** (runs 986-1003, for the changelog; the owner): the cut-out 42.0 ->
+  44.8 fps, with Eco Light 48.2, with Eco Strong 49.5; with FSR 3.1 Balanced 34.0 -> 35.3, 36.6,
+  37.5. The option's text and the changelog give these.
 - **BUG-126:** stripping the two patches left stale objects; the game aborted at boot (stack
   canary in the SPIR-V translator). The assembler now stamps changed files and keeps unchanged
   files' times.

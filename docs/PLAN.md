@@ -2828,6 +2828,12 @@ behind the owner's (CLAUDE.md).
       - **With FSR 3.1 Balanced and Lossless 2x (runs 977-985):** both off 22.6 fps, the
         cut-out 23.3 (+2.9%), with Eco Light 23.9 (+5.5%), with Eco Strong 24.2 (+7.1%). Eco
         applies at FSR's 1120x630, and adds no smearing to FSR's.
+      - **Frame generation off (runs 986-1003; the changelog's numbers, the owner's ask):**
+        - FSR 3.1 off: both off 42.0 fps, the cut-out 44.8 (+6.8%), with Eco Light 48.2
+          (+7.6% more), with Eco Strong 49.5 (+10.5% more).
+        - FSR 3.1 Balanced: both off 34.0, the cut-out 35.3 (+3.8%), with Eco Light 36.6
+          (+3.8% more), with Eco Strong 37.5 (+6.2% more).
+        - Without Lossless 2x's ~6 ms a frame, the same savings are a larger share.
       - **Not built:** the port's constant depth as clears and its MSAA shadow-atlas clears
         (Dark Souls II's own case).
       - **Found on the way: BUG-126,** a stripped patch left stale objects (the assembler).

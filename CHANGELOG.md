@@ -4,11 +4,11 @@
 
 ### Faster
 
-- **About 6% more frames a second, with nothing to set.** The renderer copies less between its
+- **Up to 7% more frames a second, with nothing to set.** The renderer copies less between its
   render targets: when a draw is about to cover an area completely, the old picture there is no
   longer copied in first. The picture is unchanged.
-  - At the King's Camp, the game went from 31.5 to 33.4 frames a second.
-  - With FSR 3.1 Balanced, it went from 22.6 to 23.3.
+  - At the King's Camp, the game went from 42.0 to 44.8 frames a second.
+  - With FSR 3.1 Balanced, it went from 34.0 to 35.3.
 
 ### New: Eco shading
 
@@ -22,20 +22,17 @@ scene's colours are worked out once for each two pixels (**Light**) or each bloc
 - **It needs a GPU driver with variable-rate shading.** The Thor's own driver has it. On a
   driver without it, the option changes nothing.
 
-**Measured on the AYN Thor: Snapdragon 8 Gen 2 (Adreno 740), Android 13**, the system's driver,
-in the game's own frames a second:
+**Measured on the AYN Thor: Snapdragon 8 Gen 2 (Adreno 740), Android 13**, the system's driver:
 
 | Eco shading | FSR 3.1 off | FSR 3.1 Balanced |
 |---|---|---|
-| Off | 31.6 fps | 23.3 fps |
-| Light | 33.3 fps (+5%) | 23.9 fps (+3%) |
-| Strong | 33.9 fps (+7%) | 24.2 fps (+4%) |
+| Off | 44.8 fps | 35.3 fps |
+| Light | 48.2 fps (+8%) | 36.6 fps (+4%) |
+| Strong | 49.5 fps (+10%) | 37.5 fps (+6%) |
 
 - **The settings:** Ostagar's King's Camp; Rendering resolution 1280x720, Upscaling Bilinear,
-  Frame generation Lossless 2x, Frame rate 120 (the game uncapped), Dynamic shadows and Corner
-  vignette on, Texture filtering 16x.
-- **The FSR 3.1 off column** was measured before this release's faster copies, the Balanced
-  one with them.
+  Frame generation off, Frame rate 120 (the game uncapped), Dynamic shadows and Corner vignette
+  on, Texture filtering 16x. The numbers include this release's faster copies.
 
 ### Installing
 

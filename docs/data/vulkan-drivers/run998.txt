@@ -1,0 +1,285 @@
+run 998 - driver system, fsr3-balanced+off (fsr3 balanced, upscaling bilinear, frame generation off)
+settings: {"frame-rate": "120", "resolution": "1280x720", "shadows": "on", "vignette": "on", "shader-math": "exact", "anisotropic": "16", "vulkan-driver": "system", "fsr3": "balanced", "upscaling": "bilinear", "frame-generation": "off"}
+
+measure_ostagar.sh:
+explore at Ostagar: 11:39:33
+11:39:53 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 1785600 temp 91500
+11:39:54 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1651200 temp 92300
+11:39:55 gpu busy 99 % clock 680000000 cpu7 2092800 cpu4 2803200 temp 92700
+11:39:57 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2803200 temp 92700
+11:39:58 gpu busy 99 % clock 680000000 cpu7 3187200 cpu4 2323200 temp 93100
+11:39:59 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1651200 temp 91900
+11:40:00 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2323200 temp 91900
+11:40:02 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2457600 temp 91500
+11:40:03 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1651200 temp 93100
+11:40:04 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1651200 temp 91900
+11:40:05 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2592000 temp 92300
+11:40:07 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2803200 temp 92700
+11:40:08 gpu busy 96 % clock 680000000 cpu7 1843200 cpu4 1785600 temp 90300
+11:40:09 gpu busy 96 % clock 680000000 cpu7 1843200 cpu4 1920000 temp 92300
+11:40:10 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2457600 temp 93500
+11:40:12 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2592000 temp 92700
+11:40:13 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 1651200 temp 92700
+11:40:14 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2707200 temp 92300
+11:40:16 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2323200 temp 92700
+11:40:17 gpu busy 99 % clock 680000000 cpu7 1843200 cpu4 2323200 temp 92300
+Ostagar: 35.1 swaps/s over the last 5 status lines, 1308 draws a frame
+
+log lines:
+11-19 11:37:34.323  9776  9776 I Warden  : startup() = true in 66 ms
+11-19 11:37:34.367  9776  9827 I warden  : i> 00002630 Vulkan driver: system's (no package chosen)
+11-19 11:37:34.367  9776  9827 I warden  : i> 00002630 Vulkan device ready: Adreno (TM) 740
+11-19 11:37:35.068  9776  9827 I warden  : i> 00002630 VulkanPresenter: Created 1920x1080 swapchain with format 37, color space 0, presentation mode 1
+11-19 11:37:35.068  9776  9827 I warden  : i> 00002630 GPU fences: watched on their own thread (PLAN 9.24)
+11-19 11:37:35.069  9776  9827 I warden  : i> 00002630 GPU: frame rate 120 where the GPU keeps up
+11-19 11:37:35.069  9776  9827 I warden  : i> 00002630 VulkanPresenter: Created 1920x1080 swapchain with format 64, color space 0, presentation mode 1
+11-19 11:37:36.834  9776  9827 I warden  : i> 000026CD Frame generation: off
+11-19 11:37:36.835  9776  9827 I warden  : i> 000026CD FSR 3.1: on (balanced) - the game renders at 1120x630
+11-19 11:37:36.875  9776  9827 I warden  : i> 000026CD FSR 3.1: depth of field in conversations off
+11-19 11:37:36.875  9776  9827 I warden  : i> 000026CD FSR 3.1: motion blur off
+11-19 11:37:36.903  9776  9827 I warden  : i> 000026CD FSR 3.1: 16-bit arithmetic on the device
+11-19 11:37:36.904  9776  9827 I warden  : i> 000026CD FSR 3.1: the history reprojected with the Lanczos lookup table
+11-19 11:37:36.904  9776  9827 I warden  : i> 000026CD FSR 3.1: the copies and the composite are ready; the upscaler is made with the first 3D frame
+11-19 11:37:37.078  9776  9827 I warden  : i> 000026CD Loaded 10033343 bytes of VkPipelineCache data
+11-19 11:37:37.100  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - the render size changed (frame 1, 0 upscaled so far)
+11-19 11:37:37.107  9776  9827 I warden  : i> 000027C5 VkPipelineCache data unchanged (10033343 bytes, 3 pipelines): not written (7 ms, on its own thread)
+11-19 11:37:37.108  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no scene depth (frame 2, 0 upscaled so far)
+11-19 11:37:37.426  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 10 (movie)
+11-19 11:37:37.713  9776  9827 I warden  : i> 000026CD FSR 3.1: the depth image, 1120x630
+11-19 11:37:37.736  9776  9827 I warden  : i> 000026CD FSR 3.1: the colour image, 1120x630
+11-19 11:37:37.846  9776  9827 I warden  : i> 000026CD FSR 3.1: the device - shader model 0, waves 32..32, 16-bit yes, dedicated allocation no, non-uniform storage buffer indexing no
+11-19 11:37:38.182  9776  9827 I warden  : i> 000026CD FSR 3.1: the upscaler is made - 1120x630 to 1920x1080, 16-bit passes, the Lanczos lookup table, 55.1 MB of GPU memory
+11-19 11:37:38.183  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vector image, 1120x630
+11-19 11:37:38.183  9776  9827 I warden  : i> 000026CD FSR 3.1: the upscaled image, 1920x1080
+11-19 11:37:38.184  9776  9827 I warden  : i> 000026CD FSR 3.1: the composite image, 1920x1080
+11-19 11:37:38.184  9776  9827 I warden  : i> 000026CD FSR 3.1: the dilated depth image, 1120x630
+11-19 11:37:38.184  9776  9827 I warden  : i> 000026CD FSR 3.1: the dilated motion vector image, 1120x630
+11-19 11:37:38.184  9776  9827 I warden  : i> 000026CD FSR 3.1: the reconstructed depth image, 1120x630
+11-19 11:37:38.184  9776  9827 I warden  : i> 000026CD FSR 3.1: upscaling (frame 37, 1 upscaled so far)
+11-19 11:37:38.184  9776  9827 I warden  : i> 000026CD FSR 3.1: the image before the UI is pixel shader 9BD4DE4D24A972A4's - the passes before it are not copied
+11-19 11:37:38.209  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no 3D scene (frame 39, 2 upscaled so far)
+11-19 11:37:46.846  9776  9827 I warden  : i> 000026CD FSR 3.1: upscaling (frame 1080, 3 upscaled so far)
+11-19 11:37:46.858  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 8 (pregame)
+11-19 11:37:48.928  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.54 (16-bit), the composite 0.75; 2.0 render target copies a frame; 110.9 fps
+11-19 11:37:48.928  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 0.82, shading change 0.07, prepare reactivity 0.40, luma instability 0.26, accumulate 3.80, RCAS 0.35
+11-19 11:37:48.928  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 151 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:37:50.943  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.5 fps
+11-19 11:37:50.943  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:37:50.943  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:37:52.967  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.6 fps
+11-19 11:37:52.967  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:37:52.967  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 151 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:37:54.958  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.8 fps
+11-19 11:37:54.958  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:37:54.958  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 149 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:37:56.969  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.6 fps
+11-19 11:37:56.969  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:37:56.969  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:37:58.981  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.6 fps
+11-19 11:37:58.981  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:37:58.981  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:00.999  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.3 fps
+11-19 11:38:00.999  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:00.999  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:03.017  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.4 fps
+11-19 11:38:03.017  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:03.017  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:05.030  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.5 fps
+11-19 11:38:05.030  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:05.030  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:07.046  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.4 fps
+11-19 11:38:07.046  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:07.046  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:07.120  9776  9827 I warden  : i> 00002E8B VkPipelineCache data unchanged (10033343 bytes, 35 pipelines): not written (7 ms, on its own thread)
+11-19 11:38:09.056  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.7 fps
+11-19 11:38:09.056  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.78, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:09.056  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:11.068  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.5 fps
+11-19 11:38:11.068  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:11.068  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:13.075  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.8 fps
+11-19 11:38:13.075  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.78, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:13.075  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:15.094  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.3 fps
+11-19 11:38:15.094  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:15.094  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:17.107  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.5 fps
+11-19 11:38:17.107  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:17.107  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:19.119  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.5 fps
+11-19 11:38:19.119  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.78, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:19.119  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:21.139  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 74.3 fps
+11-19 11:38:21.139  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:21.139  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:23.187  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 73.3 fps
+11-19 11:38:23.187  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.78, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:23.187  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:25.500  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 64.8 fps
+11-19 11:38:25.500  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:25.500  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:27.544  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 73.4 fps
+11-19 11:38:27.544  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:27.544  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:29.591  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 73.3 fps
+11-19 11:38:29.591  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.80, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:29.591  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:31.635  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 73.4 fps
+11-19 11:38:31.636  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:31.636  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:33.683  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 73.2 fps
+11-19 11:38:33.683  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:33.683  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:35.733  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 73.2 fps
+11-19 11:38:35.733  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:35.733  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:37.132  9776  9827 I warden  : i> 00003571 VkPipelineCache data unchanged (10033343 bytes, 41 pipelines): not written (9 ms, on its own thread)
+11-19 11:38:37.791  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.30 (16-bit), the composite 0.72; 2.0 render target copies a frame; 72.9 fps
+11-19 11:38:37.791  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.79, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:37.791  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:39.837  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.00, FSR 3.1 6.29 (16-bit), the composite 0.72; 2.0 render target copies a frame; 73.3 fps
+11-19 11:38:39.837  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.78, shading change 0.06, prepare reactivity 0.38, luma instability 0.25, accumulate 3.66, RCAS 0.34
+11-19 11:38:39.837  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 0 of 150 frames (0 cuts); 0.0 static meshes matched a frame, 0.0 agreeing
+11-19 11:38:41.865  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 9 (loading)
+11-19 11:38:41.884  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no image before the UI (frame 5126, 4048 upscaled so far)
+11-19 11:38:41.884  9776  9827 I warden  : i> 000026CD FSR 3.1: the post-processing's last pass is learned again - every pass copied
+11-19 11:38:41.948  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no 3D scene (frame 5127, 4048 upscaled so far)
+11-19 11:38:43.831  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no image before the UI (frame 5153, 4048 upscaled so far)
+11-19 11:38:43.958  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 0 (explore)
+11-19 11:38:44.164  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 4 (conversation)
+11-19 11:38:44.170  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera, from a static mesh's matrix - near 0.150, far 4013.8, 60.0 degrees vertical
+11-19 11:38:44.170  9776  9827 I warden  : i> 000026CD FSR 3.1: upscaling (frame 5162, 4049 upscaled so far)
+11-19 11:38:44.170  9776  9827 I warden  : i> 000026CD FSR 3.1: the image before the UI is pixel shader 20BA772900FB8AA3's - the passes before it are not copied
+11-19 11:38:44.240  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.01, FSR 3.1 6.35 (16-bit), the composite 0.73; 2.0 render target copies a frame; 42.2 fps
+11-19 11:38:44.240  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.69, luma pyramid 0.12, shading change pyramid 0.81, shading change 0.06, prepare reactivity 0.39, luma instability 0.25, accumulate 3.68, RCAS 0.34
+11-19 11:38:44.240  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 2 of 150 frames (0 cuts); 0.1 static meshes matched a frame, 6.0 agreeing
+11-19 11:38:44.240  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99217 motion (0.00 0.00) w 1.00; depth 0.99227 motion (0.00 -0.00) w 1.00; depth 0.99227 motion (0.00 -0.00) w 1.00; depth 0.97914 motion (0.00 0.00) w 1.00; depth 0.97914 motion (0.00 0.00) w 1.00
+11-19 11:38:46.886  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.24, FSR 3.1 7.06 (16-bit), the composite 0.73; 2.0 render target copies a frame; 56.7 fps
+11-19 11:38:46.886  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.78, luma pyramid 0.12, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.67, RCAS 0.51
+11-19 11:38:46.886  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 144 of 150 frames (6 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:38:46.886  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98810 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98488 motion (0.00 0.00) w 1.00; depth 0.96558 motion (0.00 0.00) w 1.00
+11-19 11:38:49.528  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.05 (16-bit), the composite 0.72; 2.0 render target copies a frame; 56.8 fps
+11-19 11:38:49.528  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:38:49.528  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:38:49.528  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98810 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98487 motion (0.00 0.00) w 1.00; depth 0.96557 motion (0.00 0.00) w 1.00
+11-19 11:38:52.181  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 56.5 fps
+11-19 11:38:52.181  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:38:52.181  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:38:52.181  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98810 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98487 motion (0.00 0.00) w 1.00; depth 0.96558 motion (0.00 0.00) w 1.00
+11-19 11:38:54.832  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 56.6 fps
+11-19 11:38:54.832  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:38:54.832  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:38:54.832  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98810 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98487 motion (0.00 0.00) w 1.00; depth 0.96558 motion (0.00 0.00) w 1.00
+11-19 11:38:57.483  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.05 (16-bit), the composite 0.72; 2.0 render target copies a frame; 56.6 fps
+11-19 11:38:57.484  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:38:57.484  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:38:57.484  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98811 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98488 motion (0.00 0.00) w 1.00; depth 0.96557 motion (0.00 0.00) w 1.00
+11-19 11:39:00.140  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.05 (16-bit), the composite 0.72; 2.0 render target copies a frame; 56.5 fps
+11-19 11:39:00.140  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:00.140  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:39:00.140  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98811 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98488 motion (0.00 0.00) w 1.00; depth 0.96557 motion (0.00 0.00) w 1.00
+11-19 11:39:02.795  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 56.5 fps
+11-19 11:39:02.795  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:02.795  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:39:02.795  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98809 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96513 motion (0.00 0.00) w 1.00; depth 0.98487 motion (0.00 0.00) w 1.00; depth 0.96558 motion (0.00 0.00) w 1.00
+11-19 11:39:05.520  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.05 (16-bit), the composite 0.72; 2.0 render target copies a frame; 55.0 fps
+11-19 11:39:05.520  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:05.520  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:39:05.520  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98809 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96513 motion (0.00 0.00) w 1.00; depth 0.98487 motion (0.00 0.00) w 1.00; depth 0.96558 motion (0.00 0.00) w 1.00
+11-19 11:39:07.142  9776  9827 I warden  : i> 00003C26 VkPipelineCache data unchanged (10033343 bytes, 61 pipelines): not written (13 ms, on its own thread)
+11-19 11:39:08.243  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 55.1 fps
+11-19 11:39:08.243  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:08.243  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:39:08.243  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98811 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98487 motion (0.00 0.00) w 1.00; depth 0.96557 motion (0.00 0.00) w 1.00
+11-19 11:39:10.963  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 55.1 fps
+11-19 11:39:10.963  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:10.963  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:39:10.963  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98811 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 -0.00) w 1.00; depth 0.96512 motion (0.00 -0.00) w 1.00; depth 0.98487 motion (0.00 0.00) w 1.00; depth 0.96557 motion (0.00 0.00) w 1.00
+11-19 11:39:13.686  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 55.1 fps
+11-19 11:39:13.686  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.40, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:13.686  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 9.0 static meshes matched a frame, 9.0 agreeing
+11-19 11:39:13.686  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.98810 motion (0.00 0.00) w 1.00; depth 0.98988 motion (0.00 0.00) w 1.00; depth 0.96512 motion (0.00 0.00) w 1.00; depth 0.98488 motion (0.00 0.00) w 1.00; depth 0.96557 motion (0.00 0.00) w 1.00
+11-19 11:39:15.844  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 9 (loading)
+11-19 11:39:15.927  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no image before the UI (frame 6936, 5822 upscaled so far)
+11-19 11:39:15.927  9776  9827 I warden  : i> 000026CD FSR 3.1: the post-processing's last pass is learned again - every pass copied
+11-19 11:39:16.020  9776  9827 I warden  : i> 000026CD FSR 3.1: upscaling (frame 6938, 5823 upscaled so far)
+11-19 11:39:16.020  9776  9827 I warden  : i> 000026CD FSR 3.1: the image before the UI is pixel shader 9BD4DE4D24A972A4's - the passes before it are not copied
+11-19 11:39:16.090  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no 3D scene (frame 6939, 5823 upscaled so far)
+11-19 11:39:19.397  9776  9827 I warden  : i> 000026CD FSR 3.1: not upscaling - no image before the UI (frame 6988, 5823 upscaled so far)
+11-19 11:39:19.397  9776  9827 I warden  : i> 000026CD FSR 3.1: the post-processing's last pass is learned again - every pass copied
+11-19 11:39:19.624  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 4 (conversation)
+11-19 11:39:19.770  9776  9827 I warden  : i> 000026CD FSR 3.1: upscaling (frame 6997, 5824 upscaled so far)
+11-19 11:39:19.770  9776  9827 I warden  : i> 000026CD FSR 3.1: the image before the UI is pixel shader 20BA772900FB8AA3's - the passes before it are not copied
+11-19 11:39:20.465  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.10 (16-bit), the composite 0.73; 2.0 render target copies a frame; 31.0 fps
+11-19 11:39:20.465  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.22, shading change 0.07, prepare reactivity 0.41, luma instability 0.29, accumulate 3.73, RCAS 0.53
+11-19 11:39:20.465  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 148 of 150 frames (0 cuts); 8.3 static meshes matched a frame, 8.5 agreeing
+11-19 11:39:20.465  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99149 motion (0.00 0.00) w 1.00; depth 0.99785 motion (0.00 -0.00) w 1.00; depth 0.99563 motion (0.00 -0.00) w 1.00; depth 0.98430 motion (0.00 0.00) w 1.00; depth 0.98835 motion (0.00 0.00) w 1.00
+11-19 11:39:23.846  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.03 (16-bit), the composite 0.72; 2.0 render target copies a frame; 44.4 fps
+11-19 11:39:23.847  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.19, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:23.847  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 6.0 static meshes matched a frame, 6.0 agreeing
+11-19 11:39:23.847  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99149 motion (0.00 0.00) w 1.00; depth 0.99785 motion (0.00 0.00) w 1.00; depth 0.99563 motion (0.00 0.00) w 1.00; depth 0.98430 motion (0.00 0.00) w 1.00; depth 0.98834 motion (0.00 0.00) w 1.00
+11-19 11:39:27.233  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.05 (16-bit), the composite 0.72; 2.0 render target copies a frame; 44.3 fps
+11-19 11:39:27.233  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.53
+11-19 11:39:27.233  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 6.0 static meshes matched a frame, 6.0 agreeing
+11-19 11:39:27.233  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99317 motion (0.00 0.00) w 1.00; depth 0.99785 motion (0.00 0.00) w 1.00; depth 0.99563 motion (0.00 0.00) w 1.00; depth 0.98679 motion (0.00 0.00) w 1.00; depth 0.98831 motion (0.00 0.00) w 1.00
+11-19 11:39:30.645  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.05 (16-bit), the composite 0.72; 2.0 render target copies a frame; 44.0 fps
+11-19 11:39:30.645  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.53
+11-19 11:39:30.645  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 6.0 static meshes matched a frame, 6.0 agreeing
+11-19 11:39:30.645  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99318 motion (0.00 0.00) w 1.00; depth 0.99785 motion (0.00 0.00) w 1.00; depth 0.99563 motion (0.00 0.00) w 1.00; depth 0.98680 motion (0.00 0.00) w 1.00; depth 0.98831 motion (0.00 0.00) w 1.00
+11-19 11:39:34.056  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 44.0 fps
+11-19 11:39:34.056  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.20, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.70, RCAS 0.53
+11-19 11:39:34.056  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 6.0 static meshes matched a frame, 6.0 agreeing
+11-19 11:39:34.056  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99319 motion (0.00 0.00) w 1.00; depth 0.99785 motion (0.00 0.00) w 1.00; depth 0.99563 motion (0.00 0.00) w 1.00; depth 0.98680 motion (0.00 0.00) w 1.00; depth 0.98833 motion (0.00 0.00) w 1.00
+11-19 11:39:37.144  9776  9827 I warden  : i> 000042E6 VkPipelineCache data unchanged (10033343 bytes, 101 pipelines): not written (5 ms, on its own thread)
+11-19 11:39:37.474  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.04 (16-bit), the composite 0.72; 2.0 render target copies a frame; 43.9 fps
+11-19 11:39:37.474  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.72, luma pyramid 0.12, shading change pyramid 1.20, shading change 0.06, prepare reactivity 0.42, luma instability 0.28, accumulate 3.71, RCAS 0.53
+11-19 11:39:37.474  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 6.0 static meshes matched a frame, 6.0 agreeing
+11-19 11:39:37.474  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99319 motion (0.00 0.00) w 1.00; depth 0.99785 motion (0.00 0.00) w 1.00; depth 0.99563 motion (0.00 0.00) w 1.00; depth 0.98681 motion (0.00 0.00) w 1.00; depth 0.98833 motion (0.00 0.00) w 1.00
+11-19 11:39:37.862  9776  9827 I warden  : i> 000026DD [Eclipse::Update] game: mode is now 0 (explore)
+11-19 11:39:42.088  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.17 (16-bit), the composite 0.73; 2.0 render target copies a frame; 32.5 fps
+11-19 11:39:42.088  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.74, luma pyramid 0.13, shading change pyramid 1.24, shading change 0.07, prepare reactivity 0.42, luma instability 0.28, accumulate 3.76, RCAS 0.54
+11-19 11:39:42.088  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 149 of 150 frames (0 cuts); 3.4 static meshes matched a frame, 3.4 agreeing
+11-19 11:39:42.088  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99726 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 -0.00) w 1.00; depth 0.99716 motion (0.00 -0.00) w 1.00; depth 0.95038 motion (0.00 0.00) w 1.00; depth 0.93623 motion (0.00 0.00) w 1.00
+11-19 11:39:46.362  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.08 (16-bit), the composite 0.72; 2.0 render target copies a frame; 35.1 fps
+11-19 11:39:46.362  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:39:46.362  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:39:46.362  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99726 motion (0.00 0.00) w 1.00; depth 0.99432 motion (0.00 0.00) w 1.00; depth 0.99716 motion (0.00 0.00) w 1.00; depth 0.95112 motion (0.00 0.00) w 1.00; depth 0.93723 motion (0.00 0.00) w 1.00
+11-19 11:39:50.617  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.07 (16-bit), the composite 0.72; 2.0 render target copies a frame; 35.3 fps
+11-19 11:39:50.617  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.53
+11-19 11:39:50.617  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:39:50.617  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99727 motion (0.00 0.00) w 1.00; depth 0.99430 motion (0.00 0.00) w 1.00; depth 0.99715 motion (0.00 0.00) w 1.00; depth 0.95017 motion (0.00 0.00) w 1.00; depth 0.93620 motion (0.00 0.00) w 1.00
+11-19 11:39:52.811  9776  9827 I warden  : i> 000026CF frames: present: 177 frames, interval ms mean 28.3 p50 28.3 p95 29.2 p99 29.6 max 29.7, 1% low 33.7 fps, in refreshes (8.33 ms): 3x166 4x11; title: 176 frames, interval ms mean 28.3 p50 28.3 p95 35.3 p99 36.9 max 38.5, 1% low 26.0 fps, in 60 Hz vblanks (16.67 ms): 1x18 2x158
+11-19 11:39:54.866  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.07 (16-bit), the composite 0.72; 2.0 render target copies a frame; 35.3 fps
+11-19 11:39:54.866  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:39:54.866  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:39:54.866  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99727 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 0.00) w 1.00; depth 0.99715 motion (0.00 0.00) w 1.00; depth 0.95070 motion (0.00 0.00) w 1.00; depth 0.93618 motion (0.00 0.00) w 1.00
+11-19 11:39:57.814  9776  9827 I warden  : i> 000026CF frames: present: 176 frames, interval ms mean 28.3 p50 28.3 p95 29.2 p99 29.7 max 29.9, 1% low 33.4 fps, in refreshes (8.33 ms): 3x162 4x14; title: 177 frames, interval ms mean 28.3 p50 28.4 p95 35.6 p99 37.7 max 38.1, 1% low 26.2 fps, in 60 Hz vblanks (16.67 ms): 1x18 2x159
+11-19 11:39:59.113  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.07 (16-bit), the composite 0.72; 2.0 render target copies a frame; 35.3 fps
+11-19 11:39:59.113  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:39:59.113  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:39:59.113  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99726 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 0.00) w 1.00; depth 0.99715 motion (0.00 0.00) w 1.00; depth 0.95035 motion (0.00 0.00) w 1.00; depth 0.93619 motion (0.00 0.00) w 1.00
+11-19 11:40:02.816  9776  9827 I warden  : i> 000026CF frames: present: 177 frames, interval ms mean 28.3 p50 28.4 p95 29.4 p99 29.6 max 30.3, 1% low 33.0 fps, in refreshes (8.33 ms): 3x166 4x11; title: 176 frames, interval ms mean 28.3 p50 28.3 p95 33.9 p99 36.7 max 38.9, 1% low 25.7 fps, in 60 Hz vblanks (16.67 ms): 1x13 2x163
+11-19 11:40:03.367  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.07 (16-bit), the composite 0.72; 2.0 render target copies a frame; 35.3 fps
+11-19 11:40:03.367  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:40:03.367  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:40:03.367  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99727 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 0.00) w 1.00; depth 0.99715 motion (0.00 0.00) w 1.00; depth 0.95040 motion (0.00 0.00) w 1.00; depth 0.93623 motion (0.00 0.00) w 1.00
+11-19 11:40:07.148  9776  9827 I warden  : i> 00004974 VkPipelineCache data unchanged (10033343 bytes, 114 pipelines): not written (6 ms, on its own thread)
+11-19 11:40:07.624  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.09 (16-bit), the composite 0.72; 2.0 render target copies a frame; 35.2 fps
+11-19 11:40:07.624  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:40:07.624  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:40:07.624  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99727 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 0.00) w 1.00; depth 0.99715 motion (0.00 0.00) w 1.00; depth 0.95123 motion (0.00 0.00) w 1.00; depth 0.93620 motion (0.00 0.00) w 1.00
+11-19 11:40:08.731  9776  9827 I warden  : i> 000026CF frames: present: 205 frames, interval ms mean 28.7 p50 28.4 p95 31.0 p99 37.9 max 42.8, 1% low 24.3 fps, in refreshes (8.33 ms): 3x173 4x29 5x3; title: 206 frames, interval ms mean 28.7 p50 28.5 p95 35.6 p99 39.7 max 41.6, 1% low 24.6 fps, in 60 Hz vblanks (16.67 ms): 1x15 2x191
+11-19 11:40:11.984  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.09 (16-bit), the composite 0.72; 2.0 render target copies a frame; 34.6 fps
+11-19 11:40:11.984  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:40:11.984  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 151 of 151 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:40:11.984  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99726 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 0.00) w 1.00; depth 0.99716 motion (0.00 0.00) w 1.00; depth 0.95021 motion (0.00 0.00) w 1.00; depth 0.93723 motion (0.00 0.00) w 1.00
+11-19 11:40:13.733  9776  9827 I warden  : i> 000026CF frames: present: 177 frames, interval ms mean 28.3 p50 28.4 p95 29.4 p99 29.8 max 30.2, 1% low 33.1 fps, in refreshes (8.33 ms): 3x160 4x17; title: 176 frames, interval ms mean 28.4 p50 28.3 p95 35.6 p99 37.6 max 38.0, 1% low 26.3 fps, in 60 Hz vblanks (16.67 ms): 1x19 2x157
+11-19 11:40:16.204  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.08 (16-bit), the composite 0.72; 2.0 render target copies a frame; 35.3 fps
+11-19 11:40:16.204  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.21, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:40:16.204  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 149 of 149 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:40:16.204  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99726 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 0.00) w 1.00; depth 0.99716 motion (0.00 0.00) w 1.00; depth 0.95087 motion (0.00 0.00) w 1.00; depth 0.93725 motion (0.00 0.00) w 1.00
+11-19 11:40:18.735  9776  9827 I warden  : i> 000026CF frames: present: 176 frames, interval ms mean 28.4 p50 28.3 p95 29.3 p99 29.5 max 29.9, 1% low 33.5 fps, in refreshes (8.33 ms): 3x164 4x12; title: 177 frames, interval ms mean 28.3 p50 28.4 p95 32.7 p99 36.8 max 37.6, 1% low 26.6 fps, in 60 Hz vblanks (16.67 ms): 1x13 2x164
+11-19 11:40:20.508  9776  9827 I warden  : i> 000026CD FSR 3.1: GPU ms a frame - the motion vectors 0.25, FSR 3.1 7.09 (16-bit), the composite 0.72; 2.0 render target copies a frame; 34.8 fps
+11-19 11:40:20.508  9776  9827 I warden  : i> 000026CD FSR 3.1: its passes, GPU ms a frame (16-bit, the Lanczos lookup table) - prepare inputs 0.73, luma pyramid 0.13, shading change pyramid 1.22, shading change 0.06, prepare reactivity 0.41, luma instability 0.28, accumulate 3.71, RCAS 0.54
+11-19 11:40:20.508  9776  9827 I warden  : i> 000026CD FSR 3.1: the camera's motion in 150 of 150 frames (0 cuts); 3.0 static meshes matched a frame, 3.0 agreeing
+11-19 11:40:20.508  9776  9827 I warden  : i> 000026CD FSR 3.1: the motion vectors at the centre and the quarter points - depth 0.99727 motion (0.00 0.00) w 1.00; depth 0.99431 motion (0.00 0.00) w 1.00; depth 0.99715 motion (0.00 0.00) w 1.00; depth 0.95028 motion (0.00 0.00) w 1.00; depth 0.93619 motion (0.00 0.00) w 1.00

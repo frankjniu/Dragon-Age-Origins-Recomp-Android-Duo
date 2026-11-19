@@ -342,11 +342,11 @@ final class Options {
                 new String[] {"Off", "Light", "Strong"},
                 new String[] {
                     "Every pixel of the scene shaded on its own.",
-                    "The 3D scene shaded once for each two pixels side by side: about 5%"
+                    "The 3D scene shaded once for each two pixels side by side: about 8%"
                             + " more frames a second on the Thor, the picture all but the same."
                             + " The HUD, text and foliage's edges stay sharp. Needs a GPU"
                             + " driver with variable-rate shading; without it, nothing changes.",
-                    "The 3D scene shaded once for each block of four pixels: about 7% more"
+                    "The 3D scene shaded once for each block of four pixels: about 10% more"
                             + " frames a second on the Thor, fine textures softer. The HUD,"
                             + " text and foliage's edges stay sharp. Needs a GPU driver with"
                             + " variable-rate shading; without it, nothing changes.",
