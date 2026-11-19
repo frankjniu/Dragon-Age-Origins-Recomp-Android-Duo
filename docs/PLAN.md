@@ -2851,6 +2851,18 @@ behind the owner's (CLAUDE.md).
         rounding toward zero, which we never had.
       - **Kept: a texture queued for loading once** (Xenia Edge's 40cee11ab, BUG-127). No
         change at the camp, where nothing reloading is bound twice.
+        - **Five more areas** (the owner's ask; the session 40 tour's jumps, FSR 3.1 and frame
+          generation off): Circle Tower level 1, Denerim market, Orzammar commons, the Urn's
+          ruined temple and Lothering's chantry (Lothering outdoors was dropped: the test
+          character dies in its arrival fight). The counter (`GPU: textures bound twice`)
+          found a texture bound twice about 250-350 times a second in every area, but out
+          of date - a second load saved - only 1-2 times as each area loaded and never in
+          play: 7 loads saved in about 154,000 duplicates. The GPU's work in play is the
+          same with or without the fix, so no frame-rate A/B was run.
+          `files/hack-double-loads` restores the old double loading for one.
+        - The areas' rates (standing / walk / walk 2): Circle Tower 65.6 / 65.3 / 84.1,
+          Denerim market 54.9 / 62.2 / 87.8, Orzammar commons 50.4 / 50.8 / 80.8, the ruined
+          temple 44.3 / 49.7 / 72.8, Lothering's chantry 53.1 / 54.7 / 73.1 fps.
       - **Measured: what the camp's texture reloads cost.** A traced frame (run 1007) and a
         counter (`files/hack-skip-reloads`, `log`, run 1013): about 11 reloads a frame - ten
         of them textures of resolved memory (k_8_8_8_8 1280x720 three times, 640x360 twice

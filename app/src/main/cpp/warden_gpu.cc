@@ -764,7 +764,8 @@ bool Start(xe::Memory& memory, xe::ui::WindowedAppContext* app_context,
                            "no-integer-scale", "no-mul-zero", "no-transfers",
                            "block-render-load", "gpu-loss", "memexport-readback",
                            "no-resolve-direct", "async-pipelines", "pipeline-stats",
-                           "precreate-pipelines", "fetch-raw", "skip-reloads"}) {
+                           "precreate-pipelines", "fetch-raw", "skip-reloads",
+                           "double-loads"}) {
     if (std::filesystem::exists(std::filesystem::path(capture_dir) / (std::string("hack-") + hack))) {
       std::string name = std::string("DAO_HACK_") + hack;
       for (char& c : name) c = c == '-' ? '_' : char(toupper(c));

@@ -3306,11 +3306,42 @@ EDITS = [
      "  auto queue_texture_to_load = [&](Texture* texture) {\n"
      "    for (uint32_t i = 0; i < num_textures_to_load; ++i) {\n"
      "      if (textures_to_load[i] == texture) {\n"
+     "        // Counted (an out-of-date one was a second load); files/hack-double-loads\n"
+     "        // queues it again, as before, to compare.\n"
+     "        if (DaoDuplicateLoad(texture->base_outdated_lockless() ||\n"
+     "                             texture->mips_outdated_lockless())) {\n"
+     "          break;\n"
+     "        }\n"
      "        return;\n"
      "      }\n"
      "    }\n"
      "    textures_to_load[num_textures_to_load++] = texture;\n"
      "  };\n"),
+    (TC_C, "9.27: duplicate texture loads counted",
+     "void TextureCache::RequestTextures(uint32_t used_texture_mask) {\n",
+     "// DAO/Warden (PLAN 9.27, BUG-127): a texture a draw binds twice, counted - outdated, it\n"
+     "// was loaded twice before the fix - every 20 s. True with files/hack-double-loads: queue\n"
+     "// it again (the old behaviour, for an A/B run).\n"
+     "static bool DaoDuplicateLoad(bool outdated) {\n"
+     "  static const bool double_loads = std::getenv(\"DAO_HACK_DOUBLE_LOADS\") != nullptr;\n"
+     "  static uint64_t duplicates = 0, outdated_duplicates = 0;\n"
+     "  static auto last_log = std::chrono::steady_clock::now();\n"
+     "  ++duplicates;\n"
+     "  outdated_duplicates += outdated;\n"
+     "  const auto now = std::chrono::steady_clock::now();\n"
+     "  if (now - last_log >= std::chrono::seconds(20)) {\n"
+     "    XELOGI(\"GPU: textures bound twice in the last 20 s: {} times, {} of them out of \"\n"
+     "           \"date ({})\",\n"
+     "           duplicates, outdated_duplicates,\n"
+     "           double_loads ? \"loaded twice, files/hack-double-loads\"\n"
+     "                        : \"each a second load saved\");\n"
+     "    duplicates = outdated_duplicates = 0;\n"
+     "    last_log = now;\n"
+     "  }\n"
+     "  return double_loads;\n"
+     "}\n"
+     "\n"
+     "void TextureCache::RequestTextures(uint32_t used_texture_mask) {\n"),
     (TC_C, "9.27: the unsigned texture queued once",
      "      textures_to_load[num_textures_to_load++] = binding.texture;\n",
      "      queue_texture_to_load(binding.texture);  // DAO/Warden (PLAN 9.27)\n"),

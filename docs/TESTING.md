@@ -1572,6 +1572,15 @@ needs the removed edits' files touched once, or the build keeps objects compiled
   in a batch: count with `log`.
 - Measure with FSR 3.1 and frame generation off (the owner, PLAN 9.27).
 
+**Textures bound twice** (BUG-127): whenever a draw binds one texture through two fetch
+constants, the log counts it every 20 s - `GPU: textures bound twice in the last 20 s: N
+times, M of them out of date` - M being the second loads the fix saved. No line, none bound
+twice. `files/hack-double-loads` (read at the start) queues them twice again, as Xenia did, for
+an A/B run. To test in other areas: the session 40 tour's jumps (`tools/areas/tour.sh` with a
+list of `label|script|presses` lines; the lists of that tour are in the history, at b4b6cf6's
+`tools/areas/tour.txt`); pick areas without an arrival fight - the test character dies in
+Lothering's.
+
 ### PC mods and the converter (Phase 10)
 
 - **The layers (10.12):** a mod folder holding a copy of a game file (a patch .tlk, an

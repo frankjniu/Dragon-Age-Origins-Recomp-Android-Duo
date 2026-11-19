@@ -3048,7 +3048,9 @@ constants share was queued twice, found outdated twice and loaded twice.
 
 **What it causes:** a second untiling pass and copy for such a texture, whenever it is out of
 date. Not seen at the King's Camp, where the textures that reload each frame are bound once
-(runs 1013, 1018); loading screens can have it.
+(runs 1013, 1018). In five more areas (PLAN 9.27) textures are bound twice hundreds of times
+a second, but out of date only while an area loads: 7 second loads in about 154,000
+duplicates, none in play. `files/hack-double-loads` restores the old behaviour.
 
 **Fixed.** A texture is queued once (an assembler edit, PLAN 9.27).
 
