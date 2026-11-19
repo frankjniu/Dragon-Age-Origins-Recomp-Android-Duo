@@ -530,7 +530,7 @@ while iterating, then record it; `--check` proves the recorded set reproduces th
 
 ## 5. The next tasks, in order
 
-**Resume here (2026-11-19, session 49): 0.2.4-alpha published.**
+**Resume here (2026-11-19, session 49): 0.2.5-alpha published** (BUG-127's fix; before it 0.2.4-alpha the same day).
 PLAN 9.26 is done: Eco shading (Options -> Visual) and the transfer cut-out, from the Dark
 Souls II recomp's renderer. Published as a pre-release (the tag `v0.2.4-alpha` at c49fd3e, the
 changelog's section its notes). Next: what the alpha's players report, and the open bugs. After a renderer patch is taken out, the assembler
