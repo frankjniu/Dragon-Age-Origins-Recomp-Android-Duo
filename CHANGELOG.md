@@ -1,5 +1,25 @@
 # Changelog
 
+## 0.2.5-alpha - "Open Alpha"
+
+A small update.
+
+### Fixed
+
+- **A texture that the game uses twice in one draw is loaded once.** It used to be prepared
+  twice when it was out of date. This only happens while an area loads, a few times each, so
+  loading does slightly less work. Frame rates in play are unchanged.
+  - Checked in Circle Tower, Denerim's market, Orzammar's commons, the ruined temple of the
+    Urn and Lothering's chantry, on the AYN Thor.
+  - The fix comes from the Xenia Edge emulator project.
+
+### Installing
+
+- **From 0.2.0-alpha to 0.2.4-alpha:** the launcher installs this update under **Launch Dragon
+  Age**. No Build again is needed. Your saves, game data and settings stay.
+- **From 0.1.9-alpha or earlier:** the launcher installs it too, and then shows **Build again**.
+  Choose it once (about eight minutes).
+
 ## 0.2.4-alpha - "Open Alpha"
 
 ### Faster
