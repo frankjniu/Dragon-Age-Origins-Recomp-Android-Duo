@@ -530,11 +530,10 @@ while iterating, then record it; `--check` proves the recorded set reproduces th
 
 ## 5. The next tasks, in order
 
-**Resume here (2026-11-19, session 49): 0.2.4-alpha, prepared and waiting for the owner's go.**
+**Resume here (2026-11-19, session 49): 0.2.4-alpha published.**
 PLAN 9.26 is done: Eco shading (Options -> Visual) and the transfer cut-out, from the Dark
-Souls II recomp's renderer. The release APK is built and checked; on the owner's go, merge
-`readme-0.2.4`, tag `v0.2.4-alpha` at the release's commit and publish the GitHub release with
-the changelog's section as its notes. After a renderer patch is taken out, the assembler
+Souls II recomp's renderer. Published as a pre-release (the tag `v0.2.4-alpha` at c49fd3e, the
+changelog's section its notes). Next: what the alpha's players report, and the open bugs. After a renderer patch is taken out, the assembler
 recompiles what depended on it (BUG-126, `docs/TESTING.md`).
 
 **Before that (2026-11-16, session 47): PLAN 9.24, imported Vulkan drivers as fast as the
