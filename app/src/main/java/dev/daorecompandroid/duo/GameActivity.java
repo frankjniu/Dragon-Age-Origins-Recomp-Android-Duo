@@ -1137,7 +1137,8 @@ public final class GameActivity extends Activity {
         }
 
         private void padKey(int device, int keyCode, boolean pressed) {
-            int slot = controllers == null ? -1 : controllers.slotOf(device);
+            // A held-back Start or Select press makes its pad player 1 too (issue #6).
+            int slot = controllers == null ? -1 : controllers.slotForInput(device, pressed);
             if (slot >= 0) {
                 NativeBridge.padKey(slot, keyCode, pressed);
             }

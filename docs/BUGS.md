@@ -86,6 +86,7 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-125](#bug-125) | our app (`DeckView.java`) | low | **FIXED** (session 48; the owner to confirm in play) | The deck's stamina or mana bar showed full while a sustained ability (Powerful Swings) reserved part of the pool: the deck ignored `.Attributes.8.Modifier`, which the HUD observes |
 | [BUG-126](#bug-126) | our tooling (`tools/assemble_runtime.py`) | medium (development builds) | **FIXED** (session 49) | After a renderer patch was taken out, the game aborted at boot (a stack canary in the SPIR-V translator): reverted files kept their old times and the build kept objects compiled against the patch |
 | [BUG-127](#bug-127) | upstream Xenia (`texture_cache.cc`) | low | **FIXED** (session 49, Xenia Edge's change) | A texture bound through two fetch constants was loaded twice in a batch |
+| [BUG-128](#bug-128) | our app (`ControllerManager.java`) | high (an external controller cannot play) | **FIXED** (session 50, issue #6; to be confirmed with an external pad) | An external controller was player 2 or 3: its Start asked for a sign-in that never came |
 | [BUG-124](#bug-124) | our runtime (`warden_deck.cc`, `DeckView.java`) | medium | **FIXED** (session 48) | On the second screen's Party tab the faces were dark, sepia and contrasty, the clothes cut away: the portrait's bytes are A R G B and were read as R G B A - the alpha as red, the blue as the mask. The face was also drawn larger than the HUD's; now framed as the HUD frames it |
 | [BUG-123](#bug-123) | an imported driver (Mesa Turnip v26.0.0 R8) | medium | **OPEN** (the driver's; not worked around) | On K11MCH1's Turnip v26.0.0 R8 (Mesa 26.0.0-devel git-5ac41be677) the game draws nothing: every frame black from the first menu, at 76 frames a second once BUG-122 was fixed. Its matrix numbers measured a black screen |
 | [BUG-122](#bug-122) | our runtime (Xenia's completion timeline) / Turnip on KGSL before Mesa e984ef29 | high | **FIXED** (session 47, PLAN 9.24) | On Turnip builds before 2026-10-08 the game ran at about half the system driver's speed with the GPU part idle: Xenia's fence status checks waited for the GPU. The fences are now watched on their own thread |
@@ -3037,6 +3038,39 @@ The game code's ABI is unchanged (no override was added): no Build again.
 
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
+
+## BUG-128
+**An external controller's Start asked for a sign-in that never came**
+our app (`ControllerManager.java`) · severity high (an external controller could not play) ·
+**FIXED** session 50 (issue #6, reported on 0.2.5-alpha; not yet tried with an external pad)
+
+**What it looks like** (issue #6, 2026-11-22): with an external controller connected to the
+Thor (Android names it "Pocket Controller"), its Start at the title screen leaves the game
+waiting for a profile sign-in. The game goes on drawing, past nothing.
+
+**Cause.**
+- Each pad took the first free slot, and the built-in pad, enumerated first, always took
+  slot 0. An external pad was user 1, or user 2 when connected during play.
+- The game signs in user 0 only (`warden_xam.cc`): users 1 to 3 are "nobody", and
+  `XamShowSigninUI` does nothing. So a pad other than the built-in one was a player without
+  a profile, and its Start opened a sign-in nobody could finish.
+
+**Fixed (the issue's option 2): the pad the player last used is player 1.**
+- A deliberate input on a pad that is not in slot 0 - a button, or a stick, trigger or hat
+  pushed past half way - moves it into slot 0, and the pad that was there into the slot it
+  leaves (`ControllerManager.slotForInput`). A stick's drift at rest does not.
+- Both pads are attached afresh on the native side, which clears their states: nothing stays
+  held across the change.
+- The Start and Select presses the activity holds back for the options panel's combination go
+  through the same check (`GameActivity`).
+- The on-screen controller and the deck's quickbar are merged into slot 0 natively, so they
+  follow the player.
+- Not chosen: every pad feeding slot 0 at once (the issue's option 1) - two pads' sticks and
+  triggers would have to be merged, and an idle or drifting one would fight the other.
+
+**Also in the report:** the external pad first appears as vendor 0x3537 product 0x1023, then
+with AYN's own 0x2020 / 0x0111, so the face-button trade by label (`reportsByLabel`) applies
+to it too. Whether its A and B come out right is the reporter's to check.
 
 ## BUG-127
 **A texture bound through two fetch constants was loaded twice**

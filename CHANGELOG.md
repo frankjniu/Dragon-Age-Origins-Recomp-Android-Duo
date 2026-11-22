@@ -1,5 +1,14 @@
 # Changelog
 
+## Unreleased
+
+### Fixed
+
+- **An external controller can play** (issue #6). Its Start used to ask for a profile sign-in
+  that never came, because the game only knew the handheld's own controller as player 1. Now
+  the controller you use is player 1: press a button on it, or push a stick, and it takes
+  over; the handheld's own controller takes it back the same way.
+
 ## 0.2.5-alpha - "Open Alpha"
 
 A small update.

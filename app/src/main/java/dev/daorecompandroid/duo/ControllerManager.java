@@ -27,6 +27,14 @@ import android.view.MotionEvent;
  * <p>Slots: the game sees up to four controllers, as the 360 did. A slot is assigned on
  * first sight and kept until the device disappears, so unplugging controller 2 does not
  * renumber controller 3 underneath the player.
+ *
+ * <p>Player 1 (issue #6): the game is single-player and signs in user 0 only, so a pad in
+ * another slot is a player without a profile - its Start asked for a sign-in that never
+ * came. The pad the player last used deliberately (a button, or a stick or trigger pushed
+ * past half way - not a resting stick's drift) takes slot 0, and the pad that had it takes
+ * the slot it leaves. Both are attached afresh, which clears what either was holding. The
+ * built-in pad is slot 0 at the start, enumerated first; an external one takes over with its
+ * first press, and the built-in one takes it back the same way.
  */
 final class ControllerManager implements InputManager.InputDeviceListener {
 
@@ -175,7 +183,11 @@ final class ControllerManager implements InputManager.InputDeviceListener {
             return;
         }
         slotDeviceIds[slot] = deviceId;
+        attach(slot, device);
+    }
 
+    /** The device described to the native side as the pad in this slot, its state cleared. */
+    private static void attach(int slot, InputDevice device) {
         // Analog triggers are not universal: some pads report them as buttons only.
         // Reported so the native side knows whether a trigger value is meaningful.
         boolean hasAnalogTriggers =
@@ -186,13 +198,49 @@ final class ControllerManager implements InputManager.InputDeviceListener {
 
         Log.i(TAG, String.format(
                 "pad slot %d: id=%d vendor=0x%04X product=0x%04X analogTriggers=%b hat=%b \"%s\"",
-                slot, deviceId, device.getVendorId(), device.getProductId(),
+                slot, device.getId(), device.getVendorId(), device.getProductId(),
                 hasAnalogTriggers, hasHat, device.getName()));
 
-        NativeBridge.padAttached(slot, deviceId, device.getVendorId(),
+        NativeBridge.padAttached(slot, device.getId(), device.getVendorId(),
                 device.getProductId(), device.getName(), device.getDescriptor(),
                 hasAnalogTriggers, hasHat);
     }
+
+    /**
+     * The slot this device's input goes to (-1: not a pad of the game's). A deliberate
+     * input from a pad that is not player 1 makes it player 1 first (issue #6).
+     */
+    int slotForInput(int deviceId, boolean deliberate) {
+        int slot = slotOf(deviceId);
+        if (slot > 0 && deliberate) {
+            makePlayerOne(deviceId, slot);
+            return 0;
+        }
+        return slot;
+    }
+
+    /** The device in slot {@code from} and the one in slot 0 trade places. */
+    private void makePlayerOne(int deviceId, int from) {
+        InputDevice device = InputDevice.getDevice(deviceId);
+        if (device == null) {
+            return;
+        }
+        int previous = slotDeviceIds[0];
+        InputDevice previousDevice = previous >= 0 ? InputDevice.getDevice(previous) : null;
+        NativeBridge.padDetached(0);
+        NativeBridge.padDetached(from);
+        slotDeviceIds[0] = deviceId;
+        slotDeviceIds[from] = previousDevice != null ? previous : -1;
+        Log.i(TAG, "pad " + deviceId + " (\"" + device.getName() + "\") is player 1 now; pad "
+                + previous + " moves to slot " + from + " (issue #6)");
+        attach(0, device);
+        if (previousDevice != null) {
+            attach(from, previousDevice);
+        }
+    }
+
+    /** A stick or trigger far enough from rest to be the player's, not a stick's drift. */
+    private static final float DELIBERATE_AXIS = 0.5f;
 
     @Override
     public void onInputDeviceRemoved(int deviceId) {
@@ -215,8 +263,7 @@ final class ControllerManager implements InputManager.InputDeviceListener {
 
     /** @return true if the event belonged to a pad and was consumed. */
     boolean onKey(KeyEvent event) {
-        int slot = slotOf(event.getDeviceId());
-        if (slot < 0) {
+        if (slotOf(event.getDeviceId()) < 0) {
             return false;
         }
         // Repeats carry no new information - the button is already held - and feeding
@@ -229,24 +276,34 @@ final class ControllerManager implements InputManager.InputDeviceListener {
         if (!down && event.getAction() != KeyEvent.ACTION_UP) {
             return false;
         }
+        // A press makes this pad player 1 (issue #6).
+        int slot = slotForInput(event.getDeviceId(), down);
         return NativeBridge.padKey(slot, event.getKeyCode(), down);
     }
 
     /** @return true if the event belonged to a pad and was consumed. */
     boolean onMotion(MotionEvent event) {
-        int slot = slotOf(event.getDeviceId());
-        if (slot < 0 || event.getAction() != MotionEvent.ACTION_MOVE) {
+        if (slotOf(event.getDeviceId()) < 0 || event.getAction() != MotionEvent.ACTION_MOVE) {
             return false;
         }
-        NativeBridge.padAxes(slot,
-                event.getAxisValue(MotionEvent.AXIS_X),
-                event.getAxisValue(MotionEvent.AXIS_Y),
-                event.getAxisValue(MotionEvent.AXIS_Z),
-                event.getAxisValue(MotionEvent.AXIS_RZ),
-                triggerValue(event, MotionEvent.AXIS_LTRIGGER, MotionEvent.AXIS_BRAKE),
-                triggerValue(event, MotionEvent.AXIS_RTRIGGER, MotionEvent.AXIS_GAS),
-                event.getAxisValue(MotionEvent.AXIS_HAT_X),
-                event.getAxisValue(MotionEvent.AXIS_HAT_Y));
+        float leftX = event.getAxisValue(MotionEvent.AXIS_X);
+        float leftY = event.getAxisValue(MotionEvent.AXIS_Y);
+        float rightX = event.getAxisValue(MotionEvent.AXIS_Z);
+        float rightY = event.getAxisValue(MotionEvent.AXIS_RZ);
+        float leftTrigger = triggerValue(event, MotionEvent.AXIS_LTRIGGER, MotionEvent.AXIS_BRAKE);
+        float rightTrigger = triggerValue(event, MotionEvent.AXIS_RTRIGGER, MotionEvent.AXIS_GAS);
+        float hatX = event.getAxisValue(MotionEvent.AXIS_HAT_X);
+        float hatY = event.getAxisValue(MotionEvent.AXIS_HAT_Y);
+        // A stick or trigger pushed past half way, or the hat, makes this pad player 1
+        // (issue #6); a resting stick's drift does not.
+        boolean deliberate = Math.abs(leftX) > DELIBERATE_AXIS
+                || Math.abs(leftY) > DELIBERATE_AXIS || Math.abs(rightX) > DELIBERATE_AXIS
+                || Math.abs(rightY) > DELIBERATE_AXIS || leftTrigger > DELIBERATE_AXIS
+                || rightTrigger > DELIBERATE_AXIS || Math.abs(hatX) > DELIBERATE_AXIS
+                || Math.abs(hatY) > DELIBERATE_AXIS;
+        int slot = slotForInput(event.getDeviceId(), deliberate);
+        NativeBridge.padAxes(slot, leftX, leftY, rightX, rightY, leftTrigger, rightTrigger,
+                hatX, hatY);
         return true;
     }
 

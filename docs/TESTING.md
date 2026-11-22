@@ -752,6 +752,13 @@ $NODE 1 315 1; sendevent $NODE 0 0 0; sleep 0.1; sendevent $NODE 1 315 0; sendev
 0 0 0"` taps Start (codes: A 304, B 305, X 307, Y 308, Select 314, Start 315, D-pad keys
 544-547 up/down/left/right; the hat is `3 17 1` down, `3 17 -1` up, `3 16` across). Run
 396 checked it so: Start alone opens the game's menu, Select + Start the panel only.
+**Two controllers** (BUG-128, issue #6): the pad last used deliberately is player 1 (slot 0).
+The log says `pad <id> ("<name>") is player 1 now; pad <id> moves to slot <n>` when one takes
+over, then `pad slot 0: ...` and `pad slot <n>: ...` as both are attached afresh. Testing it
+needs a second, real pad (a Bluetooth or USB one): adb's keys are no pad's, and the Thor's own
+node is the built-in pad. With one connected - at the start or during play - its first button
+press (or a stick past half way) takes over, Start at the title screen goes straight on (no
+sign-in prompt), and a press on the built-in pad takes it back.
 **Texture filtering** (9.6): `files/anisotropic` holds 2, 4, 8 or `off`; without it 16x
 anisotropic (the log: `GPU: texture filtering ...`). The options panel writes it, as it
 writes `files/glyphs`; both are read as the game starts.

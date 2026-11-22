@@ -1867,7 +1867,17 @@ Then continue from **Next action** at the top of this file.
 
 Newest first. One short entry per session: what changed, what's next.
 
-### 2026-11-19 (session 49) - Ideas from the Dark Souls II recomp's renderer (PLAN 9.26)
+### 2026-11-22 (session 50) - Issue #6: an external controller is player 1 (BUG-128)
+
+- **The report** (issue #6, on 0.2.5-alpha): an external pad on the Thor took slot 1 or 2, and
+  its Start asked for a sign-in that never came - only user 0 has a profile.
+- **Fixed with the issue's option 2** (the owner's choice): the pad last used deliberately - a
+  button, or a stick, trigger or hat past half way - trades slots with the one in slot 0, both
+  attached afresh (`ControllerManager.slotForInput`; the panel's held-back Start and Select
+  too). Option 1, every pad into slot 0, would have had to merge two pads' sticks.
+- **Not yet tried with a second pad:** the Thor has only its own, and adb's keys are no pad's.
+  In `CHANGELOG.md` Unreleased.
+
 
 - **Then PLAN 9.27, ideas from other Xenia-derived renderers** (Xenia Edge, its edge-linux fork,
   Xendroid+), every base measurement with FSR 3.1 and frame generation off (the owner).
