@@ -1,13 +1,26 @@
 # Changelog
 
-## Unreleased
+## 0.2.6-alpha - "Open Alpha"
+
+A small fix.
 
 ### Fixed
 
-- **An external controller can play** (issue #6). Its Start used to ask for a profile sign-in
-  that never came, because the game only knew the handheld's own controller as player 1. Now
-  the controller you use is player 1: press a button on it, or push a stick, and it takes
-  over; the handheld's own controller takes it back the same way.
+- **An external controller can play** (issue #6). Pressing Start on it used to bring up a
+  profile sign-in that never finished, because the game only took the handheld's own
+  controller as player 1.
+  - Now the controller you use is player 1: press a button on it, or push a stick or trigger
+    firmly, and it takes over. The handheld's own controller takes it back the same way.
+  - A controller connected while you play works too.
+  - Tested on the AYN Thor with its own controller. If you play with an external one, please
+    tell us in issue #6 how it goes.
+
+### Installing
+
+- **From 0.2.0-alpha to 0.2.5-alpha:** the launcher installs this update under **Launch Dragon
+  Age**. No Build again is needed. Your saves, game data and settings stay.
+- **From 0.1.9-alpha or earlier:** the launcher installs it too, and then shows **Build again**.
+  Choose it once (about eight minutes).
 
 ## 0.2.5-alpha - "Open Alpha"
 
