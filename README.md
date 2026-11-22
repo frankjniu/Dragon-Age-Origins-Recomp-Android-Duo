@@ -165,7 +165,7 @@ Dump the disc images from discs you own.
 | **Android** | 13 or newer, 64-bit ARM (arm64-v8a) |
 | **GPU** | Vulkan 1.1 or newer, of the Snapdragon 8 Gen 2 class (Adreno 740 tested) |
 | **Free storage** | about 7 GB for the game, 4 GB more for Awakening and the DLC, and about 1 GB for the app and the game's program it makes |
-| **Controller** | the handheld's own, or the on-screen controller |
+| **Controller** | the handheld's own, an external one, or the on-screen controller |
 
 No computer is needed: everything happens on the device.
 
@@ -228,7 +228,8 @@ the main menu.
 ### Controls
 
 - **The game.** The handheld's own controller, exactly as an Xbox 360 controller. The
-  game's controls are the game's.
+  game's controls are the game's. An external controller works too: the controller you last
+  pressed a button on, or pushed a stick of, is the player's.
 - **The options panel.** Press **Select + Start** together during play. Without the
   on-screen controller, a **three-finger tap** on the main screen opens it too; with it, the
   controller's own panel button does. The game pauses while the panel is open.
