@@ -1,21 +1,41 @@
 # Changelog
 
-## Unreleased
+## 0.2.7-alpha - "Open Alpha"
+
+Translation mods for Awakening and the DLC.
 
 ### Mods
 
-- **Translations of Awakening and the DLC** (issue #7). Talk tables for Awakening and every
-  DLC, in a mod's `override` folder, replace the game's own of the same name. This already
-  worked; it is now tested in the main campaign, Awakening and the four DLC campaigns, with
-  a Korean translation pack.
-  - A mod whose add-in has the id of one of the game's own (`DAO_PRC_EP_1` for Awakening, say)
-    is now taken as a patch of it. Converting puts its files in the mod's override folder. It
-    used to be installed as a second add-in, and its files were not used.
+- **Translations of Awakening and every DLC** (issue #7). A translation's talk tables
+  (.tlk) for Awakening and the DLC replace the game's own of the same name, as the main
+  game's do.
+  - Put them in a mod like any other files, then choose **Convert for this version** if they
+    were made for the PC.
+  - Tested with a Korean translation in the main campaign, Awakening, Leliana's Song, The
+    Darkspawn Chronicles, The Golems of Amgarrak and Witch Hunt, and in the DLC played from
+    the main campaign.
+  - A language whose letters the game's font does not have (Korean, for example) also needs
+    a font made for the Xbox 360 version. Without one, its text shows as boxes.
+- **A mod that patches Awakening or a DLC** now works. Such a mod has an add-in with the
+  game's own id, for example `DAO_PRC_EP_1` for Awakening.
+  - **Convert for this version** now puts its files in the mod's override folder, where they
+    replace the add-in's own.
+  - Before, it was installed as a second add-in, and the game did not use its files.
+  - If you converted such a mod with an earlier version, delete it in **Mods** and add it
+    again.
 
 ### Fixed
 
-- **A mod with an unpacked add-in** (a `Manifest.xml` and an `addins` folder) lost its
-  add-in's `core` files when it was added: they were moved where the game's own go.
+- **A mod with an unpacked add-in** (a `Manifest.xml` and an `addins` folder) lost part of its
+  add-in when you added it: the add-in's `core` folder was moved among the game's own
+  files. Add such a mod again to fix it.
+
+### Installing
+
+- **From 0.2.0-alpha to 0.2.6-alpha:** the launcher installs this update under **Launch Dragon
+  Age**. No Build again is needed. Your saves, game data, mods and settings stay.
+- **From 0.1.9-alpha or earlier:** the launcher installs it too, and then shows **Build again**.
+  Choose it once (about eight minutes).
 
 ## 0.2.6-alpha - "Open Alpha"
 
