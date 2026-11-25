@@ -259,9 +259,20 @@ class Installer {
     }
     std::set<fs::path> aside;
     std::set<std::string> done;
+    const std::set<std::string> official = OfficialUids();
     for (const Source& source : sources_) {
       if (!done.insert(dao::Lower(source.item.uid)).second) {
         report_.notes.push_back("The add-in " + source.item.uid + " is in it twice: installed once.");
+        continue;
+      }
+      if (official.contains(dao::Lower(source.item.uid))) {
+        // Issue #7: a patch of the game's own add-in, not one of its own.
+        if (PatchOfficial(source)) {
+          aside.insert(source.aside);
+          if (!source.package.empty()) {
+            MergeInto(source.package, mod_ / "packages");
+          }
+        }
         continue;
       }
       if (InstallOne(source)) {
@@ -280,6 +291,83 @@ class Installer {
   }
 
  private:
+  // Issue #7: the game's own add-ins' ids, in lower case - each folder in the installed
+  // packages of downloadable content (not the mods' "mod-" ones), and every DAO_PRC_ one
+  // (Awakening's, the DLC's: there whether installed yet or not).
+  std::set<std::string> OfficialUids() const {
+    std::set<std::string> uids;
+    std::error_code ec;
+    for (const auto& package : fs::directory_iterator(content_, ec)) {
+      const std::string name = dao::Utf8(package.path().filename());
+      if (!package.is_directory(ec) || name.starts_with("mod-") || name.starts_with(".")) {
+        continue;
+      }
+      for (const auto& addin : fs::directory_iterator(package.path(), ec)) {
+        if (addin.is_directory(ec)) {
+          uids.insert(dao::Lower(dao::Utf8(addin.path().filename())));
+        }
+      }
+    }
+    for (const Source& source : sources_) {
+      if (dao::Lower(source.item.uid).starts_with("dao_prc_")) {
+        uids.insert(dao::Lower(source.item.uid));
+      }
+    }
+    return uids;
+  }
+
+  // Issue #7: an add-in with the id of one of the game's own (a translation of
+  // Awakening's talk tables, say) is a patch of it: installed as a package of its own it
+  // would be a second add-in of that id. The game takes a file in packages/core/override/
+  // in place of any add-in's of the same name - talk tables included, in every campaign -
+  // so its files go there, in the mod: packages/core/override/<id>/, its archives unpacked
+  // (an archive's entries are files by name there too), script sources left out. The
+  // conversion of the mod that follows converts them as any of its files.
+  bool PatchOfficial(const Source& source) {
+    const Item& item = source.item;
+    const fs::path into = mod_ / "packages" / "core" / "override" / item.uid;
+    XELOGI("add-ins: {} ({}) is the game's own add-in: its files into {}", item.title,
+           item.uid, dao::Utf8(into));
+    std::error_code ec;
+    size_t files = 0, sources = 0;
+    for (auto it = fs::recursive_directory_iterator(source.addin, ec);
+         !ec && it != fs::recursive_directory_iterator(); it.increment(ec)) {
+      if (!it->is_regular_file(ec)) {
+        continue;
+      }
+      const fs::path relative = it->path().lexically_relative(source.addin);
+      if (IsScriptSource(dao::Utf8(relative.filename()))) {
+        ++sources;
+        continue;
+      }
+      if (IsArchiveName(relative) &&
+          dao::mods::IsPcArchive(dao::mods::ReadHead(it->path(), dao::mods::kFormatHeadBytes))) {
+        const fs::path folder = into / relative.parent_path() / relative.stem();
+        if (!Unpack(it->path(), folder, item, sources)) {
+          return false;
+        }
+        for (const auto& entry : fs::directory_iterator(folder, ec)) {
+          files += entry.is_regular_file(ec) ? 1 : 0;
+        }
+        continue;
+      }
+      fs::create_directories((into / relative).parent_path(), ec);
+      fs::copy_file(it->path(), into / relative, fs::copy_options::overwrite_existing, ec);
+      ++files;
+    }
+    report_.notes.push_back(item.title + " (" + item.uid + ") is the game's own add-in: its " +
+                            std::to_string(files) +
+                            " files are in the mod's override folder, in place of the"
+                            " add-in's own of the same name, not installed as an add-in of"
+                            " their own.");
+    if (sources) {
+      report_.notes.push_back(item.title + ": " + std::to_string(sources) +
+                              " script sources (.nss) left out - the game runs the compiled"
+                              " ones.");
+    }
+    return true;
+  }
+
   // The add-ins: in each .dazip, and in each addins/<uid>/ folder that a manifest in
   // the mod names.
   void Find() {

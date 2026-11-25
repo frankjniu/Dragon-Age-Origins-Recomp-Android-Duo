@@ -1,5 +1,22 @@
 # Changelog
 
+## Unreleased
+
+### Mods
+
+- **Translations of Awakening and the DLC** (issue #7). Talk tables for Awakening and every
+  DLC, in a mod's `override` folder, replace the game's own of the same name. This already
+  worked; it is now tested in the main campaign, Awakening and the four DLC campaigns, with
+  a Korean translation pack.
+  - A mod whose add-in has the id of one of the game's own (`DAO_PRC_EP_1` for Awakening, say)
+    is now taken as a patch of it. Converting puts its files in the mod's override folder. It
+    used to be installed as a second add-in, and its files were not used.
+
+### Fixed
+
+- **A mod with an unpacked add-in** (a `Manifest.xml` and an `addins` folder) lost its
+  add-in's `core` files when it was added: they were moved where the game's own go.
+
 ## 0.2.6-alpha - "Open Alpha"
 
 A small fix.

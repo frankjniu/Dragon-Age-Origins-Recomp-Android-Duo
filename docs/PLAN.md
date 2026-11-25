@@ -3631,6 +3631,37 @@ behind the owner's (CLAUDE.md).
       the host is idle. Put away: 1.4-1.7% of a core where it was 29% at the title and 94%
       in play; the launcher alone 0.0% where it was 7.7%. Nothing of the app's holds the
       device awake (no wake lock, the sound outputs in standby).
+- [x] 10.23 **Translations of Awakening and the DLC (issue #7, the owner asked 2026-11-25:
+      "make sure they work for all dlc packs") - done (session 51, runs 1024-1031).** The
+      issue: a translation's talk tables for Awakening and the DLC seemed not to take, loose
+      in `override/` or as an add-in of Awakening's own id (`DAO_PRC_EP_1`), which the
+      converter installed as a second add-in, `mod-DAO_PRC_EP_1`. Tested with the owner's
+      Korean pack (PC, 63 talk tables, every campaign's), imported from its .7z and
+      converted on the Thor:
+      - **Loose in `override/` they already work, for every pack.** The game looks up an
+        add-in's talk table in `packages/core/override/` (any folder under it) by name before
+        the add-in's own, as it does the disc's. The log shows the pack's tables opened in
+        place of the packages' in the Origins campaign (Warden's Keep, The Stone Prisoner,
+        Return to Ostagar, Feastday, Leliana's Song, The Darkspawn Chronicles, Golems,
+        Witch Hunt, the promotional items), Awakening's (`core_ep1`, `dao_prc_ep_1`), and the
+        four DLC campaigns' own (runs 1027-1030, routes probe-lel, -drk, -gib, -str). On
+        screen the text is Korean (in boxes: the 360's font has no Hangul - the reporter
+        brings a Korean 360 font, a separate step). The only tables still read from the
+        packages are the ones the PC pack has no file for (`dao_prc_ep_1_c`,
+        `dao_prc_promo_me_c`), and the 360's are empty (132 bytes, no strings). A
+        file-layer redirect of the packages' talk tables was written and taken out again:
+        the game never asked for one a mod had.
+      - **An add-in with the id of one of the game's own is now a patch of it**
+        (`dao_addin_android.cc`, `PatchOfficial`): its files go into the mod's
+        `packages/core/override/<id>/`, archives unpacked, and are converted with the
+        rest of the mod - no second add-in. The game's own ids are those of the installed
+        packages' add-ins (not the `mod-` ones) and every `DAO_PRC_` one. Run 1031, with the
+        Korean pack off and a test mod shaped as the issue's second attempt (a
+        `Manifest.xml` naming `DAO_PRC_EP_1`, its two talk tables in `addins/DAO_PRC_EP_1/`):
+        Awakening's tables read from the mod's override folder, its crafting items named in
+        Korean in an English interface. The Mods page says so before converting.
+      - **BUG-129**, found on the way: importing a mod with an unpacked add-in moved the
+        add-in's own `core/` folder to the game's `packages/core/`.
 
 
 ## Phase 11 — Release

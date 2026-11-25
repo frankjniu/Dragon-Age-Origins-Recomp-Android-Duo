@@ -87,6 +87,7 @@ from commit messages, `STATUS.md` and the design docs.
 | [BUG-126](#bug-126) | our tooling (`tools/assemble_runtime.py`) | medium (development builds) | **FIXED** (session 49) | After a renderer patch was taken out, the game aborted at boot (a stack canary in the SPIR-V translator): reverted files kept their old times and the build kept objects compiled against the patch |
 | [BUG-127](#bug-127) | upstream Xenia (`texture_cache.cc`) | low | **FIXED** (session 49, Xenia Edge's change) | A texture bound through two fetch constants was loaded twice in a batch |
 | [BUG-128](#bug-128) | our app (`ControllerManager.java`) | high (an external controller cannot play) | **FIXED** (session 50, issue #6; to be confirmed with an external pad) | An external controller was player 2 or 3: its Start asked for a sign-in that never came |
+| [BUG-129](#bug-129) | our app (`Mods.java`) | medium (an unpacked add-in's mod is broken on import) | **FIXED** (session 51, issue #7) | Importing a mod with an unpacked add-in (`addins/<id>/core/...`) moved the add-in's own `core/` folder to the game's `packages/core/`: those files were lost to the add-in |
 | [BUG-124](#bug-124) | our runtime (`warden_deck.cc`, `DeckView.java`) | medium | **FIXED** (session 48) | On the second screen's Party tab the faces were dark, sepia and contrasty, the clothes cut away: the portrait's bytes are A R G B and were read as R G B A - the alpha as red, the blue as the mask. The face was also drawn larger than the HUD's; now framed as the HUD frames it |
 | [BUG-123](#bug-123) | an imported driver (Mesa Turnip v26.0.0 R8) | medium | **OPEN** (the driver's; not worked around) | On K11MCH1's Turnip v26.0.0 R8 (Mesa 26.0.0-devel git-5ac41be677) the game draws nothing: every frame black from the first menu, at 76 frames a second once BUG-122 was fixed. Its matrix numbers measured a black screen |
 | [BUG-122](#bug-122) | our runtime (Xenia's completion timeline) / Turnip on KGSL before Mesa e984ef29 | high | **FIXED** (session 47, PLAN 9.24) | On Turnip builds before 2026-10-08 the game ran at about half the system driver's speed with the GPU part idle: Xenia's fence status checks waited for the GPU. The fences are now watched on their own thread |
@@ -3038,6 +3039,26 @@ The game code's ABI is unchanged (no override was added): no Build again.
 
 **Not measured:** the battery itself with the lid shut. That wants the cable out: the charge
 counter before and after half an hour, with and without the game open.
+
+## BUG-129
+**Importing a mod with an unpacked add-in took the add-in's `core/` for the game's**
+our app (`Mods.java`) · severity medium (such a mod's add-in lost its core files) ·
+**FIXED** session 51 (found testing issue #7)
+
+**What it looks like:** a mod holding an add-in unpacked - `Manifest.xml` and
+`addins/<id>/core/...`, `addins/<id>/module/...` - imported from a .zip, .7z, .rar or a
+folder: the import's report names files such as `packages/core/data/talktables/...`, and the
+add-in's `core/` files are no longer in it. Converting it then installs an add-in without
+them; its talk tables, tables and items from `core/` are missing in the game. A .dazip was
+not affected (it is kept whole until converting).
+
+**Cause.** Sorting an import (`Mods.organize`, as upstream's `mod_install.cpp`) looks for
+the folders that say where they go - `packages/`, `core/`, `override/` - up to three levels
+down, and `addins/<id>/core/` is two levels down: it was moved to the game's `packages/core/`.
+
+**Fixed:** the search does not go into an `addins/` folder; the add-ins stay whole, under the
+mod's override folder, for the converter (PLAN 10.19), which finds them there. Tested with a
+test mod of that shape (run 1031): its `core/` talk table stays with its add-in.
 
 ## BUG-128
 **An external controller's Start asked for a sign-in that never came**

@@ -1610,6 +1610,18 @@ Lothering's.
   left (Potions), 0x1000 (select), the stick up-left, 0x1000. The game's own debug
   scripts run through `files/route-call` (`!zz_givearmor` dresses the hero in armour with
   a helm).
+- **Translations of Awakening and the DLC (10.23, issue #7):** a translation pack's talk
+  tables, imported and converted, are read in place of the add-ins' own. Boot a campaign
+  with its route - probe-dlc (Origins with its add-ins), probe-awakening, probe-lel, -drk,
+  -gib, -str - and list the English talk tables the game opened:
+  `grep -a "en-us.tlk" build/runN.log | grep -a "NtCreateFile\|NtOpenFile"`. Those the mod
+  has come from `D:\packages\core\override\...`, the rest from `PRC000n:\...`. The pictures
+  (`capture-every` in those routes) show the text; a language the 360 font lacks (Korean)
+  draws as boxes. A mod with an add-in of a game add-in's id (`addins/DAO_PRC_EP_1/` and a
+  `Manifest.xml` naming it) converts into the mod's `packages/core/override/DAO_PRC_EP_1/`,
+  no `mod-` package (run 1031). The test pack sits in the checkout's `Test Mods/`
+  (gitignored); the picker lists a pushed file under Downloads, newest first (the
+  launcher draws its own views: no `uiautomator`, tap by screenshot).
 
 ---
 

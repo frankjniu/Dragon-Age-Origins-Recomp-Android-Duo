@@ -530,7 +530,7 @@ while iterating, then record it; `--check` proves the recorded set reproduces th
 
 ## 5. The next tasks, in order
 
-**Resume here (2026-11-22, session 50): 0.2.6-alpha published** (BUG-128, issue #6: the pad last used is player 1; not yet tried with a second pad - the reporter's to confirm). Before it 0.2.5-alpha (BUG-127) and 0.2.4-alpha (2026-11-19).
+**Resume here (2026-11-25, session 51): issue #7 done** (PLAN 10.23, BUG-129: translations of Awakening and every DLC; an add-in with a game add-in's id is a patch in the mod's override folder; in `CHANGELOG.md` Unreleased, the README's line on `readme-0.2.7`). Before it, **(2026-11-22, session 50): 0.2.6-alpha published** (BUG-128, issue #6: the pad last used is player 1; not yet tried with a second pad - the reporter's to confirm). Before it 0.2.5-alpha (BUG-127) and 0.2.4-alpha (2026-11-19).
 PLAN 9.26 is done: Eco shading (Options -> Visual) and the transfer cut-out, from the Dark
 Souls II recomp's renderer. Published as a pre-release (the tag `v0.2.4-alpha` at c49fd3e, the
 changelog's section its notes). Next: what the alpha's players report, and the open bugs. After a renderer patch is taken out, the assembler

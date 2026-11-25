@@ -221,6 +221,7 @@ final class Mods {
             }
         }
         final boolean[] addin = {false};
+        final boolean[] patch = {false};
         walk(folder, folder, (file, relative) -> {
             String lower = relative.toLowerCase(Locale.ROOT);
             if (isDocument(file.getName()) || lower.equals("mod.toml")
@@ -233,7 +234,10 @@ final class Mods {
                     mod.pcExample = relative;
                 }
             }
-            if (lower.matches(".*addins/[^/]+/module/.*")) {
+            if (lower.matches(".*addins/dao_prc_[^/]*/.*")) {
+                // Issue #7: files for one of the game's own add-ins (Awakening, the DLC).
+                patch[0] = true;
+            } else if (lower.matches(".*addins/[^/]+/module/.*")) {
                 addin[0] = true;
             }
         });
@@ -251,6 +255,10 @@ final class Mods {
         if (addin[0]) {
             mod.warnings.add("Has an add-in (its own scripts, items or areas): converting"
                     + " installs it as downloadable content.");
+        }
+        if (patch[0]) {
+            mod.warnings.add("Changes files of the game's own add-ins (Awakening or the"
+                    + " downloadable content): converting puts them in its override folder.");
         }
         if (mod.files == 0 && mod.addins.isEmpty()) {
             mod.warnings.add("Has no files for the game.");
@@ -432,7 +440,9 @@ final class Mods {
                     String place = anchorPlace(entry);
                     if (place != null) {
                         found.add(new Object[] {entry, place});
-                    } else {
+                    } else if (!entry.getName().equalsIgnoreCase("addins")) {
+                        // An add-in's own core/ (addins/<id>/core/) is not the game's
+                        // (BUG-129): the add-ins stay whole for the converter (10.19).
                         next.add(entry);
                     }
                 }
