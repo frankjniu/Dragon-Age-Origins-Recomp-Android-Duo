@@ -550,6 +550,8 @@ mirroring the game's folders.
 |---|---|
 | **PC texture mods** (.dds) | **Works** after **Convert** (tested). |
 | **PC add-ins** (.dazip, or a mod's `addins/` folder): new items, scripts, plots, tables, talk tables | **Works** after **Convert**, installed as downloadable content (tested: **No Helmet Hack** 1.6, and 1.5a for Awakening). |
+| **Translations** (talk tables, .tlk) for the main game, Awakening and every DLC | **Works** after **Convert** (tested with a Korean pack in every campaign). Each talk table replaces the game's own of the same name. A language whose letters the game's font lacks also needs a font for the Xbox 360 version. |
+| **Patches of the game's own add-ins** (a mod's add-in with Awakening's or a DLC's id, such as `DAO_PRC_EP_1`) | **Works** after **Convert**: its files go in the mod's override folder, in place of the add-in's own (tested with Awakening's talk tables). |
 | **Files already in the Xbox 360 version's formats** (a patched .tlk, an .xds) | **Works** as they are (tested). |
 | **PC models, meshes and other GFF files** (.mmh, .msh and the like) | **Should work** after **Convert** (the PC recomp's own converter, unchanged); not yet tested in a game. |
 | **PC archives** (.erf, .rim) | **Should work**: unpacked and converted; not yet tested in a game. |
