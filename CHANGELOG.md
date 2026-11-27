@@ -1,5 +1,17 @@
 # Changelog
 
+## Unreleased
+
+### Saves
+
+- **Delete saves and whole characters** (issue #8). The launcher's Saves page (now *Saves -
+  export, import, delete, restore*) lists your saves by character. Tick single saves, whole
+  characters or everything, and delete them. The Xbox 360 game has no way to do this itself.
+- **A recycle bin.** Deleted saves wait there. Restore puts them back in the game's list;
+  **Delete for good** removes them from the device after an "are you sure?".
+- The save lists show a place's whole name, not the game's shortened copy ("Orzammar Proving
+  Grounds", not "Orzammar Proving Grou...").
+
 ## 0.2.7-alpha - "Open Alpha"
 
 Translation mods for Awakening and the DLC.

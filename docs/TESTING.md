@@ -1439,6 +1439,18 @@ characters; the owner's are never moved.
   switch character. Write `files/inject-pad` through a temporary name and `mv`: a file
   read while still being written holds no presses.
 
+### Deleting saves and the recycle bin (PLAN 10.24)
+
+- Make a throwaway character from a test save rather than deleting real ones: copy a save
+  folder and its `.name` under a new id (`run-as ... cp -rp 'files/content/00000001/0xd5332a7_1_a!0'
+  'files/content/00000001/0x0badc0de_1_a!0'`, and the `.name`), and one into `.backup/` for an
+  earlier copy.
+- The launcher draws its own rows, so `uiautomator` sees nothing there: reach the Saves row
+  with seven `input keyevent DPAD_DOWN` and tap it. The dialogs are Android's, tapped by
+  position from a screenshot.
+- The bin is `files/content/00000001/.deleted/<time ms>/` (its whole characters' earlier
+  copies in `earlier/`); the `saves:` lines in `logcat -s Warden` say what moved where.
+
 ### The second device's priority (PLAN 9.21)
 
 - `files/hack-priority-probe` holding a number of seconds: that long after the GPU starts

@@ -90,14 +90,14 @@ Confirm what the APK is signed with (it must print the SHA-256 in §2):
 ## 4. If the device has the app under a different key anyway
 
 Uninstalling is the only route, and it costs the app's storage. **Export the saves
-first** (the launcher's *Saves - export, import, restore*, then *Export all saves*: a
+first** (the launcher's *Saves - export, import, delete, restore*, then *Export all saves*: a
 .zip in `Download/Dragon Age Origins/`). Then:
 
 1. `adb uninstall dev.daorecompandroid.duo`
 2. Build with the shared key and install it.
 3. In the launcher, choose the disc image, the title update, disc 2 and `Lossless.dll`
    again (README, "Setting up on the device"); the extraction takes about 8 minutes.
-4. *Saves - export, import, restore*, then *Import saves from a .zip*.
+4. *Saves - export, import, delete, restore*, then *Import saves from a .zip*.
 
 ## 5. Release builds and your own key
 

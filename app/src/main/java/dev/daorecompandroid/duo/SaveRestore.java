@@ -75,7 +75,17 @@ final class SaveRestore {
      * description), and when it was written.
      */
     static String label(File met, long time) {
-        String character = "A save";
+        String[] info = info(met);
+        String character = info[0] != null ? info[0] : "A save";
+        String chapter = info[1];
+        String when = new SimpleDateFormat("d MMM, HH:mm", Locale.getDefault())
+                .format(new Date(time));
+        return character + (chapter.isEmpty() ? "" : " - " + chapter) + "  (" + when + ")";
+    }
+
+    /** The character's name (null when the metadata holds none) and the chapter ("" if none). */
+    static String[] info(File met) {
+        String character = null;
         String chapter = "";
         try (FileInputStream in = new FileInputStream(met)) {
             byte[] data = in.readAllBytes();
@@ -107,6 +117,12 @@ final class SaveRestore {
                     String s = strings.get(i);
                     if (s.contains(" ") && s.length() <= 60) {
                         chapter = s;
+                        // The game keeps a shortened copy ("Orzammar Proving Grou...")
+                        // before the whole name: the whole one when it follows.
+                        if (s.endsWith("...") && i + 1 < strings.size()
+                                && strings.get(i + 1).startsWith(s.substring(0, s.length() - 3))) {
+                            chapter = strings.get(i + 1);
+                        }
                         break;
                     }
                 }
@@ -114,9 +130,10 @@ final class SaveRestore {
         } catch (Exception e) {
             Log.w(TAG, "saves: " + met + " not read", e);
         }
-        String when = new SimpleDateFormat("d MMM, HH:mm", Locale.getDefault())
-                .format(new Date(time));
-        return character + (chapter.isEmpty() ? "" : " - " + chapter) + "  (" + when + ")";
+        if (character != null && character.trim().replace("-", "").isEmpty()) {
+            character = null;  // " - ": a save made before a name was chosen
+        }
+        return new String[] {character, chapter};
     }
 
     /** The kept save back in its place, the one that replaced it kept instead. */

@@ -383,7 +383,7 @@ final class OptionsPanel {
         // PLAN 12.3 (the owner, 2026-11-02): disc 2 carries Title Update 6.
         names[UPDATE_ROW].setText("Title update 7 (optional, recommended)");
         names[LOSSLESS_ROW].setText("Lossless Scaling (Lossless.dll)");
-        names[RESTORE_ROW].setText("Saves - export, import, restore");
+        names[RESTORE_ROW].setText("Saves - export, import, delete, restore");
         names[MODS_ROW].setText("Mods");
         showLaunchRows(false);
 
@@ -1103,7 +1103,8 @@ final class OptionsPanel {
                     + " ones (add-ins too); on or off, which wins. From the next start.";
         } else if (selected == RESTORE_ROW) {
             text = "Your saves to a .zip in Downloads, or in from one (another device's, a"
-                    + " backup), and the saves the game wrote over - kept, and put back here.";
+                    + " backup); characters and saves deleted, to a recycle bin; and the saves"
+                    + " the game wrote over, put back.";
         } else if (selected == photoRow) {
             text = "Pauses the world and frees the camera, the HUD hidden: the sticks move and"
                     + " turn it, the triggers lower and raise it, the D-pad zooms and rolls, "

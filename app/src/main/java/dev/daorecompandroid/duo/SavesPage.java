@@ -99,7 +99,10 @@ final class SavesPage {
 
     /** The page. */
     void show() {
+        SaveBin bin = new SaveBin(activity, filesDir, this::show);
+        int binned = bin.count();
         String[] items = {"Export all saves", "Export one save", "Import saves from a .zip",
+            "Delete saves", "Recycle bin" + (binned == 0 ? "" : " (" + binned + ")"),
             "Restore an earlier save"};
         builder().setTitle("Saves")
                 .setItems(items, (d, which) -> {
@@ -112,6 +115,12 @@ final class SavesPage {
                             break;
                         case 2:
                             pick();
+                            break;
+                        case 3:
+                            bin.showDelete();
+                            break;
+                        case 4:
+                            bin.showBin();
                             break;
                         default:
                             SaveRestore.show(activity, filesDir, this::show);

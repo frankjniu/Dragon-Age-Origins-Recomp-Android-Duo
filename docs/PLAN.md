@@ -3662,6 +3662,35 @@ behind the owner's (CLAUDE.md).
         Korean in an English interface. The Mods page says so before converting.
       - **BUG-129**, found on the way: importing a mod with an unpacked add-in moved the
         add-in's own `core/` folder to the game's `packages/core/`.
+- [x] 10.24 **Deleting saves and characters, with a recycle bin (issue #8; the owner,
+      2026-11-27: "list saves per character and delete whole characters, or individual
+      saves ... multi-select individual saves or characters"; a recycle bin, with "delete
+      from the recycle bin" behind an "are you sure?") - done (session 53).** The 360 game
+      has no delete, and the saves are in the app's own storage. `SaveBin.java`, two rows
+      on the Saves page (now *Saves - export, import, delete, restore*): **Delete saves** and
+      **Recycle bin (n)**. Both are one multi-choice list: **Everything**, then each
+      character (the folders `0x<character>_<slot>_<u|a>!<n>` sharing the id; the name from
+      the first save's savegame.met that has one, else "Unnamed character (0x...)"), newest
+      first, with their saves set in under them (chapter, time, autosave / earlier copy).
+      Ticking a character or Everything ticks what is under it; a character whose saves are
+      all ticked is ticked. The buttons count what is ticked and are off at none. Delete
+      moves each folder and its `.name` to `content/00000001/.deleted/<time ms>/`; a whole
+      character takes their `.backup/` copies along, into that folder's `earlier/` (so
+      Restore an earlier save cannot bring back part of a deleted character). The leading
+      dot keeps the bin out of the game's enumerator. The bin's **Restore** puts a save back
+      in its slot, or the character's next manual slot (`_<n>_u!0`) if taken since, newest
+      first; an earlier copy, which has no `.name`, gets one written. **Delete for good** asks
+      "Are you sure?" (Cancel returns to the bin). Empty deletion folders are removed. Before
+      the game only, like the rest of the page. `SaveRestore.info()` now gives the character
+      and the chapter apart, the chapter's whole name where the game keeps a shortened copy
+      first, and a save with " - " for a name counts as unnamed. Tested on the Thor (dev
+      build) with a copied test character (two saves and an earlier copy): ticking and
+      unticking both ways; deleting the character (both saves and the earlier copy into the
+      bin, other characters' earlier copies left); restoring two to their own slots; the
+      earlier copy restored into a taken slot (went to `_3_u!0`); then the whole character
+      deleted again and the bin emptied with Delete for good, Cancel first. Not yet seen in
+      the game's Load Game list after a deletion (the enumerator lists the folders there;
+      an import's Keep both, the same as a restore to the next slot, was seen in 11.2).
 
 
 ## Phase 11 — Release
@@ -3732,7 +3761,8 @@ that leaves the owner's devices, so release builds get their own key (11.3).
       that reproduces: the save to load, the log of what happened, and the machine it
       happened on - no adb, no root, no instructions to follow.
 - [x] 11.2 **Export and import saves - done (session 40, run 585).** The launcher's row
-      is now **Saves - export, import, restore** (`SavesPage.java`; before the game only):
+      is now **Saves - export, import, restore** (since 10.24 **Saves - export, import, delete,
+      restore**; `SavesPage.java`; before the game only):
       **Export all saves** or **Export one save** (each listed by character, area and
       time from its savegame.met) packs the save folders and their display names, as
       they are, into "Dragon Age save(s) - ....zip" in Downloads/Dragon Age Origins;
