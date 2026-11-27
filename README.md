@@ -72,8 +72,8 @@ as a native Android app, with the lower screen as a companion display.
 - **Button prompts for the controller in your hands:** Xbox, Nintendo or PlayStation. Only the
   drawn labels change, never what the buttons do.
 - **Saves you can name**, with their thumbnails. You can export saves to a .zip, import them
-  from one, and restore saves the game wrote over. An optional autosave runs whenever you put
-  the app away.
+  from one, delete saves and whole characters (to a recycle bin), and restore saves the game
+  wrote over. An optional autosave runs whenever you put the app away.
 - **PC mods:**
   - import mods from .zip, .7z, .rar or .dazip files, or from a folder;
   - convert PC textures and add-ins to the Xbox 360 version's formats in the app;
@@ -274,7 +274,7 @@ are on the **Visual**, **Audio**, **Performance** and **Game** tabs.
 | **Ultimate Edition disc 2 (.iso)** | Installs Awakening and the DLC from disc 2, and puts its Title Update 6 in place. |
 | **Title update 7 (optional, recommended)** | Copies in Title Update 7; the game's program is then made from it instead of disc 2's Title Update 6. |
 | **Lossless Scaling (Lossless.dll)** | Copies in your `Lossless.dll` for Lossless frame generation. |
-| **Saves - export, import, restore** | The [Saves](#saves) page. |
+| **Saves - export, import, delete, restore** | The [Saves](#saves) page. |
 | **Mods** | The [Mods](#mods) page. |
 | *(the settings)* | Every setting below; those marked \* take effect when the game starts. |
 | **About and licences** | The version, what the app is, and every project built into it with its licence. |
@@ -479,7 +479,7 @@ with it.
 - **Safe writes.** Every save is written in full before it replaces the old one. If the app is
   closed mid-save, the previous save is kept as it was.
 
-**The Saves page** (*Saves - export, import, restore* in the launcher):
+**The Saves page** (*Saves - export, import, delete, restore* in the launcher):
 
 - **Export all saves** or **Export one save** writes a .zip to `Download/Dragon Age Origins/`.
   Use it to keep a backup or move saves to another device.
@@ -487,6 +487,15 @@ with it.
   folders. Only this game's Xbox 360 saves are accepted; PC saves are not. If a save's slot is
   taken, you choose: **Keep both**, **Replace** (the old one is kept as a backup) or
   **Skip**.
+- **Delete saves** lists your characters, newest first. Tick a character to delete all of
+  its saves, or choose its name (the **›**) to see its saves, newest first, and tick single
+  ones. Ticks stay as you go between characters; **Everything** ticks all. **Delete** moves
+  what is ticked to the recycle bin. A whole character's earlier copies (see **Restore an earlier save**) go with it.
+  The game itself has no way to delete a save or a character.
+- **Recycle bin** holds what you deleted, listed the same way. **Restore** puts the ticked
+  saves back in the game's Load Game list (in the character's next slot if the game has used
+  theirs since). **Delete for good** removes them from the device after you confirm; they
+  cannot be brought back.
 - **Restore an earlier save** brings back a save the game wrote over. The app keeps the
   previous copy each time a save is overwritten.
 
