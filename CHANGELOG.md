@@ -1,16 +1,35 @@
 # Changelog
 
-## Unreleased
+## 0.2.8-alpha - "Open Alpha"
+
+Delete saves and whole characters, with a recycle bin.
 
 ### Saves
 
-- **Delete saves and whole characters** (issue #8). The launcher's Saves page (now *Saves -
-  export, import, delete, restore*) lists your characters, newest first: tick a whole
-  character, or open it to tick single saves, and delete them. The Xbox 360 game has no way to do this itself.
-- **A recycle bin.** Deleted saves wait there. Restore puts them back in the game's list;
-  **Delete for good** removes them from the device after an "are you sure?".
+- **Delete saves and characters** (issue #8). The Xbox 360 game has no way to delete a save or
+  a character, and the saves are in the app's own storage, out of reach. The launcher's Saves
+  page, now *Saves - export, import, delete, restore*, has a new **Delete saves** row.
+  - It lists your characters, newest first. Tick a character to delete all of its saves.
+  - Choose a character's name to see its saves, newest first, and tick single ones.
+  - Ticks stay as you move between characters, so one **Delete** can take saves from several.
+    **Everything** ticks all of them.
+  - Deleting a whole character also takes the earlier copies the app kept of its saves (see
+    **Restore an earlier save**).
+  - Works by touch or with the controller.
+- **A recycle bin.** Deleted saves go to **Recycle bin** on the same page, listed the same way.
+  - **Restore** puts them back in the game's Load Game list. If the game has used a save's
+    slot since, it goes in the character's next free slot.
+  - **Delete for good** removes them from the device after you confirm. They cannot be
+    brought back.
 - The save lists show a place's whole name, not the game's shortened copy ("Orzammar Proving
   Grounds", not "Orzammar Proving Grou...").
+
+### Installing
+
+- **From 0.2.0-alpha to 0.2.7-alpha:** the launcher installs this update under **Launch Dragon
+  Age**. No Build again is needed. Your saves, game data, mods and settings stay.
+- **From 0.1.9-alpha or earlier:** the launcher installs it too, and then shows **Build again**.
+  Choose it once (about eight minutes).
 
 ## 0.2.7-alpha - "Open Alpha"
 
