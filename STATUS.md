@@ -1883,6 +1883,12 @@ Newest first. One short entry per session: what changed, what's next.
   untouched), two restored to their slots, the earlier copy restored to `_3_u!0`, the
   character deleted again and the bin emptied - Cancel first, then Delete for good. The saves
   as before; `.deleted/` left empty. Not looked at in the game's Load Game list.
+- **Then two pages** (the owner: one long list gets unwieldy; a character to open as well as
+  tick; newest first always): the characters, each a tick and a name with "›", opening to
+  its saves; ticks kept between pages. Own rows in a ScrollView for the d-pad; focus back on
+  the character's name after Back (`requestFocusFromTouch` on window focus - a plain request
+  is refused in touch mode, which the new dialog starts in). Tested with a four-save test
+  character: the order, ticks across pages, the d-pad, delete, the bin, emptied.
 
 ### 2026-11-27 (session 52) - Issue #7: the reporter's archives
 

@@ -1447,7 +1447,10 @@ characters; the owner's are never moved.
   earlier copy.
 - The launcher draws its own rows, so `uiautomator` sees nothing there: reach the Saves row
   with seven `input keyevent DPAD_DOWN` and tap it. The dialogs are Android's, tapped by
-  position from a screenshot.
+  position from a screenshot. Give test saves different times (`run-as ... touch -d
+  2026-11-21T11:00:00 '<save>/Saves/savegame.das'`, the time the lists sort by) to see the
+  newest-first order; the d-pad's path is `DPAD_DOWN`/`DPAD_RIGHT` to a name, `DPAD_CENTER`
+  to open, `BACK` to return.
 - The bin is `files/content/00000001/.deleted/<time ms>/` (its whole characters' earlier
   copies in `earlier/`); the `saves:` lines in `logcat -s Warden` say what moved where.
 

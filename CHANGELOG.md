@@ -5,8 +5,8 @@
 ### Saves
 
 - **Delete saves and whole characters** (issue #8). The launcher's Saves page (now *Saves -
-  export, import, delete, restore*) lists your saves by character. Tick single saves, whole
-  characters or everything, and delete them. The Xbox 360 game has no way to do this itself.
+  export, import, delete, restore*) lists your characters, newest first: tick a whole
+  character, or open it to tick single saves, and delete them. The Xbox 360 game has no way to do this itself.
 - **A recycle bin.** Deleted saves wait there. Restore puts them back in the game's list;
   **Delete for good** removes them from the device after an "are you sure?".
 - The save lists show a place's whole name, not the game's shortened copy ("Orzammar Proving

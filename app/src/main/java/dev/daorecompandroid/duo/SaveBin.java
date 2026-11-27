@@ -2,26 +2,39 @@ package dev.daorecompandroid.duo;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.graphics.Typeface;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.style.LeadingMarginSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StyleSpan;
 import android.util.Log;
+import android.util.TypedValue;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
+import android.view.ViewTreeObserver;
 import android.widget.Button;
-import android.widget.ListView;
+import android.widget.CheckBox;
+import android.widget.LinearLayout;
+import android.widget.ScrollView;
+import android.widget.TextView;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
+import java.util.IdentityHashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Set;
+import java.util.function.Supplier;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,11 +43,10 @@ import java.util.regex.Pattern;
  * no way to delete a character or a save, and its saves are in the app's own storage, out
  * of the player's reach.
  *
- * <p>Both pages are one list of the saves grouped by character - a character's saves are
- * the folders `0x<character>_<slot>_<u or a>!<n>` that share the id - with a row for the
- * character above them and a row for everything at the top. Ticking a character ticks all
- * its saves; ticking every save of one ticks the character. Before the game only (the
- * Saves page), so none of them is in use.
+ * <p>Both pages list the characters - a character's saves are the folders
+ * `0x<character>_<slot>_<u or a>!<n>` that share the id - newest first, each with a tick of
+ * its own (all its saves) and its name, which opens its saves, newest first, to tick one by
+ * one (the Picker). Before the game only (the Saves page), so none of them is in use.
  *
  * <p>Deleting moves the saves (each folder and its `.name`) to
  * `files/content/00000001/.deleted/<the time, ms>/`, one folder per deletion. A whole
@@ -166,9 +178,240 @@ final class SaveBin {
     // ---- the list ----
 
     /**
-     * The grouped list: everything, then each character (newest first) and their saves
-     * (newest first). The buttons say how many are ticked, and are off while none is.
+     * Two pages in one: the characters, then - a character's name chosen - that character's
+     * saves. Each row has its own tick, apart from its name, so a character can be ticked
+     * whole or opened; ticks are kept going between the pages, and the buttons act on every
+     * one. Newest first on both pages: the characters by their newest save, the saves by when
+     * they were written. Rows are views of their own (not a ListView) so the d-pad moves
+     * between a row's tick and its name.
      */
+    private final class Picker {
+        final String title;
+        final String positive;
+        final Action onPositive;
+        final String neutral;
+        final Action onNeutral;
+        final Map<String, List<Entry>> groups = new LinkedHashMap<>();
+        final Map<String, String> names = new LinkedHashMap<>();
+        final List<Entry> all;
+        final Set<Entry> ticked = Collections.newSetFromMap(new IdentityHashMap<>());
+        final List<Runnable> refreshers = new ArrayList<>();
+        final Context ctx = builder().getContext();
+        AlertDialog dialog;
+        int charactersScroll;
+        String cameFrom;
+        boolean byKeys;
+
+        Picker(String title, List<Entry> entries, String positive, Action onPositive,
+               String neutral, Action onNeutral) {
+            this.title = title;
+            this.positive = positive;
+            this.onPositive = onPositive;
+            this.neutral = neutral;
+            this.onNeutral = onNeutral;
+            all = new ArrayList<>(entries);
+            all.sort((a, b) -> Long.compare(b.time, a.time));
+            for (Entry e : all) {
+                groups.computeIfAbsent(e.id, k -> new ArrayList<>()).add(e);
+                if (e.who != null && !names.containsKey(e.id)) {
+                    names.put(e.id, e.who);
+                }
+            }
+        }
+
+        String name(String id) {
+            String who = names.get(id);
+            return who != null ? who : "Unnamed character (" + id + ")";
+        }
+
+        int tickedIn(List<Entry> list) {
+            int n = 0;
+            for (Entry e : list) {
+                n += ticked.contains(e) ? 1 : 0;
+            }
+            return n;
+        }
+
+        void flip(List<Entry> list) {
+            if (tickedIn(list) == list.size()) {
+                ticked.removeAll(list);
+            } else {
+                ticked.addAll(list);
+            }
+            refresh();
+        }
+
+        void refresh() {
+            for (Runnable r : refreshers) {
+                r.run();
+            }
+            if (dialog == null) {
+                return;
+            }
+            int n = ticked.size();
+            Button p = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
+            p.setText(n == 0 ? positive : positive + " " + n);
+            p.setEnabled(n > 0);
+            if (neutral != null) {
+                Button b = dialog.getButton(DialogInterface.BUTTON_NEUTRAL);
+                b.setText(n == 0 ? neutral : neutral + " (" + n + ")");
+                b.setEnabled(n > 0);
+            }
+        }
+
+        /** The first page: everything, then each character, newest first. */
+        void showCharacters() {
+            LinearLayout rows = page();
+            View[] focus = new View[1];
+            addRow(rows, () -> bold("Everything (" + plural(all.size()) + ")"),
+                    () -> ticked.size() == all.size(), () -> flip(all), null);
+            for (Map.Entry<String, List<Entry>> g : groups.entrySet()) {
+                String id = g.getKey();
+                List<Entry> saves = g.getValue();
+                View label = addRow(rows, () -> {
+                    int t = tickedIn(saves);
+                    String detail = plural(saves.size()) + ", last " + when(saves.get(0).time)
+                            + (t > 0 && t < saves.size() ? " - " + t + " ticked" : "");
+                    SpannableString s = new SpannableString(name(id) + "\n" + detail);
+                    s.setSpan(new StyleSpan(Typeface.BOLD), 0, name(id).length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    s.setSpan(new RelativeSizeSpan(0.85f), name(id).length(), s.length(),
+                            Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+                    return s;
+                }, () -> tickedIn(saves) == saves.size(), () -> flip(saves), () -> {
+                    charactersScroll = ((ScrollView) rows.getParent()).getScrollY();
+                    byKeys = !rows.isInTouchMode();
+                    cameFrom = id;
+                    showCharacter(id);
+                });
+                if (id.equals(cameFrom)) {
+                    focus[0] = label;
+                }
+            }
+            open(title, rows, back::run, charactersScroll, focus[0]);
+        }
+
+        /** A character's page: their saves, newest first. */
+        void showCharacter(String id) {
+            List<Entry> saves = groups.get(id);
+            LinearLayout rows = page();
+            addRow(rows, () -> bold("All of " + name(id) + "'s saves (" + plural(saves.size()) + ")"),
+                    () -> tickedIn(saves) == saves.size(), () -> flip(saves), null);
+            for (Entry e : saves) {
+                addRow(rows, () -> e.what, () -> ticked.contains(e), () -> {
+                    if (!ticked.remove(e)) {
+                        ticked.add(e);
+                    }
+                    refresh();
+                }, null);
+            }
+            open(name(id), rows, this::showCharacters, 0, null);
+        }
+
+        LinearLayout page() {
+            refreshers.clear();
+            LinearLayout rows = new LinearLayout(ctx);
+            rows.setOrientation(LinearLayout.VERTICAL);
+            int pad = dp(8);
+            rows.setPadding(dp(16), pad, dp(16), pad);
+            return rows;
+        }
+
+        /**
+         * One row: a tick and a name. The name opens the row when it has somewhere to go
+         * (a character, with a "›"), else it ticks too. Returns the name's view.
+         */
+        View addRow(LinearLayout rows, Supplier<CharSequence> text, Supplier<Boolean> isTicked,
+                    Runnable tick, Runnable opens) {
+            LinearLayout row = new LinearLayout(ctx);
+            row.setOrientation(LinearLayout.HORIZONTAL);
+            row.setGravity(Gravity.CENTER_VERTICAL);
+            row.setMinimumHeight(dp(56));
+            CheckBox box = new CheckBox(ctx);
+            box.setOnClickListener(v -> tick.run());
+            row.addView(box, new LinearLayout.LayoutParams(ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT));
+            TextView label = new TextView(ctx);
+            label.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
+            TypedValue colour = new TypedValue();
+            if (ctx.getTheme().resolveAttribute(android.R.attr.textColorPrimary, colour, true)) {
+                label.setTextColor(ctx.getColorStateList(colour.resourceId));
+            }
+            label.setPadding(dp(12), dp(10), dp(12), dp(10));
+            label.setFocusable(true);
+            label.setClickable(true);
+            TypedValue bg = new TypedValue();
+            ctx.getTheme().resolveAttribute(android.R.attr.selectableItemBackground, bg, true);
+            label.setBackgroundResource(bg.resourceId);
+            label.setOnClickListener(v -> (opens != null ? opens : tick).run());
+            row.addView(label, new LinearLayout.LayoutParams(0, ViewGroup.LayoutParams.WRAP_CONTENT, 1));
+            if (opens != null) {
+                TextView chevron = new TextView(ctx);
+                chevron.setText("›");
+                chevron.setTextSize(TypedValue.COMPLEX_UNIT_SP, 28);
+                chevron.setPadding(dp(8), 0, dp(4), 0);
+                chevron.setOnClickListener(v -> opens.run());
+                row.addView(chevron);
+            }
+            rows.addView(row);
+            refreshers.add(() -> {
+                box.setChecked(isTicked.get());
+                label.setText(text.get());
+            });
+            return label;
+        }
+
+        void open(String heading, LinearLayout rows, Runnable onBack, int scrollY, View focus) {
+            if (dialog != null) {
+                dialog.setOnDismissListener(null);
+                dialog.dismiss();
+            }
+            ScrollView scroll = new ScrollView(ctx);
+            scroll.addView(rows);
+            AlertDialog.Builder b = builder().setTitle(heading).setView(scroll)
+                    .setPositiveButton(positive, (d, w) -> act(onPositive))
+                    .setNegativeButton("Back", (d, w) -> onBack.run())
+                    .setOnCancelListener(d -> onBack.run());
+            if (neutral != null) {
+                b.setNeutralButton(neutral, (d, w) -> act(onNeutral));
+            }
+            dialog = b.show();
+            refresh();
+            scroll.post(() -> scroll.scrollTo(0, scrollY));
+            if (focus != null && byKeys) {
+                // Back on the characters from one opened with the d-pad: its place is that
+                // character's name. Once the window has focus (a new window starts in
+                // touch mode, where a plain request is refused).
+                scroll.getViewTreeObserver().addOnWindowFocusChangeListener(
+                        new ViewTreeObserver.OnWindowFocusChangeListener() {
+                            @Override
+                            public void onWindowFocusChanged(boolean has) {
+                                if (has) {
+                                    scroll.getViewTreeObserver().removeOnWindowFocusChangeListener(this);
+                                    focus.requestFocusFromTouch();
+                                }
+                            }
+                        });
+            }
+        }
+
+        void act(Action action) {
+            List<Entry> chosen = new ArrayList<>();
+            for (Entry e : all) {
+                if (ticked.contains(e)) {
+                    chosen.add(e);
+                }
+            }
+            List<String> whole = new ArrayList<>();
+            for (Map.Entry<String, List<Entry>> g : groups.entrySet()) {
+                if (tickedIn(g.getValue()) == g.getValue().size()) {
+                    whole.add(g.getKey());
+                }
+            }
+            action.run(chosen, whole);
+        }
+    }
+
     private void choose(String title, List<Entry> entries, String empty,
                         String positive, Action onPositive, String neutral, Action onNeutral) {
         if (entries.isEmpty()) {
@@ -178,128 +421,20 @@ final class SaveBin {
                     .show();
             return;
         }
-        Map<String, List<Entry>> groups = new LinkedHashMap<>();
-        entries.sort((a, b) -> Long.compare(b.time, a.time));
-        for (Entry e : entries) {
-            groups.computeIfAbsent(e.id, k -> new ArrayList<>()).add(e);
-        }
-        // Rows: 0 is everything; then a character's row (entry null) and their saves.
-        List<Entry> rowEntry = new ArrayList<>();
-        List<String> rowGroup = new ArrayList<>();
-        List<CharSequence> labels = new ArrayList<>();
-        rowEntry.add(null);
-        rowGroup.add(null);
-        labels.add(bold("Everything (" + plural(entries.size()) + ")"));
-        for (Map.Entry<String, List<Entry>> g : groups.entrySet()) {
-            List<Entry> saves = g.getValue();
-            String who = null;
-            for (Entry e : saves) {
-                if (e.who != null) {
-                    who = e.who;
-                    break;
-                }
-            }
-            String when = new SimpleDateFormat("d MMM", Locale.getDefault()).format(new Date(saves.get(0).time));
-            rowEntry.add(null);
-            rowGroup.add(g.getKey());
-            labels.add(bold((who != null ? who : "Unnamed character (" + g.getKey() + ")")
-                    + " - " + plural(saves.size()) + ", last " + when));
-            for (Entry e : saves) {
-                rowEntry.add(e);
-                rowGroup.add(g.getKey());
-                labels.add(indented(e.what));
-            }
-        }
-        boolean[] checked = new boolean[labels.size()];
-        AlertDialog[] dialog = new AlertDialog[1];
-        Runnable update = () -> {
-            int ticked = 0;
-            for (int i = 0; i < checked.length; i++) {
-                if (rowEntry.get(i) != null && checked[i]) {
-                    ticked++;
-                }
-            }
-            Button p = dialog[0].getButton(DialogInterface.BUTTON_POSITIVE);
-            p.setText(ticked == 0 ? positive : positive + " " + ticked);
-            p.setEnabled(ticked > 0);
-            if (neutral != null) {
-                Button n = dialog[0].getButton(DialogInterface.BUTTON_NEUTRAL);
-                n.setText(ticked == 0 ? neutral : neutral + " (" + ticked + ")");
-                n.setEnabled(ticked > 0);
-            }
-        };
-        AlertDialog.Builder b = builder().setTitle(title)
-                .setMultiChoiceItems(labels.toArray(new CharSequence[0]), checked, (d, which, on) -> {
-                    // The list keeps `checked` as its own: it must say what every row shows.
-                    String group = rowGroup.get(which);
-                    for (int i = 0; i < checked.length; i++) {
-                        if (which == 0 || (rowEntry.get(which) == null && group.equals(rowGroup.get(i)))) {
-                            checked[i] = on;
-                        }
-                    }
-                    checked[which] = on;
-                    boolean all = true;
-                    for (int i = 1; i < checked.length; i++) {
-                        if (rowEntry.get(i) == null) {
-                            boolean every = true;
-                            for (int k = i + 1; k < checked.length && rowEntry.get(k) != null; k++) {
-                                every &= checked[k];
-                            }
-                            checked[i] = every;
-                            all &= every;
-                        }
-                    }
-                    checked[0] = all;
-                    ListView list = dialog[0].getListView();
-                    for (int i = 0; i < checked.length; i++) {
-                        list.setItemChecked(i, checked[i]);
-                    }
-                    update.run();
-                })
-                .setPositiveButton(positive, (d, w) -> {
-                    List<Entry> chosen = new ArrayList<>();
-                    List<String> whole = new ArrayList<>();
-                    for (int i = 1; i < checked.length; i++) {
-                        if (!checked[i]) {
-                            continue;
-                        }
-                        if (rowEntry.get(i) != null) {
-                            chosen.add(rowEntry.get(i));
-                        } else {
-                            whole.add(rowGroup.get(i));
-                        }
-                    }
-                    onPositive.run(chosen, whole);
-                })
-                .setNegativeButton("Back", (d, w) -> back.run())
-                .setOnCancelListener(d -> back.run());
-        if (neutral != null) {
-            b.setNeutralButton(neutral, (d, w) -> {
-                List<Entry> chosen = new ArrayList<>();
-                for (int i = 1; i < checked.length; i++) {
-                    if (checked[i] && rowEntry.get(i) != null) {
-                        chosen.add(rowEntry.get(i));
-                    }
-                }
-                onNeutral.run(chosen, new ArrayList<>());
-            });
-        }
-        dialog[0] = b.show();
-        update.run();
+        new Picker(title, entries, positive, onPositive, neutral, onNeutral).showCharacters();
+    }
+
+    private int dp(int value) {
+        return Math.round(value * activity.getResources().getDisplayMetrics().density);
+    }
+
+    private static String when(long time) {
+        return new SimpleDateFormat("d MMM, HH:mm", Locale.getDefault()).format(new Date(time));
     }
 
     private static CharSequence bold(String text) {
         SpannableString s = new SpannableString(text);
         s.setSpan(new StyleSpan(Typeface.BOLD), 0, text.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        return s;
-    }
-
-    /** A save's row, set in under its character's (a wrapped line too). */
-    private CharSequence indented(String text) {
-        int margin = Math.round(32 * activity.getResources().getDisplayMetrics().density);
-        SpannableString s = new SpannableString(text);
-        s.setSpan(new LeadingMarginSpan.Standard(margin), 0, text.length(),
-                Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         return s;
     }
 

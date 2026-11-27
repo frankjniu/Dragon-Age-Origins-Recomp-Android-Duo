@@ -3668,12 +3668,20 @@ behind the owner's (CLAUDE.md).
       from the recycle bin" behind an "are you sure?") - done (session 53).** The 360 game
       has no delete, and the saves are in the app's own storage. `SaveBin.java`, two rows
       on the Saves page (now *Saves - export, import, delete, restore*): **Delete saves** and
-      **Recycle bin (n)**. Both are one multi-choice list: **Everything**, then each
-      character (the folders `0x<character>_<slot>_<u|a>!<n>` sharing the id; the name from
-      the first save's savegame.met that has one, else "Unnamed character (0x...)"), newest
-      first, with their saves set in under them (chapter, time, autosave / earlier copy).
-      Ticking a character or Everything ticks what is under it; a character whose saves are
-      all ticked is ticked. The buttons count what is ticked and are off at none. Delete
+      **Recycle bin (n)**. Both are two pages (the owner, the same day: one long list "will
+      get unwieldy when there are many saves"; "a character is something you can click into
+      as well as select"; "always sort from newest at the top to oldest"): the characters
+      (the folders `0x<character>_<slot>_<u|a>!<n>` sharing the id; the name from the newest
+      save's savegame.met that has one, else "Unnamed character (0x...)"), newest first by
+      their newest save, each a row with a tick of its own (all its saves) and its name and
+      a "›", which opens its saves, newest first (chapter, time, autosave / earlier copy),
+      under an "All of <name>'s saves" row; **Everything** at the top of the first. Ticks
+      are kept between the pages, a partly ticked character says "n ticked", and the
+      buttons count every tick and are off at none. The rows are views of their own in a
+      ScrollView, not a ListView, so the d-pad moves between a row's tick and its name;
+      back from a character opened with the d-pad, focus returns to its name
+      (`requestFocusFromTouch` once the window has focus: a new dialog window starts in
+      touch mode, where a plain request is refused - the first try's log said so). Delete
       moves each folder and its `.name` to `content/00000001/.deleted/<time ms>/`; a whole
       character takes their `.backup/` copies along, into that folder's `earlier/` (so
       Restore an earlier save cannot bring back part of a deleted character). The leading
@@ -3688,7 +3696,10 @@ behind the owner's (CLAUDE.md).
       unticking both ways; deleting the character (both saves and the earlier copy into the
       bin, other characters' earlier copies left); restoring two to their own slots; the
       earlier copy restored into a taken slot (went to `_3_u!0`); then the whole character
-      deleted again and the bin emptied with Delete for good, Cancel first. Not yet seen in
+      deleted again and the bin emptied with Delete for good, Cancel first. The two pages
+      then with a four-save test character, times 21-24 Nov: characters and saves newest
+      first; two saves ticked inside, "2 ticked" and Delete 2 outside; opened and ticked by
+      the d-pad, focus back on its name; deleted, the bin's same two pages, emptied. Not yet seen in
       the game's Load Game list after a deletion (the enumerator lists the folders there;
       an import's Keep both, the same as a restore to the next slot, was seen in 11.2).
 

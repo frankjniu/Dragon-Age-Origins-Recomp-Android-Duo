@@ -487,9 +487,10 @@ with it.
   folders. Only this game's Xbox 360 saves are accepted; PC saves are not. If a save's slot is
   taken, you choose: **Keep both**, **Replace** (the old one is kept as a backup) or
   **Skip**.
-- **Delete saves** lists your saves by character. Tick saves, whole characters, or
-  **Everything**: ticking a character ticks all of its saves. **Delete** moves them to the
-  recycle bin. A whole character's earlier copies (see **Restore an earlier save**) go with it.
+- **Delete saves** lists your characters, newest first. Tick a character to delete all of
+  its saves, or choose its name (the **›**) to see its saves, newest first, and tick single
+  ones. Ticks stay as you go between characters; **Everything** ticks all. **Delete** moves
+  what is ticked to the recycle bin. A whole character's earlier copies (see **Restore an earlier save**) go with it.
   The game itself has no way to delete a save or a character.
 - **Recycle bin** holds what you deleted, listed the same way. **Restore** puts the ticked
   saves back in the game's Load Game list (in the character's next slot if the game has used
