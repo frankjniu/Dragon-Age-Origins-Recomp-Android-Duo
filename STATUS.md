@@ -6,11 +6,11 @@ starts by re-deriving context that was already paid for.
 
 | | |
 |---|---|
-| **Last updated** | 2026-11-25 (session 51) |
+| **Last updated** | 2026-11-27 (session 52) |
 | **Version** | **0.2.6-alpha, "Open Alpha" - published 2026-11-22** (a pre-release, its notes the changelog's section; BUG-128, issue #6: the pad last used is player 1; the game code's ABI unchanged; the APK built at 7f46a07, SHA-256 `e498aa23…`, 76.2 MB, `tools/release.py` clean, the tag `v0.2.6-alpha` there, GitHub's digest of the APK matching, `readme-0.2.6` merged; 0.2.6 rather than 0.2.5-alpha-1, which the launcher's update check and the version code would take for 0.2.5). Published before it: **0.2.5-alpha, 2026-11-19** (a pre-release, its notes the changelog's section; BUG-127's fix, PLAN 9.27; the game code's ABI unchanged; the APK built at 9b21f13, `build/releases/0.2.5-alpha/dao-recomp-android-0.2.5-alpha.apk`, SHA-256 `192a1975…`, 76.2 MB, `tools/release.py` clean; the tag `v0.2.5-alpha` at 9b21f13, GitHub's digest of the APK matching). Published before it: **0.2.4-alpha, 2026-11-19** (the tag `v0.2.4-alpha` at c49fd3e, a pre-release, its notes the changelog's section; session 49: Eco shading and the transfer cut-out, PLAN 9.26; the game code's ABI unchanged; the APK built at c49fd3e, `build/releases/0.2.4-alpha/dao-recomp-android-0.2.4-alpha.apk`, SHA-256 `725d21dc…`, 76.2 MB, `tools/release.py` clean). Published before it: **0.2.3-alpha, 2026-11-17** (`CHANGELOG.md`; the tag `v0.2.3-alpha` at f4f65a9, a pre-release, its notes the changelog's section, the APK `dao-recomp-android-0.2.3-alpha.apk`, SHA-256 `7ff2535a…`, 76.1 MB, `tools/release.py` clean; an update from the launcher, the game code's ABI unchanged: the imported Vulkan drivers (experimental), lsfg-vk's precision per pass and its pipelines cached, the fence watch, FSR 3.1 on Turnip, the deck's faces and sustained abilities). Before it 0.2.2-alpha (2026-11-09): the standby battery with the lid shut. Earlier versions: `CHANGELOG.md`. |
 | **Current phase** | **Phase 12 complete: a published APK, the game's code made on the device from the player's own discs.** Phases 0-4, 7, 8, 10, 11 and 12 complete. Phase 5 reached. Phase 6 reached by script - the hand playthrough to Ostagar is left, the alpha's players its testers. Phase 9 done but for what the owner deferred (9.15, 9.9) and 3.8's Adreno work. §2 has the board. |
 | **Overall state** | The whole game runs on the AYN Thor: the main campaign, Awakening and every DLC from the Ultimate Edition's disc 2, and all 118 areas the game's debug menus reach, loaded and profiled (`docs/AREAS.md`). With it: the companion deck on the second screen, button prompts for three controllers, up to 120 fps, FSR 3.1, two kinds of frame generation, HDR10, PC mods with an in-app converter, saves named on the keyboard with thumbnails, export, import and restore, and Debugging Mode's one-file bug reports. [`README.md`](README.md) is the user's manual. |
-| **Next action** | **0.2.7-alpha published** (2026-11-25, the owner's go: tag `v0.2.7-alpha` at 3c18d20, the APK's digest on GitHub matches `ed7da464…`; `readme-0.2.7` merged). The owner replies to issue #7 themselves; its reporter to confirm. **Issue #7 done (session 51, PLAN 10.23, BUG-129):** translations of Awakening and every DLC - loose talk tables in `override/` already took (tested with the owner's Korean pack in every campaign); an add-in with a game add-in's own id is now a patch put in the mod's override folder. Before it **0.2.6-alpha published** (2026-11-22; the owner's go). Issue #6's reporter to confirm with an external pad. PLAN 9.27 (other Xenia renderers' ideas) measured, one small fix kept. Then: what the alpha's players report (Debugging Mode's reports, `docs/TESTING.md`); the open bugs (BUG-123, R8 draws black, is the driver's own); PLAN 9.24's leftover, Turnip's Lossless 2x gap (its compiler). `RESUMING.md` §5. |
+| **Next action** | **0.2.7-alpha published** (2026-11-25, the owner's go: tag `v0.2.7-alpha` at 3c18d20, the APK's digest on GitHub matches `ed7da464…`; `readme-0.2.7` merged). The owner replies to issue #7 themselves. **Its reporter's archives checked (session 52):** their Awakening, Leliana's Song, Golems and Witch Hunt module talk tables hold the English text, not Russian; the pack's Russian ones show in game (run 1032) - nothing to fix, the reporter to supply translated files. **Issue #7 done (session 51, PLAN 10.23, BUG-129):** translations of Awakening and every DLC - loose talk tables in `override/` already took (tested with the owner's Korean pack in every campaign); an add-in with a game add-in's own id is now a patch put in the mod's override folder. Before it **0.2.6-alpha published** (2026-11-22; the owner's go). Issue #6's reporter to confirm with an external pad. PLAN 9.27 (other Xenia renderers' ideas) measured, one small fix kept. Then: what the alpha's players report (Debugging Mode's reports, `docs/TESTING.md`); the open bugs (BUG-123, R8 draws black, is the driver's own); PLAN 9.24's leftover, Turnip's Lossless 2x gap (its compiler). `RESUMING.md` §5. |
 | **Blockers** | None |
 
 The authoritative task list is [`docs/PLAN.md`](docs/PLAN.md); each session's detail is
@@ -1866,6 +1866,19 @@ Then continue from **Next action** at the top of this file.
 ## 9. Session log
 
 Newest first. One short entry per session: what changed, what's next.
+
+### 2026-11-27 (session 52) - Issue #7: the reporter's archives
+
+- **The reply** (on 0.2.7-alpha): Awakening's dialogue and specializations still English, loose or
+  as add-ins. Their archives (`Test Mods/issue7/`, gitignored): a Russian Origins (360 talk
+  tables, a Cyrillic font) and the Awakening and DLC talk tables, PC TLK V0.2 (plain, not V0.5).
+- **The cause is the files:** by their letters, `dao_prc_ep_1`, `core_ep1`, `dao_prc_lel`,
+  `dao_prc_gib` and `dao_prc_str` hold the English text; Russian are only `cp_1/2/3/7`, `drk`,
+  `nrx_1`, `gib_c`, `str_c`. The same in all three of their layouts.
+- **Run 1032** (the loose pack converted on the Thor, `probe-drk`): The Darkspawn Chronicles' name
+  under the health bar in its Russian (boxes without the font) - their files load. The V0.2 form
+  converts as the Korean pack's did. Nothing to fix.
+- On the Thor: `issue7-Awakening4` installed and on; the route off.
 
 ### 2026-11-25 (session 51) - Issue #7: translations of Awakening and the DLC (PLAN 10.23)
 
